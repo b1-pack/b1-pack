@@ -1,0 +1,13 @@
+<dependencies>
+    <dependency>
+        <groupId>org.b1.pack</groupId>
+        <artifactId>b1-pack-api</artifactId>
+        <version>${projectVersion}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.b1.pack</groupId>
+        <artifactId>b1-pack-standard</artifactId>
+        <version>${projectVersion}</version>
+        <scope>runtime</scope>
+    </dependency>
+</dependencies>

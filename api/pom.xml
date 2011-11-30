@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.b1.pack</groupId>
+        <artifactId>b1-pack-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>b1-pack-api</artifactId>
+    <packaging>jar</packaging>
+    <name>B1 Pack API</name>
+    <description>The B1 Pack API module defines an API for creating, listing, and extracting file archives.</description>
+    <url>http://dev.b1.org</url>
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>scp://dev.b1.org/usr/hosting/dev.b1.org/html/api/</url>
+        </site>
+    </distributionManagement>
+</project>

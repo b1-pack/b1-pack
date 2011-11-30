@@ -1,0 +1,26 @@
+ ---
+ Overview
+
+Introduction
+
+ B1 Pack is an {{{./license.html}open-source}} software project that produces a cross-platform
+ {{{./tool-usage.html}command-line tool}} and a {{{./library-usage.html}Java library}} for creating
+ and extracting file archives in the {{{./standard/index.html}B1 archive format}}.
+
+Format Features
+
+ * Unicode (UTF-8) names for files and folders inside an archive.
+
+ * No restrictions for the size of both an archive and the files inside it.
+
+ * A single archive can be split into several volume files.
+
+ * Integrity checking with the Adler32 algorithm.
+
+Library features
+
+ * On-the-fly archive creation without reading from or writing to a file system.
+
+ * Producing only a byte range of an archive, e.g. for resuming downloads.
+
+ * Streaming archive content without prior knowledge of all the files being packaged.

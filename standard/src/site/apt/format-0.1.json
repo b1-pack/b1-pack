@@ -1,0 +1,78 @@
+{
+  "RecordFormat": {
+    "type": "union",
+    "types": ["RecordPointer", "CatalogFile", "CompleteFile", "CatalogFolder", "CompleteFolder"]
+  },
+  "RecordPointer": {
+    "type": "record",
+    "fields": {
+      "volumeNumber": "int",
+      "blockOffset": "int",
+      "recordOffset": "int"
+    }
+  },
+  "CatalogFile": {
+    "type": "record",
+    "fields": {
+      "pointer": "RecordPointer",
+      "header": "RecordHeader",
+      "size": "int"
+    }
+  },
+  "CompleteFile": {
+    "type": "record",
+    "fields": {
+      "header": "RecordHeader",
+      "content": "binary"
+    }
+  },
+  "CatalogFolder": {
+    "type": "record",
+    "fields": {
+      "pointer": "RecordPointer",
+      "header": "RecordHeader"
+    }
+  },
+  "CompleteFolder": {
+    "type": "record",
+    "fields": {
+      "header": "RecordHeader"
+    }
+  },
+  "RecordHeader": {
+    "type": "record",
+    "fields": {
+      "id": "int",
+      "parentId": "int",
+      "name": "text",
+      "attributes": "Attributes"
+    }
+  },
+  "Attributes": {
+    "type": "multimap",
+    "items": {
+      "lastModifiedTime": "int"
+    }
+  },
+  "BlockFormat": {
+    "type": "union",
+    "types": ["BlockPart", "Adler32Block"]
+  },
+  "BlockPart": {
+    "type": "record",
+    "fields": {
+      "content": "binary"
+    }
+  },
+  "Adler32Block": {
+    "type": "record",
+    "fields": {
+      "chunk": "binary",
+      "checksum": "Adler32Checksum"
+    }
+  },
+  "Adler32Checksum": {
+    "type": "fixed",
+    "size": "4"
+  }
+}

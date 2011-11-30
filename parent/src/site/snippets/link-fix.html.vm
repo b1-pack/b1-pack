@@ -1,0 +1,15 @@
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery.get("snapshots/org/b1/pack/${artifactId}/${projectVersion}/maven-metadata.xml", function(xml) {
+        jQuery(xml).find("snapshotVersion").each(function(){
+            var extension = jQuery(this).find("extension").text();
+            if (extension == "jar") {
+                var version = jQuery(this).find("value").text();
+                jQuery("a[href$='${artifactId}-${projectVersion}.jar']").each(function() {
+                    this.href = this.href.replace(/releases/, "snapshots").replace(/${projectVersion}.jar$/, version + ".jar");
+                });
+            }
+        });
+    }, "xml");
+});
+</script>

@@ -1,0 +1,27 @@
+ ---
+ Tool Usage
+
+Download
+
+ If you want to create, list, or extract a B1 archive, just download
+ a {{{./releases/org/b1/pack/b1-pack-tool/${projectVersion}/b1-pack-tool-${projectVersion}.jar}command-line tool}} and save it as "b1-pack-tool.jar".
+
+Usage Examples
+
+ Getting tool usage instructions
+
+%{include|show-gutter=false|source=src/site/snippets/cli-help.sh}
+
+ Creating a new archive and putting a text file and a folder with its contents into it
+
+%{include|show-gutter=false|source=src/site/snippets/cli-add.sh}
+
+ Listing the contents of an archive
+
+%{include|show-gutter=false|source=src/site/snippets/cli-list.sh}
+
+ Extracting an archive
+
+%{include|show-gutter=false|source=src/site/snippets/cli-extract.sh}
+
+%{include|verbatim=false|source=src/site/snippets/link-fix.html.vm|projectVersion=${projectVersion}|artifactId=b1-pack-tool}

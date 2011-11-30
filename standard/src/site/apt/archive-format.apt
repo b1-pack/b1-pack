@@ -1,0 +1,23 @@
+ ---
+ Overview
+
+Introduction
+
+ A B1 archive is represented by one or more volumes built as the following.
+
+  * A catalog record and a complete record are created for each file system object being added to the archive.
+
+  * All the records created are serialized according to the "RecordFormat" to a single binary stream using a null record as a stream end marker.
+    The catalog records should be placed next to each other within as few groups as possible preferably at the beginning of the archive.
+    If a group of catalog records is not placed at the very end of an archive it must be followed by a pointer record
+    for fast-forwarding to the next catalog record group or the null record representing the archive end.
+
+  * The resulting binary stream of serialized records is split into data chunks at byte boundary.
+
+  * Each data chunk is transformed into a data block in order to add error checking, compression, or encryption.
+
+  * Consecutive blocks are serialized one by one according to the "BlockFormat" into several data segments using a null block as a segment end marker.
+
+  * An {{{./archive-volume.html}archive volume}} is created for each segment, prepending a volume head and appending a volume tail.
+
+ The "RecordFormat" and "BlockFormat" data types are defined by the {{{./format-schema.html}format schema}}.

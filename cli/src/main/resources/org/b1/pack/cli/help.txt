@@ -1,0 +1,12 @@
+Usage: b1 <command> <options> <archive> <files>
+
+Commands:
+ a: Add files to archive
+ l: List contents of archive
+ x: Extract files from archive
+
+Options:
+ -h, -?, --help: Show usage instructions
+ -v <size>[B, kB, MB, GB]: Create volumes
+ --type <type>: Set type of archive
+ -o: Set output directory

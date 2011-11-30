@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.b1.pack</groupId>
+        <artifactId>b1-pack-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>b1-pack-tool</artifactId>
+    <packaging>pom</packaging>
+    <name>B1 Pack Tool</name>
+    <description>The B1 Pack Tool module builds a single executable JAR file containing all the code
+        needed to create, list, and extract B1 archive files from a command-line interface.</description>
+    <url>http://dev.b1.org</url>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.b1.pack.cli.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.b1.pack</groupId>
+            <artifactId>b1-pack-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.b1.pack</groupId>
+            <artifactId>b1-pack-cli</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.b1.pack</groupId>
+            <artifactId>b1-pack-standard</artifactId>
+        </dependency>
+    </dependencies>
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>scp://dev.b1.org/usr/hosting/dev.b1.org/html/tool/</url>
+        </site>
+    </distributionManagement>
+</project>

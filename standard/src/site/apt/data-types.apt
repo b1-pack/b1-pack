@@ -1,0 +1,97 @@
+ ---
+ Data Types
+
+Introduction
+
+ The data types described below can be used to define a binary data format.
+The format schema is written using the JSON standard and contains named data type definitions.
+The types are either simple ("int", "text", "binary") or parameterized ("fixed", "record", "union", "multimap").
+A simple type is written as a String, but a parameterized one is an Object with a String property "type" and additional properties for parameters.
+
+int
+
+ An "int" can hold any integer number or "null". During serialization it is represented with a sequence of bits which is later transformed into bytes.
+
+ If the value is "null" the bit sequence consists of a single "1" bit. Otherwise it is the absolute value of the number with a number sign added
+as the least significant bit. The number sign is "0" for positive numbers and zero and "1" for negative numbers.
+
+ After that the bit sequence is split into groups of 7 bits starting from the least significant bits. Each group is written as a byte having the
+most significant bit set for all groups except for the last one.
+
+ For instance, "null" is written as "0x01", "1" as "0x02", "-1" as "0x03", "-128" as "0x81 0x02" etc.
+An "int" might take more bytes than needed, e.g. "null" can be written as "0x81 0x80 0x00".
+
+ A format implementation is expected to support values from -2^63 to 2^63 - 1 and "null".
+
+text
+
+ A "text" is a byte sequence of UTF-8 encoded characters preceded by an "int" indicating the sequence length.
+For examle, string "hi" is encoded as "0x04 0x68 0x69".
+
+binary
+
+ A "binary" value is a sequence of bytes possibly split into several parts each preceded by an "int" indicating the part length.
+The last part is terminated by a zero "int" value, e.g. byte "0x07" is encoded as "0x02 0x07 0x00".
+
+fixed
+
+ The "fixed" value always consists of the same number of bytes defined by the schema using property "size".
+For instance, the following type can be used to store an MD5 value.
+
+---
+{
+  "type": "fixed",
+  "size": "16"
+}
+---
+
+record
+
+ The record is encoded as a sequence of its members, so the record size is the total size of its fields,
+which are specified using property "fields" like in the folowing example.
+
+---
+{
+  "type": "record",
+  "fields": {
+    "name": "text",
+    "size": "int",
+    "content": "binary"
+  }
+}
+---
+
+union
+
+ The "union" is encoded as an "int" specifying a 0-based type index in the property "types", followed by a value of that type.
+As an example, the binary value "0x77" of the following type would be encoded as "0x02 0x02 0x77 0x00".
+
+---
+{
+  "type": "union",
+  "types": ["text", "binary"]
+}
+---
+
+multimap
+
+ The "multimap" is similar to the "record" but fields can have any number of values.
+The "multimap" is encoded as a sequence of items terminated by a null "int".
+Each item is encoded as an "int" specifying a 0-based field index in the property "items", followed by a value of the field type.
+For example, the value {"name": "hi", "size": 1} of the following type would be encoded as "0x00 0x04 0x68 0x69 0x02 0x02 0x01".
+
+---
+{
+  "type": "multimap",
+  "items": {
+    "name": "text",
+    "size": "int",
+    "content": "binary"
+  }
+}
+---
+
+Nullability
+
+ Value "null" is encoded as "0x01" for "int", "text", "binary", and "union" types.
+A value of types "fixed", "record", or "multimap" cannot be "null". A workaround is using a "union" parameterized with a single type.

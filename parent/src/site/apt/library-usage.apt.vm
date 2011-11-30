@@ -1,0 +1,28 @@
+ ---
+ Library Usage
+
+Library Download
+
+ Maven users can add the following dependencies to their <<<pom.xml>>> and repositories to <<<settings.xml>>> or <<<pom.xml>>>.
+
+%{include|show-gutter=false|source=src/site/snippets/dependencies.xml.vm|projectVersion=${projectVersion}}
+
+%{include|show-gutter=false|source=src/site/snippets/repositories.xml}
+
+ You can also directly download {{{./releases/org/b1/pack/b1-pack-api/${projectVersion}/b1-pack-api-${projectVersion}.jar}API}}
+ and {{{./releases/org/b1/pack/b1-pack-standard/${projectVersion}/b1-pack-standard-${projectVersion}.jar}implementation}} jars.
+
+Code Examples
+
+ An archive can be created with a code like the following.
+
+%{include|snippet=#builder|file=../standard/src/test/java/org/b1/pack/standard/common/IntegrationTest.java}
+
+ The code snippet below illustrates opening an existing archive.
+
+%{include|snippet=#explorer|file=../standard/src/test/java/org/b1/pack/standard/common/IntegrationTest.java}
+
+ Read the {{{./xref-test/org/b1/pack/standard/common/IntegrationTest.html}complete example}} for more details.
+
+%{include|verbatim=false|source=src/site/snippets/link-fix.html.vm|projectVersion=${projectVersion}|artifactId=b1-pack-api}
+%{include|verbatim=false|source=src/site/snippets/link-fix.html.vm|projectVersion=${projectVersion}|artifactId=b1-pack-standard}
