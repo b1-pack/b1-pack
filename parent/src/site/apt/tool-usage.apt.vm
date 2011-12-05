@@ -1,7 +1,7 @@
  ---
  Tool Usage
 
-Download
+Downloading
 
  If you want to create, list, or extract a B1 archive, just download
  a {{{./releases/org/b1/pack/b1-pack-tool/${projectVersion}/b1-pack-tool-${projectVersion}.jar}command-line tool}} and save it as "b1-pack-tool.jar".

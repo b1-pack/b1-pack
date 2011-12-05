@@ -7,6 +7,10 @@ Introduction
  {{{./tool-usage.html}command-line tool}} and a {{{./library-usage.html}Java library}} for creating
  and extracting file archives in the {{{./standard/index.html}B1 archive format}}.
 
+ Please help us improve B1 Pack: examine the {{{https://github.com/b1-pack/b1-pack}source code}},
+ join our {{{https://groups.google.com/group/b1-pack-discuss}discussion group}},
+ {{{https://github.com/b1-pack/b1-pack/issues}report issues}}.
+
 Format Features
 
  * Unicode (UTF-8) names for files and folders inside an archive.

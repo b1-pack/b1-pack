@@ -1,7 +1,7 @@
  ---
  Library Usage
 
-Library Download
+Downloading
 
  Maven users can add the following dependencies to their <<<pom.xml>>> and repositories to <<<settings.xml>>> or <<<pom.xml>>>.
 

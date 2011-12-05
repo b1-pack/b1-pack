@@ -1,0 +1,5 @@
+B1 Pack is an open-source software project that produces a cross-platform command-line tool and a Java library for creating and extracting file archives in the B1 archive format.
+
+To build and install the whole project with Maven go to the "parent" directory and run "mvn install".
+
+Please refer to http://dev.b1.org for more information.
