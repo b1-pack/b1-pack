@@ -8,6 +8,7 @@
             <item name="Volume format" href="volume-format.html"/>
             <item name="Format schema" href="format-schema.html"/>
             <item name="Data types" href="data-types.html"/>
+            <item name="Encryption" href="encryption.html"/>
         </menu>
         <menu ref="reports"/>
     </body>

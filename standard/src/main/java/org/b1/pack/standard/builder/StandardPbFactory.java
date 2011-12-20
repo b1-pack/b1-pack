@@ -18,11 +18,12 @@ package org.b1.pack.standard.builder;
 
 import org.b1.pack.api.builder.PackBuilder;
 import org.b1.pack.api.builder.PbFactory;
+import org.b1.pack.api.builder.PbProvider;
 
 public class StandardPbFactory extends PbFactory {
 
     @Override
-    public PackBuilder createPackBuilder(String packName, long volumeSize) {
-        return new StandardPackBuilder(packName, volumeSize);
+    public PackBuilder createPackBuilder(PbProvider provider) {
+        return new StandardPackBuilder(provider);
     }
 }

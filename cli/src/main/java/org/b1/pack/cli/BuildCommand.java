@@ -18,6 +18,7 @@ package org.b1.pack.cli;
 
 import org.b1.pack.api.builder.PackBuilder;
 import org.b1.pack.api.builder.PbFactory;
+import org.b1.pack.api.builder.PbProvider;
 import org.b1.pack.api.builder.PbVolume;
 import org.b1.pack.api.common.PackException;
 
@@ -28,11 +29,21 @@ import java.util.Set;
 public class BuildCommand implements PackCommand {
 
     @Override
-    public void execute(ArgSet argSet) throws IOException {
+    public void execute(final ArgSet argSet) throws IOException {
         System.out.println("Starting");
         File outputFolder = FileTools.getOutputFolder(argSet);
         Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
-        PackBuilder builder = PbFactory.newInstance(argSet.getTypeFormat()).createPackBuilder(argSet.getPackName(), argSet.getVolumeSize());
+        PackBuilder builder = PbFactory.newInstance(argSet.getTypeFormat()).createPackBuilder(new PbProvider() {
+            @Override
+            public String getPackName() {
+                return argSet.getPackName();
+            }
+
+            @Override
+            public long getVolumeSize() {
+                return argSet.getVolumeSize();
+            }
+        });
         for (FsObject fsObject : fsObjects) {
             File file = fsObject.getFile();
             if (file.isFile()) {

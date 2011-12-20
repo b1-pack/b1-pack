@@ -17,10 +17,7 @@
 package org.b1.pack.standard.common;
 
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.builder.PackBuilder;
-import org.b1.pack.api.builder.PbFactory;
-import org.b1.pack.api.builder.PbFile;
-import org.b1.pack.api.builder.PbVolume;
+import org.b1.pack.api.builder.*;
 import org.b1.pack.api.explorer.*;
 import org.b1.pack.api.writer.*;
 import org.junit.Test;
@@ -48,16 +45,16 @@ public class IntegrationTest {
         String fileName = "builderFile.txt";
         long fileTime = System.currentTimeMillis();
         byte[] fileContent = "Hello, World!".getBytes(UTF_8);
-        String packName = "builderTest";
+        final String packName = "builderTest";
         String volumeName = packName + ".b1";
         // START SNIPPET: builder
-        PackBuilder builder = PbFactory.newInstance(B1).createPackBuilder(packName, Long.MAX_VALUE);
+        PackBuilder builder = PbFactory.newInstance(B1).createPackBuilder(createPbProvider(packName));
         PbFile pbFile = createPbFile(folderName, fileName, fileTime, fileContent);
         builder.addFile(pbFile);
         PbVolume pbVolume = getOnlyElement(builder.getVolumes());
-        assertEquals(volumeName, pbVolume.getName());
         byte[] volumeContent = getPbVolumeContent(pbVolume);
         // END SNIPPET: builder
+        assertEquals(volumeName, pbVolume.getName());
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
 
@@ -106,6 +103,20 @@ public class IntegrationTest {
         assertEquals(fileTime, file.getLastModifiedTime().longValue());
         assertEquals(fileContent.length, file.getSize());
         assertArrayEquals(fileContent, getPxFileContent(file));
+    }
+
+    private static PbProvider createPbProvider(final String packName) {
+        return new PbProvider() {
+            @Override
+            public String getPackName() {
+                return packName;
+            }
+
+            @Override
+            public long getVolumeSize() {
+                return Long.MAX_VALUE;
+            }
+        };
     }
 
     private static PbFile createPbFile(final String folderName, final String fileName,

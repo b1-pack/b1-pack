@@ -40,9 +40,9 @@ public class StandardPackBuilder implements PackBuilder {
     private final PbRecordPointer catalogPointer;
     private long objectCount;
 
-    public StandardPackBuilder(String packName, long volumeSize) {
-        this.packName = packName;
-        this.volumeSize = volumeSize;
+    public StandardPackBuilder(PbProvider provider) {
+        this.packName = provider.getPackName();
+        this.volumeSize = provider.getVolumeSize();
         blockOffsetSize = volumeSize == 0 ? PbMutableInt.MAX_LONG_SIZE : Numbers.serializeLong(volumeSize - 1).length;
         catalogPointer = createPointer();
         pointerMap.put(PbInt.NULL, catalogPointer);

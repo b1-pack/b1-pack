@@ -16,21 +16,10 @@
 
 package org.b1.pack.api.builder;
 
-import org.b1.pack.api.common.PackException;
-import org.b1.pack.api.common.PackService;
+public interface PbProvider {
 
-import java.util.ServiceLoader;
+    String getPackName();
 
-public abstract class PbFactory {
-
-    public static PbFactory newInstance(String format) {
-        for (PackService packService : ServiceLoader.load(PackService.class)) {
-            PbFactory factory = packService.getPbFactory(format);
-            if (factory != null) return factory;
-        }
-        throw new PackException("Unsupported format: " + format);
-    }
-
-    public abstract PackBuilder createPackBuilder(PbProvider provider);
+    long getVolumeSize();
 
 }

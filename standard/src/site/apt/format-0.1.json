@@ -56,7 +56,7 @@
   },
   "BlockFormat": {
     "type": "union",
-    "types": ["BlockPart", "Adler32Block"]
+    "types": ["BlockPart", "Adler32Block", "LZMA2Block", "EncryptedBlock", "EncryptedLZMA2Block"]
   },
   "BlockPart": {
     "type": "record",
@@ -69,6 +69,25 @@
     "fields": {
       "chunk": "binary",
       "checksum": "Adler32Checksum"
+    }
+  },
+  "LZMA2Block": {
+    "type": "record",
+    "fields": {
+      "compressedChunk": "binary",
+      "checksum": "Adler32Checksum"
+    }
+  },
+  "EncryptedBlock": {
+    "type": "record",
+    "fields": {
+      "encryptedChunk": "binary"
+    }
+  },
+  "EncryptedLZMA2Block": {
+    "type": "record",
+    "fields": {
+      "encryptedCompressedChunk": "binary"
     }
   },
   "Adler32Checksum": {
