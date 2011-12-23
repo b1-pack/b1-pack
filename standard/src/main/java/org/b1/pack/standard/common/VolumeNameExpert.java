@@ -31,20 +31,18 @@ public class VolumeNameExpert {
     private final String baseName;
     private final String extension;
     private final String format;
-    private final boolean multipart;
 
-    public VolumeNameExpert(String packName, long volumeCount) {
+    public VolumeNameExpert(String packName, Long volumeCount) {
         Matcher matcher = NAME_PATTERN.matcher(packName);
         Preconditions.checkState(matcher.matches());
         baseName = matcher.group(1);
         extension = Objects.firstNonNull(matcher.group(2), ".b1");
-        format = "%0" + (String.valueOf(volumeCount).length() + 1) + "d";
-        multipart = volumeCount > 1;
+        format = volumeCount == null ? null : "%0" + (String.valueOf(volumeCount).length() + 1) + "d";
     }
 
     public String getVolumeName(long volumeNumber) {
         StringBuilder builder = new StringBuilder(baseName);
-        if (multipart) {
+        if (format != null) {
             builder.append(".part").append(String.format(format, volumeNumber));
         } else {
             checkArgument(volumeNumber == 1);

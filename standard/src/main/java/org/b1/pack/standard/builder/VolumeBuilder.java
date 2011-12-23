@@ -49,7 +49,7 @@ public class VolumeBuilder {
         this.pointerMap = pointerMap;
         initVolume(objectCount);
         catalogPointer = new RecordPointer(volumeNumber, volumeContent.getSize(), 0);
-        volumeLimit = volumeSize == 0 ? 0 : volumeSize - 1 - Volumes.createVolumeTail(false, catalogPointer, 0).length;
+        volumeLimit = volumeSize == 0 ? 0 : volumeSize - PbInt.NULL.getSize() - Volumes.createVolumeTail(false, catalogPointer, 0).length;
     }
 
     public void addContent(Writable content) {
@@ -74,7 +74,7 @@ public class VolumeBuilder {
             completeVolume(true);
         }
         int volumeCount = volumeContents.size();
-        VolumeNameExpert nameExpert = new VolumeNameExpert(packName, volumeCount);
+        VolumeNameExpert nameExpert = new VolumeNameExpert(packName, volumeLimit == 0 ? null : (long) volumeCount);
         List<PbVolume> result = Lists.newArrayListWithCapacity(volumeCount);
         for (int i = 0; i < volumeCount; i++) {
             result.add(new StandardPbVolume(nameExpert.getVolumeName(i + 1), volumeContents.get(i)));

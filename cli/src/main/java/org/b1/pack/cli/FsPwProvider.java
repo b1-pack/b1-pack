@@ -39,8 +39,8 @@ public class FsPwProvider implements PwProvider {
     }
 
     @Override
-    public long getExpectedVolumeCount() {
-        return volumeSize == 0 ? 1 : 2;
+    public Long getExpectedVolumeCount() {
+        return volumeSize == 0 ? null : 1L;
     }
 
     @Override

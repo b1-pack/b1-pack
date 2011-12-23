@@ -82,6 +82,6 @@ Implementation
 
  * Each chunk of data should be saved as "EncryptedBlock" or "EncryptedLZMA2Block" containing AES-256-GMAC(blockKey, chunk);
 
- * When performing AES-256 encryption in GMAC mode the initialization vector is empty and the generated 128-bit tag (MAC)
+ * When performing AES-256 encryption in GCM mode the initialization vector is empty and the generated 128-bit tag (MAC)
    is appended to the end of the encrypted message. The additional authenticated data is empty for head and tail items,
    is 0x03 for "EncryptedBlock" and 0x04 for "EncryptedLZMA2Block".

@@ -76,7 +76,7 @@ public class Volumes {
                     .append(' ');
         }
         String signature = lastVolume ? B1_AE : B1_VE;
-        while (builder.length() < minSize - signature.length()) {
+        while (builder.length() < minSize - signature.length() - 1) {
             builder.append(' ');
         }
         builder.append(signature);
