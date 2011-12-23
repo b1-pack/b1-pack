@@ -20,7 +20,7 @@ public interface PwProvider {
 
     String getPackName();
 
-    Long getExpectedVolumeCount();
+    long getExpectedVolumeCount();
 
     PwVolume getVolume(String name);
 

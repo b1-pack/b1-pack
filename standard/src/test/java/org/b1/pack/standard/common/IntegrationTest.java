@@ -114,7 +114,7 @@ public class IntegrationTest {
 
             @Override
             public long getVolumeSize() {
-                return Long.MAX_VALUE;
+                return 0;
             }
         };
     }
@@ -159,8 +159,8 @@ public class IntegrationTest {
             }
 
             @Override
-            public Long getExpectedVolumeCount() {
-                return null;
+            public long getExpectedVolumeCount() {
+                return 0;
             }
 
             @Override

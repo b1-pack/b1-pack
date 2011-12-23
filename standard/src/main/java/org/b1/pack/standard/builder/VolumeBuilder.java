@@ -74,7 +74,7 @@ public class VolumeBuilder {
             completeVolume(true);
         }
         int volumeCount = volumeContents.size();
-        VolumeNameExpert nameExpert = new VolumeNameExpert(packName, volumeLimit == 0 ? null : (long) volumeCount);
+        VolumeNameExpert nameExpert = new VolumeNameExpert(packName, volumeLimit == 0 ? 0 : volumeCount);
         List<PbVolume> result = Lists.newArrayListWithCapacity(volumeCount);
         for (int i = 0; i < volumeCount; i++) {
             result.add(new StandardPbVolume(nameExpert.getVolumeName(i + 1), volumeContents.get(i)));

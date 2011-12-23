@@ -32,12 +32,12 @@ public class VolumeNameExpert {
     private final String extension;
     private final String format;
 
-    public VolumeNameExpert(String packName, Long volumeCount) {
+    public VolumeNameExpert(String packName, long volumeCount) {
         Matcher matcher = NAME_PATTERN.matcher(packName);
         Preconditions.checkState(matcher.matches());
         baseName = matcher.group(1);
         extension = Objects.firstNonNull(matcher.group(2), ".b1");
-        format = volumeCount == null ? null : "%0" + (String.valueOf(volumeCount).length() + 1) + "d";
+        format = volumeCount == 0 ? null : "%0" + (String.valueOf(volumeCount).length() + 1) + "d";
     }
 
     public String getVolumeName(long volumeNumber) {
