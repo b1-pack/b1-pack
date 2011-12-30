@@ -12,6 +12,12 @@
     <name>B1 Pack Format</name>
     <description>The B1 Pack Format module provides an API implementation for creating, listing, and extracting B1 archives.</description>
     <url>http://dev.b1.org</url>
+    <repositories>
+        <repository>
+            <id>github-releases</id>
+            <url>http://oss.sonatype.org/content/repositories/github-releases</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.b1.pack</groupId>
@@ -20,6 +26,10 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.alchim31.3rd.org.7-zip</groupId>
+            <artifactId>lzma</artifactId>
         </dependency>
     </dependencies>
     <distributionManagement>

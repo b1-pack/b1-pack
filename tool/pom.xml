@@ -44,10 +44,6 @@
     <dependencies>
         <dependency>
             <groupId>org.b1.pack</groupId>
-            <artifactId>b1-pack-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.b1.pack</groupId>
             <artifactId>b1-pack-cli</artifactId>
         </dependency>
         <dependency>

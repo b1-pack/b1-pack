@@ -1,5 +1,5 @@
 {
-  "RecordFormat": {
+  "Record": {
     "type": "union",
     "types": ["RecordPointer", "CatalogFile", "CompleteFile", "CatalogFolder", "CompleteFolder"]
   },
@@ -54,40 +54,28 @@
       "lastModifiedTime": "int"
     }
   },
-  "BlockFormat": {
+  "Block": {
     "type": "union",
-    "types": ["BlockPart", "Adler32Block", "LZMA2Block", "EncryptedBlock", "EncryptedLZMA2Block"]
-  },
-  "BlockPart": {
-    "type": "record",
-    "fields": {
-      "content": "binary"
-    }
+    "types": ["reserved", "Adler32Block", "LzmaBlock", "AesBlock"]
   },
   "Adler32Block": {
     "type": "record",
     "fields": {
       "chunk": "binary",
-      "checksum": "Adler32Checksum"
+      "checksumOfChunk": "Adler32Checksum"
     }
   },
-  "LZMA2Block": {
+  "LzmaBlock": {
     "type": "record",
     "fields": {
-      "compressedChunk": "binary",
-      "checksum": "Adler32Checksum"
+      "partOfCompressedChunk": "binary",
+      "checksumOfPart": "Adler32Checksum"
     }
   },
-  "EncryptedBlock": {
+  "AesBlock": {
     "type": "record",
     "fields": {
-      "encryptedChunk": "binary"
-    }
-  },
-  "EncryptedLZMA2Block": {
-    "type": "record",
-    "fields": {
-      "encryptedCompressedChunk": "binary"
+      "encryptedBlock": "binary"
     }
   },
   "Adler32Checksum": {

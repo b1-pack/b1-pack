@@ -9,6 +9,4 @@ Introduction
 RecordHeader.parent is null if the current record is a top-level one or contains RecordHeader.id of the parent folder.
 Parent folder records come before their child records of the same type.
 
- Any serialized BlockFormat block might be split into several BlockPart blocks.
-
-%{snippet|file=../standard/src/site/apt/format-0.1.json}
+%{include|show-gutter=false|verbatim=true|highlight-type=js|file=../standard/src/site/apt/format-0.1.json}

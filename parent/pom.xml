@@ -86,12 +86,17 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>10.0.1</version>
+                <version>11.0</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
                 <artifactId>jopt-simple</artifactId>
                 <version>4.0-beta1</version>
+            </dependency>
+            <dependency>
+                <groupId>net.alchim31.3rd.org.7-zip</groupId>
+                <artifactId>lzma</artifactId>
+                <version>4.65</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

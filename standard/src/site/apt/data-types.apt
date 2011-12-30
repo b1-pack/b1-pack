@@ -95,3 +95,7 @@ Nullability
 
  Value "null" is encoded as "0x01" for "int", "text", "binary", and "union" types.
 A value of types "fixed", "record", or "multimap" cannot be "null". A workaround is using a "union" parameterized with a single type.
+
+Partial Type Definitions
+
+ The "union" and "multimap" types can define members of type "reserved" which is a placeholder that might be defined in later specifications.

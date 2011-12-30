@@ -22,7 +22,7 @@ the iteration count is choosen to be quite large to increase the difficulty of a
 
  * The tail item "c:", if present, must be moved to the "x:" tail item, i.e. encrypted;
 
- * Only encypted blocks may be used, i.e. of type "EncryptedBlock" or "EncryptedLZMA2Block";
+ * Only blocks of type "AesBlock" are allowed.
 
 Implementation
 
@@ -70,18 +70,22 @@ Implementation
    appended to "x:" and stored as a head item:
 
 ---
-    "x:" + BASE64(AES-256-GMAC(headKey, UTF8("t:<number>")));
+    "x:" + BASE64(AES-256-GCM(headKey, UTF8("t:<number>")));
 ---
 
  * If a tail contains a "c:" item, it should be UTF-8 encoded, encrypted with the tail key, base64 encoded,
    appended to "x:" and stored as a tail item:
 
 ---
-    "x:" + BASE64(AES-256-GMAC(tailKey, UTF8("c:<volume number>/<block offset>/<record offset>")));
+    "x:" + BASE64(AES-256-GCM(tailKey, UTF8("c:<volume number>/<block offset>/<record offset>")));
 ---
 
- * Each chunk of data should be saved as "EncryptedBlock" or "EncryptedLZMA2Block" containing AES-256-GMAC(blockKey, chunk);
+ * Each "Block" is replaced with another "Block" containing "AesBlock" with the encrypted binary represendation
+   of the original block:
 
- * When performing AES-256 encryption in GCM mode the initialization vector is empty and the generated 128-bit tag (MAC)
-   is appended to the end of the encrypted message. The additional authenticated data is empty for head and tail items,
-   is 0x03 for "EncryptedBlock" and 0x04 for "EncryptedLZMA2Block".
+---
+    encryptedBlock = AES-256-GCM(blockKey, block);
+---
+
+ * When performing AES-256 encryption in GCM mode the initialization vector and additional authenticated data are empty
+   and the generated 128-bit tag (MAC) is appended to the end of the encrypted message.

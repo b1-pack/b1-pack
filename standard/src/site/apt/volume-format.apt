@@ -10,11 +10,11 @@ An item containing a space must be quoted with apostrophes and the apostrophes c
 Volume Head
 
  The head of the first volume in an archive must start with an item "b1:as" and the other volumes must start with "b1:vs".
- Each volume must also have the following head items:
+Each volume must also have the following head items:
 
   * "v:<version>" - a fractional number representing the archive schema version, e.g. "0.1";
 
-  * "a:<identifier>" - an archive identifier to ensure that the volumes constitute the same archive, e.g. a base64 encoded random UUID;
+  * "a:<identifier>" - an archive identifier to ensure that the volumes constitute the same archive, e.g. a base64 encoded 256-bit random number;
 
   * "n:<volume number>" - a volume number starting from 1;
 
@@ -31,10 +31,14 @@ The <data offset> is the number of bytes to skip in the data chunk from that blo
 
 File Naming
 
- The file containing a single-volume archive has an extension ".b1". Each volume of a multi-volume archive is stored as
-a separate file and has a double extension ".part<number>.b1", where the <number> starts from 1 and may have several leading "0".
+ A single-volume archive should be stored as a file with an extension ".b1". A multi-volume archive should be stored as one
+or more files with a double extension ".part<number>.b1", where the <number> starts from 1 and may have several leading "0".
 All volumes must have the same number of digits in the <number> part of their extension, except when the volume number
 cannot be represented using that number of digits. In that case the <number> part mustn't have leading zeros.
 
- For example, pack.part01.b1, pack.part02.b1 ... pack.part09.b1, pack.part10.b1 ... pack.part99.b1, pack.part100.b1 can represent the same archive,
-but pack.part01.b1 and pack.part2.b1 cannot.
+ For example, pack.part01.b1, pack.part02.b1 ... pack.part09.b1, pack.part10.b1 ... pack.part99.b1, pack.part100.b1 can
+represent the same archive, but pack.part01.b1 and pack.part2.b1 cannot.
+
+MIME type
+
+ The recommended MIME type for the B1 archive is "application/x-b1".
