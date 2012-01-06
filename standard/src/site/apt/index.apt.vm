@@ -4,3 +4,8 @@
 Introduction
 
  ${projectDescription}
+ Please see the {{{./archive-format.html}Archive format}} for the details.
+
+B1 Format Features
+
+%{include|source=../standard/src/site/snippets/format-features.apt}

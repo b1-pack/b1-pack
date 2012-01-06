@@ -1,0 +1,6 @@
+
+ * On-the-fly archive creation without reading from or writing to a file system.
+
+ * Producing only a byte range of an archive, e.g. for resuming downloads.
+
+ * Streaming archive content without prior knowledge of all the files being packaged.

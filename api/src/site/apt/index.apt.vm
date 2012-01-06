@@ -4,3 +4,9 @@
 Introduction
 
  ${projectDescription}
+ For the details please see the {{{../library-usage.html}Library Usage}},
+ {{{./apidocs/index.html}JavaDocs}}, or {{{./xref/index.html}Source Xref}}.
+
+API features
+
+%{include|source=../api/src/site/snippets/api-features.apt}

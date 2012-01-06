@@ -4,3 +4,8 @@
 Introduction
 
  ${projectDescription}
+ Please see the {{{../tool-usage.html}Tool Usage}} for the details.
+
+Command-line syntax
+
+%{include|show-gutter=false|source=../cli/src/main/resources/org/b1/pack/cli/help.txt}

@@ -9,22 +9,12 @@ Introduction
 
  Please help us improve B1 Pack: examine the {{{https://github.com/b1-pack/b1-pack}source code}},
  join our {{{https://groups.google.com/group/b1-pack-discuss}discussion group}},
- {{{https://github.com/b1-pack/b1-pack/issues}report issues}}.
+ and {{{https://github.com/b1-pack/b1-pack/issues}report issues}}.
 
-Format Features
+B1 Format Features
 
- * Unicode (UTF-8) names for files and folders inside an archive.
+%{include|source=../standard/src/site/snippets/format-features.apt}
 
- * No restrictions for the size of both an archive and the files inside it.
+API features
 
- * A single archive can be split into several volume files.
-
- * Integrity checking with the Adler32 algorithm.
-
-Library features
-
- * On-the-fly archive creation without reading from or writing to a file system.
-
- * Producing only a byte range of an archive, e.g. for resuming downloads.
-
- * Streaming archive content without prior knowledge of all the files being packaged.
+%{include|source=../api/src/site/snippets/api-features.apt}

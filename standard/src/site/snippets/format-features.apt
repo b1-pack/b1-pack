@@ -1,0 +1,12 @@
+
+ * Unicode names for files and folders inside an archive.
+
+ * No restrictions for the size of both an archive and the files inside it.
+
+ * A single archive can be split into several volume files.
+
+ * Integrity checking with the Adler-32 algorithm.
+
+ * Data compression using the LZMA algorithm.
+
+ * Password-based archive encryption with the AES algorithm.
