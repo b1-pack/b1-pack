@@ -23,7 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FsPxVolume implements PxVolume {
+public class FsPxVolume extends PxVolume {
 
     private final File file;
 

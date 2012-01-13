@@ -33,7 +33,7 @@ import java.util.zip.Adler32;
 import java.util.zip.CheckedOutputStream;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.b1.pack.standard.common.Constants.ADLER32_BLOCK;
+import static org.b1.pack.standard.common.Constants.PLAIN_BLOCK;
 import static org.b1.pack.standard.common.Constants.MAX_CHUNK_SIZE;
 import static org.b1.pack.standard.common.Numbers.writeLong;
 import static org.b1.pack.standard.common.Volumes.createVolumeHead;
@@ -41,7 +41,7 @@ import static org.b1.pack.standard.common.Volumes.createVolumeTail;
 
 public class PackRecordStream extends OutputStream {
 
-    private static final int ADLER32_BLOCK_OVERHEAD = Numbers.serializeLong((long) MAX_CHUNK_SIZE).length + 6;
+    private static final int PLAIN_BLOCK_OVERHEAD = Numbers.serializeLong((long) MAX_CHUNK_SIZE).length + 6;
 
     private final ByteArrayOutputStream chunk = new ByteArrayOutputStream(MAX_CHUNK_SIZE);
     private final String archiveId = Volumes.createArchiveId();
@@ -156,12 +156,12 @@ public class PackRecordStream extends OutputStream {
     }
 
     private void setChunkLimit() {
-        chunkLimit = volumeStream == null ? 0 : (int) Math.min(MAX_CHUNK_SIZE, volumeLimit - volumeStream.getCount() - ADLER32_BLOCK_OVERHEAD);
+        chunkLimit = volumeStream == null ? 0 : (int) Math.min(MAX_CHUNK_SIZE, volumeLimit - volumeStream.getCount() - PLAIN_BLOCK_OVERHEAD);
     }
 
     private void endChunk() throws IOException {
         if (chunk.size() > 0) {
-            writeLong(ADLER32_BLOCK, volumeStream);
+            writeLong(PLAIN_BLOCK, volumeStream);
             writeLong((long) chunk.size(), volumeStream);
             chunk.writeTo(volumeStream);
             writeLong(0L, volumeStream);

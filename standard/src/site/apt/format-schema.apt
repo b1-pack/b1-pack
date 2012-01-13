@@ -5,8 +5,4 @@ Introduction
 
  The following schema is based on several predefined {{{./data-types.html}data types}}.
 
- Records representing the same file system object have the same RecordHeader.id field.
-RecordHeader.parent is null if the current record is a top-level one or contains RecordHeader.id of the parent folder.
-Parent folder records come before their child records of the same type.
-
-%{include|show-gutter=false|verbatim=true|highlight-type=js|file=../standard/src/site/apt/format-0.1.json}
+%{include|show-gutter=false|verbatim=true|highlight-type=js|file=../standard/src/site/apt/format-0.2.json}

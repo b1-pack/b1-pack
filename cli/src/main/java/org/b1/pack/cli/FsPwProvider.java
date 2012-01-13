@@ -21,7 +21,7 @@ import org.b1.pack.api.writer.PwVolume;
 
 import java.io.File;
 
-public class FsPwProvider implements PwProvider {
+public class FsPwProvider extends PwProvider {
 
     private final File outputFolder;
     private final String packName;

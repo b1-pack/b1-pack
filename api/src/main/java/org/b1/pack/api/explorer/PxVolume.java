@@ -19,12 +19,12 @@ package org.b1.pack.api.explorer;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface PxVolume {
+public abstract class PxVolume {
 
-    String getName();
+    public abstract String getName();
 
-    long getSize();
+    public abstract long getSize();
 
-    InputStream getInputStream() throws IOException;
+    public abstract InputStream getInputStream() throws IOException;
 
 }

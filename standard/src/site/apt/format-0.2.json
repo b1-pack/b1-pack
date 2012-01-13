@@ -56,9 +56,9 @@
   },
   "Block": {
     "type": "union",
-    "types": ["reserved", "Adler32Block", "LzmaBlock", "AesBlock"]
+    "types": ["reserved", "PlainBlock", "LzmaBlock", "AesBlock"]
   },
-  "Adler32Block": {
+  "PlainBlock": {
     "type": "record",
     "fields": {
       "chunk": "binary",

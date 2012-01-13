@@ -29,12 +29,12 @@ public class VolumeManagerFactory {
     public static PxProvider createVolumeManager(File packFile) {
         Matcher matcher = PATTERN.matcher(packFile.getName());
         if (!matcher.matches()) {
-            return new BasicProvider(packFile);
+            return new BasicPxProvider(packFile);
         }
         String prefix = matcher.group(1);
         String number = matcher.group(2);
         String suffix = matcher.group(3);
-        return new MultipartProvider(prefix, suffix, number.length(), Integer.parseInt(number));
+        return new MultipartPxProvider(prefix, suffix, number.length(), Integer.parseInt(number));
     }
 
 }

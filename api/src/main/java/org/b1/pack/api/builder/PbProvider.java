@@ -16,10 +16,11 @@
 
 package org.b1.pack.api.builder;
 
-public interface PbProvider {
+public abstract class PbProvider {
 
-    String getPackName();
+    public abstract String getPackName();
 
-    long getVolumeSize();
-
+    public long getVolumeSize() {
+        return 0;
+    }
 }

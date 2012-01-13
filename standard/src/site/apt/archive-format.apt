@@ -3,21 +3,107 @@
 
 Introduction
 
- A B1 archive is represented by one or more volumes built as the following.
+ A B1 archive combines a number of files and folders into one or more volumes, optionally adding compression and
+ encryption.
 
-  * A catalog record and a complete record are created for each file system object being added to the archive.
+ Construction of the B1 archive involves creating a binary stream of records and building volumes of that stream.
 
-  * All the records created are serialized according to the "Record" format to a single binary stream using a null record as a stream end marker.
-    The catalog records should be placed next to each other within as few groups as possible preferably at the beginning of the archive.
-    If a group of catalog records is not placed at the very end of an archive it must be followed by a pointer record
-    for fast-forwarding to the next catalog record group or the null record representing the archive end.
+ The data types used by the following description are defined by the {{{./format-schema.html}format schema}}.
 
-  * The resulting binary stream of serialized records is split into data chunks at byte boundary.
+Stream construction
 
-  * Each data chunk is transformed into one or more data blocks according to the "Block" format in order to add error checking, compression, or encryption.
+ An archive stream is a binary sequence of concatenated serialized "Record" items terminated by a "null" record item.
 
-  * Consecutive blocks are concatenated into one or more data segments using a null block as a segment end marker.
+ Each file system object in the archive (a file or folder) is represented by two records in that stream: a catalog
+ record and a complete record, both having the same "RecordHeader.id" which is unique for each object. Specifically,
+ in order to add a file to the archive, one "Record" with a "CatalogFile" and one "Record" with a "CompleteFile" must
+ be added to the stream. For a folder, "CatalogFolder" and "CompleteFolder" should used instead.
 
-  * An {{{./archive-volume.html}archive volume}} is created for each segment, prepending a volume head and appending a volume tail.
+ Both the catalog and complete records have "RecordHeader.name" which is the name of a file or folder excluding the
+ names of parent folders. "RecordHeader.parent" contains "RecordHeader.id" of the parent folder record or is null if the
+ current record represents a top-level file or folder.
 
- The "Record" and "Block" data types are defined by the {{{./format-schema.html}format schema}}.
+ Parent records come before their child records of the same type, otherwise the order of the records in the stream is
+ undefined. For example, if there is a file "myfolder/myfile.txt" in an archive, a "CatalogFolder" for "myfolder" must
+ come before a "CatalogFile" for "myfile.txt" and a "CompleteFolder" for "myfolder" comes before "CompleteFile" for
+ "myfile.txt". However "CompleteFolder" for "myfolder" may go after "CatalogFile" for "myfile.txt".
+
+ When creating an archive, catalog records should be placed next to each other within as few groups as possible
+ preferably at the beginning of the archive. If a group of catalog records is not placed at the very end of the archive
+ it must be followed by a pointer record (a "Record" with a "RecordPointer") for fast-forwarding to the next catalog
+ record group or the null record representing the archive end.
+
+Volume construction
+
+ Each archive volume has a head, a body, and a tail.
+
+ The head and tail are UTF-8 strings, separated from the body with a byte 0xFC and containing a space-separated list
+ of items. An item containing a space must be quoted with apostrophes and the apostrophes contained within the item
+ itself must be doubled.
+
+ The body of the volume is a binary sequence of concatenated serialized "Block" items terminated by a "null" block item.
+ The block size should be about 1 or 10 MB so that the block could easily fit into memory.
+
+ In order to create blocks the archive stream is first split into data chunks at byte boundary. If the current chunk is
+ not going to be compressed, it's wrapped in "PlainBlock" with an Adler-32 checksum computed over the chunk data.
+
+ In the cases when the chunk is being compressed with LZMA the resulting binary stream starts with 5 bytes of coder
+ properties and is directly followed by the compressed data. An End Of Stream marker is always being used to designate
+ the stream end, so neither the actual chunk size no "-1" (typically indicating the EOF marker presence) is stored
+ in the stream. The compressed stream may be split into several parts. Each such part is then wrapped in "LzmaBlock"
+ with an Adler-32 checksum computed over the part data.
+
+ Each "PlainBlock" or "LzmaBlock" obtained this way is placed into a "Block" which is then added to the volume body.
+ If the current volume doesn't have enough space, the block is added to the next volume.
+
+ However, for encrypted archives the blocks are not added to the volume directly. Instead a serialized "Block" is
+ encrypted, wrapped in "AesBlock" and a new "Block" with that "AesBlock" is added to the volume.
+
+ The head of the first volume in an archive must start with an item "b1:as" and the other volumes must start with
+ "b1:vs". Each volume must also have the following head items:
+
+  * "v:<version>" - a fractional number representing the archive schema version, which is currently "0.2";
+
+  * "a:<identifier>" - an archive identifier (a unique string) to ensure that the volumes constitute the same archive.
+    Must be a base64-encoded 256-bit random number for encrypted archives.
+
+  * "n:<volume number>" - a volume number starting from 1.
+
+ The head of the first volume may also contain "t:<number>" representing the total number of files and other
+ file system objects in the archive. Other volumes mustn't have this item.
+
+ The tail of the last volume in an archive must end with an item "b1:ae" and the previous volumes must end with
+ "b1:ve". The volume containing the first catalog record in the archive and the following volumes must have a tail
+ item "c:<volume number>/<block offset>/<record offset>" pointing to that record. The <block offset> is the byte
+ offset from the beginning of the volume where a block containing the catalog starts. The <record offset> is the number
+ of bytes to skip in the data chunk obtained from that and the following blocks.
+
+ Encrypted volumes may have additional head and tail items, see {{{./encryption.html}Encryption}} for the details.
+
+Archive navigation
+
+ A "RecordPointer" allows for fast access to a particular record without decoding the whole archive stream from all
+ the volumes. The pointer have a "volumeNumber", "blockOffset" and "recordOffset". In order to read the record being
+ pointed to the pointer one must open the corresponding volume, skip the "blockOffset" bytes and start reading and
+ decoding blocks to obtain a chunk of the archive stream. The "recordOffset" is the number of bytes to skip in the
+ decoded archive stream before the record may be read.
+
+ Such pointers are used in several places throughout the archive:
+
+  * Catalog records have pointers to the corresponding complete records (with the same id);
+
+  * A tail have an item "c:" pointing the first catalog record in the archive;
+
+  * Each group of consecutive catalog records ends with a pointer to the next such group or the "null" record at the
+    archive end.
+
+Archive representation
+
+ A single-volume archive should be stored as a file with an extension ".b1". A multi-volume archive should be stored
+ as one or more files with a double extension ".part<number>.b1", where the <number> starts from 1 and may have
+ several leading "0". All volumes must have the same number of digits in the <number> part of their extension, except
+ when the volume number cannot be represented using that number of digits. In that case the <number> part mustn't have
+ leading zeros. For example, pack.part01.b1, pack.part02.b1 ... pack.part09.b1, pack.part10.b1 ... pack.part99.b1,
+ pack.part100.b1 can represent the same archive, but pack.part01.b1 and pack.part2.b1 cannot.
+
+ The recommended MIME type for the B1 archive volumes is "application/x-b1".

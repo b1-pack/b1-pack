@@ -20,17 +20,16 @@ import org.b1.pack.api.explorer.PxProvider;
 import org.b1.pack.api.explorer.PxVolume;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 
-public class MultipartProvider implements PxProvider {
+public class MultipartPxProvider extends PxProvider {
 
     private final String prefix;
     private final String suffix;
     private final int digitCount;
     private final int minVolumeCount;
 
-    public MultipartProvider(String prefix, String suffix, int digitCount, int minVolumeCount) {
+    public MultipartPxProvider(String prefix, String suffix, int digitCount, int minVolumeCount) {
         this.prefix = prefix;
         this.suffix = suffix;
         this.digitCount = digitCount;
@@ -61,10 +60,5 @@ public class MultipartProvider implements PxProvider {
             count++;
         }
         return count;
-    }
-
-    @Override
-    public void close() throws IOException {
-        // no-op
     }
 }

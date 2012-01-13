@@ -17,11 +17,15 @@
 package org.b1.pack.api.explorer;
 
 import java.io.Closeable;
+import java.io.IOException;
 
-public interface PxProvider extends Closeable {
+public abstract class PxProvider implements Closeable {
 
-    PxVolume getVolume(long number);
+    public abstract PxVolume getVolume(long number);
 
-    long getVolumeCount();
+    public abstract long getVolumeCount();
 
+    @Override
+    public void close() throws IOException {
+    }
 }

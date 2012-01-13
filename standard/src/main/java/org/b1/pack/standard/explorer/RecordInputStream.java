@@ -122,7 +122,7 @@ public class RecordInputStream extends InputStream {
 
     private void readBlock(Long blockType) throws IOException {
         memoryBuffer.reset();
-        checkArgument(blockType == Constants.ADLER32_BLOCK);
+        checkArgument(blockType == Constants.PLAIN_BLOCK);
         Adler32 adler32 = new Adler32();
         ByteStreams.copy(new ChunkedInputStream(stream), new CheckedOutputStream(memoryBuffer, adler32));
         byte[] buffer = new byte[4];

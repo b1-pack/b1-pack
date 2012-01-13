@@ -26,5 +26,5 @@ public class Constants {
     public static final int CATALOG_FOLDER = 3;
     public static final int COMPLETE_FOLDER = 4;
 
-    public static final int ADLER32_BLOCK = 1;
+    public static final int PLAIN_BLOCK = 1;
 }

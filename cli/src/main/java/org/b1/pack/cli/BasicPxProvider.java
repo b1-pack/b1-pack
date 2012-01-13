@@ -20,13 +20,12 @@ import org.b1.pack.api.explorer.PxProvider;
 import org.b1.pack.api.explorer.PxVolume;
 
 import java.io.File;
-import java.io.IOException;
 
-public class BasicProvider implements PxProvider {
+public class BasicPxProvider extends PxProvider {
 
     private final File packFile;
 
-    public BasicProvider(File packFile) {
+    public BasicPxProvider(File packFile) {
         this.packFile = packFile;
     }
 
@@ -38,10 +37,5 @@ public class BasicProvider implements PxProvider {
     @Override
     public long getVolumeCount() {
         return 1;
-    }
-
-    @Override
-    public void close() throws IOException {
-        // no-op
     }
 }

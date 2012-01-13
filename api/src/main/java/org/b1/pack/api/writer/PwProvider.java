@@ -16,12 +16,12 @@
 
 package org.b1.pack.api.writer;
 
-public interface PwProvider {
+public abstract class PwProvider {
 
-    String getPackName();
+    public abstract String getPackName();
 
-    long getExpectedVolumeCount();
+    public abstract long getExpectedVolumeCount();
 
-    PwVolume getVolume(String name);
+    public abstract PwVolume getVolume(String name);
 
 }

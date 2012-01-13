@@ -19,12 +19,14 @@ package org.b1.pack.api.writer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public interface PwVolume {
+public abstract class PwVolume {
 
-    long getSize();
+    public abstract OutputStream getOutputStream() throws IOException;
 
-    OutputStream getOutputStream() throws IOException;
+    public long getSize() {
+        return 0;
+    }
 
-    void complete() throws IOException;
-
+    public void complete() throws IOException {
+    }
 }

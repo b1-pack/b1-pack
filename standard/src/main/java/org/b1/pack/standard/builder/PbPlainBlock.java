@@ -25,17 +25,17 @@ import java.io.OutputStream;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedOutputStream;
 
-public class PbAdler32Block implements Writable {
+public class PbPlainBlock implements Writable {
 
     private final Writable content;
 
-    public PbAdler32Block(Writable content) {
+    public PbPlainBlock(Writable content) {
         this.content = content;
     }
 
     @Override
     public long getSize() {
-        return createAdler32Block(content, 0).getSize();
+        return createPlainBlock(content, 0).getSize();
     }
 
     @Override
@@ -44,11 +44,11 @@ public class PbAdler32Block implements Writable {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(size);
         Adler32 adler32 = new Adler32();
         content.writeTo(new CheckedOutputStream(outputStream, adler32), 0, size);
-        Writable block = createAdler32Block(new ByteArrayWritable(outputStream.toByteArray()), (int) adler32.getValue());
+        Writable block = createPlainBlock(new ByteArrayWritable(outputStream.toByteArray()), (int) adler32.getValue());
         block.writeTo(stream, start, end);
     }
 
-    private static Writable createAdler32Block(Writable content, int checksum) {
+    private static Writable createPlainBlock(Writable content, int checksum) {
         return new CompositeWritable(new PbBinary(content), new ByteArrayWritable(Ints.toByteArray(checksum)));
     }
 }

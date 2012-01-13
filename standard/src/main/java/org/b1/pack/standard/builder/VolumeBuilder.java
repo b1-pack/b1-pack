@@ -99,7 +99,7 @@ public class VolumeBuilder {
     private long addChunk(Writable content, long contentOffset) {
         long chunkSize = Math.min(content.getSize() - contentOffset, Constants.MAX_CHUNK_SIZE);
         Writable chunk = new PartialWritable(content, contentOffset, contentOffset + chunkSize);
-        PbBlock block = new PbBlock(new PbAdler32Block(chunk));
+        PbBlock block = new PbBlock(new PbPlainBlock(chunk));
         if (volumeLimit != 0) {
             long freeSpace = volumeLimit - volumeContent.getSize();
             if (block.getSize() > freeSpace) {
@@ -108,7 +108,7 @@ public class VolumeBuilder {
                     return 0;
                 }
                 chunk = new PartialWritable(content, contentOffset, contentOffset + chunkSize);
-                block = new PbBlock(new PbAdler32Block(chunk));
+                block = new PbBlock(new PbPlainBlock(chunk));
             }
         }
         if (contentOffset == 0) {

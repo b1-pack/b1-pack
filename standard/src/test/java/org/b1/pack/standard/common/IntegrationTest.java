@@ -111,11 +111,6 @@ public class IntegrationTest {
             public String getPackName() {
                 return packName;
             }
-
-            @Override
-            public long getVolumeSize() {
-                return 0;
-            }
         };
     }
 
@@ -174,19 +169,9 @@ public class IntegrationTest {
     private static PwVolume createPwVolume(final ByteArrayOutputStream buffer) {
         return new PwVolume() {
             @Override
-            public long getSize() {
-                return Long.MAX_VALUE;
-            }
-
-            @Override
             public OutputStream getOutputStream() throws IOException {
                 buffer.reset();
                 return buffer;
-            }
-
-            @Override
-            public void complete() throws IOException {
-                // no-op
             }
         };
     }

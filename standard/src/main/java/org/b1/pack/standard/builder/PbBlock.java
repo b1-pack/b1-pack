@@ -21,8 +21,8 @@ import org.b1.pack.standard.common.Constants;
 
 public class PbBlock extends CompositeWritable {
 
-    public PbBlock(PbAdler32Block block) {
-        this(Constants.ADLER32_BLOCK, block);
+    public PbBlock(PbPlainBlock block) {
+        this(Constants.PLAIN_BLOCK, block);
     }
 
     private PbBlock(long code, Writable writable) {

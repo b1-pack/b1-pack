@@ -26,7 +26,7 @@ import java.io.OutputStream;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class FsPwVolume implements PwVolume {
+public class FsPwVolume extends PwVolume {
 
     private final File file;
     private final long size;
@@ -35,11 +35,6 @@ public class FsPwVolume implements PwVolume {
     public FsPwVolume(File file, long size) {
         this.file = file;
         this.size = size;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
     }
 
     @Override
@@ -53,6 +48,11 @@ public class FsPwVolume implements PwVolume {
         checkState(tempFile == null);
         tempFile = FileTools.createTempFile(file);
         return new FileOutputStream(tempFile);
+    }
+
+    @Override
+    public long getSize() {
+        return size;
     }
 
     @Override

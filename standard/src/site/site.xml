@@ -5,7 +5,6 @@
         <menu name="B1 Pack Format">
             <item name="Overview" href="index.html"/>
             <item name="Archive format" href="archive-format.html"/>
-            <item name="Volume format" href="volume-format.html"/>
             <item name="Format schema" href="format-schema.html"/>
             <item name="Data types" href="data-types.html"/>
             <item name="Encryption" href="encryption.html"/>
