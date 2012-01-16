@@ -50,7 +50,7 @@ Implementation
    volumeKey = HMAC-SHA256(archiveKey, volumeSalt);
 ---
 
- * The head and tail salts are single bytes, 0x00 and 0x01 respectively;
+ * The head and tail salts are single bytes, 0x01 and 0x02 respectively;
 
  * The block salt is a UTF-8 encoded decimal representation of the block offset from the beginning of a volume;
 
