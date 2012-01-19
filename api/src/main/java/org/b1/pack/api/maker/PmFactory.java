@@ -26,12 +26,12 @@ public abstract class PmFactory {
 
     public static PmFactory newInstance(String format) {
         for (PackService packService : ServiceLoader.load(PackService.class)) {
-            PmFactory factory = packService.getPwFactory(format);
+            PmFactory factory = packService.getPmFactory(format);
             if (factory != null) return factory;
         }
         throw new PackException("Unsupported format: " + format);
     }
 
-    public abstract PackMaker createPackWriter(PmProvider provider) throws IOException;
+    public abstract PackMaker createPackMaker(PmProvider provider) throws IOException;
 
 }

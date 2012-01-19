@@ -59,17 +59,17 @@ public class IntegrationTest {
     }
 
     @Test
-    public void testWriter() throws IOException {
-        String folderName = "writerFolder";
-        String fileName = "writerFile.txt";
+    public void testMaker() throws IOException {
+        String folderName = "makerFolder";
+        String fileName = "makerFile.txt";
         long fileTime = System.currentTimeMillis();
         byte[] fileContent = "Hello, B1!".getBytes(UTF_8);
-        String packName = "writerTest";
+        String packName = "makerTest";
         String volumeName = packName + ".b1";
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         PmProvider pmProvider = createPwProvider(packName, volumeName, buffer);
-        PackMaker maker = PmFactory.newInstance(B1).createPackWriter(pmProvider);
+        PackMaker maker = PmFactory.newInstance(B1).createPackMaker(pmProvider);
         try {
             OutputStream stream = maker.addFile(createPwFile(folderName, fileName, fileTime));
             try {

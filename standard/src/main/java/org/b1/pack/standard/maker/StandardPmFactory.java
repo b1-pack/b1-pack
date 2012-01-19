@@ -25,7 +25,7 @@ import java.io.IOException;
 public class StandardPmFactory extends PmFactory {
 
     @Override
-    public PackMaker createPackWriter(PmProvider provider) throws IOException {
+    public PackMaker createPackMaker(PmProvider provider) throws IOException {
         return new StandardPackMaker(provider);
     }
 }

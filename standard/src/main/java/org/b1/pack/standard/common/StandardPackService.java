@@ -43,10 +43,10 @@ public class StandardPackService extends PackService {
     }
 
     @Override
-    public PmFactory getPwFactory(String format) {
+    public PmFactory getPmFactory(String format) {
         if (format.equals(B1)) {
             return new StandardPmFactory();
         }
-        return super.getPwFactory(format);
+        return super.getPmFactory(format);
     }
 }

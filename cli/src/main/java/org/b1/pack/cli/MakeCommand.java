@@ -34,7 +34,7 @@ public class MakeCommand implements PackCommand {
         File outputFolder = FileTools.getOutputFolder(argSet);
         Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
         FsPmProvider provider = new FsPmProvider(outputFolder, argSet.getPackName(), argSet.getVolumeSize());
-        PackMaker maker = PmFactory.newInstance(argSet.getTypeFormat()).createPackWriter(provider);
+        PackMaker maker = PmFactory.newInstance(argSet.getTypeFormat()).createPackMaker(provider);
         try {
             for (FsObject fsObject : fsObjects) {
                 addObject(maker, fsObject);

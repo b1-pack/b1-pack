@@ -32,7 +32,7 @@ public abstract class PackService {
         return null;
     }
 
-    public PmFactory getPwFactory(String format) {
+    public PmFactory getPmFactory(String format) {
         return null;
     }
 }
