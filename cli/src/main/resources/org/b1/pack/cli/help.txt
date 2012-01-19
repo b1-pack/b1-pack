@@ -9,4 +9,6 @@ Options:
  -h, -?, --help: Show usage instructions
  -v <size>[B, kB, MB, GB]: Create volumes
  --type <type>: Set type of archive
- -o: Set output directory
+ -mx <0..9>: Set compression method
+ -o <path>: Set output directory
+ -p: Encrypt with a password

@@ -44,14 +44,18 @@ public class ArgSet {
     private String typeFormat = PackService.B1;
     private String typeFlag;
     private String outputDirectory;
+    private String compressionMethod;
     private boolean help;
+    private boolean password;
 
     public ArgSet(String[] args) {
         OptionParser parser = new OptionParser();
         OptionSpec<String> volumeOption = parser.accepts("v").withRequiredArg();
         OptionSpec<String> typeOption = parser.accepts("type").withRequiredArg();
         OptionSpec<String> outputOption = parser.accepts("o").withRequiredArg();
+        OptionSpec<String> compressionOption = parser.accepts("mx").withRequiredArg();
         OptionSpec helpOption = parser.acceptsAll(Arrays.asList("?", "h", "help"));
+        OptionSpec passwordOption = parser.accepts("p");
         OptionSet optionSet = parser.parse(args);
         LinkedList<String> arguments = new LinkedList<String>(optionSet.nonOptionArguments());
         command = arguments.pollFirst();
@@ -60,7 +64,9 @@ public class ArgSet {
         initVolumeSize(optionSet.valueOf(volumeOption));
         initType(optionSet.valueOf(typeOption));
         outputDirectory = optionSet.valueOf(outputOption);
+        compressionMethod = optionSet.valueOf(compressionOption);
         help = optionSet.has(helpOption);
+        password = optionSet.has(passwordOption);
     }
 
     public static void checkParameter(boolean expression, Object errorMessage) {
@@ -112,7 +118,15 @@ public class ArgSet {
         return outputDirectory;
     }
 
+    public String getCompressionMethod() {
+        return compressionMethod;
+    }
+
     public boolean isHelp() {
         return help;
+    }
+
+    public boolean isPassword() {
+        return password;
     }
 }
