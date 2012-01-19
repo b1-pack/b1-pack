@@ -17,7 +17,7 @@
 package org.b1.pack.cli;
 
 import org.b1.pack.api.common.PackException;
-import org.b1.pack.api.writer.PwVolume;
+import org.b1.pack.api.maker.PmVolume;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,13 +26,13 @@ import java.io.OutputStream;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class FsPwVolume extends PwVolume {
+public class FsPmVolume extends PmVolume {
 
     private final File file;
     private final long size;
     private File tempFile;
 
-    public FsPwVolume(File file, long size) {
+    public FsPmVolume(File file, long size) {
         this.file = file;
         this.size = size;
     }

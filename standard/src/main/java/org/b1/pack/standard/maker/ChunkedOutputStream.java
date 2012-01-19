@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.maker;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.standard.common.Numbers;

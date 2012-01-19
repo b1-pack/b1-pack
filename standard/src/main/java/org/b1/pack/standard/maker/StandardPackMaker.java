@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.maker;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.b1.pack.api.writer.PackWriter;
-import org.b1.pack.api.writer.PwFile;
-import org.b1.pack.api.writer.PwFolder;
-import org.b1.pack.api.writer.PwProvider;
+import org.b1.pack.api.maker.PackMaker;
+import org.b1.pack.api.maker.PmFile;
+import org.b1.pack.api.maker.PmFolder;
+import org.b1.pack.api.maker.PmProvider;
 import org.b1.pack.standard.common.ObjectKey;
 
 import java.io.IOException;
@@ -33,31 +33,31 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.b1.pack.standard.common.Numbers.writeLong;
 
-public class StandardPackWriter implements PackWriter {
+public class StandardPackMaker implements PackMaker {
 
-    private final Map<ObjectKey, WriterObject> objectMap = Maps.newLinkedHashMap();
+    private final Map<ObjectKey, MakerObject> objectMap = Maps.newLinkedHashMap();
     private final PackRecordStream recordStream;
-    private WriterFile lastFile;
+    private MakerFile lastFile;
     private boolean progress;
     private long lastId;
 
-    public StandardPackWriter(PwProvider provider) throws IOException {
+    public StandardPackMaker(PmProvider provider) throws IOException {
         recordStream = new PackRecordStream(provider);
     }
 
     @Override
-    public void addFolder(PwFolder folder) throws IOException {
+    public void addFolder(PmFolder folder) throws IOException {
         progress = true;
         checkLastFileWritten();
-        saveFolder(createNewKey(folder.getPath()), new WriterFolder(nextId(), folder));
+        saveFolder(createNewKey(folder.getPath()), new MakerFolder(nextId(), folder));
         progress = false;
     }
 
     @Override
-    public OutputStream addFile(PwFile file) throws IOException {
+    public OutputStream addFile(PmFile file) throws IOException {
         progress = true;
         checkLastFileWritten();
-        OutputStream stream = saveFile(createNewKey(file.getPath()), new WriterFile(nextId(), file));
+        OutputStream stream = saveFile(createNewKey(file.getPath()), new MakerFile(nextId(), file));
         progress = false;
         return stream;
     }
@@ -85,12 +85,12 @@ public class StandardPackWriter implements PackWriter {
         return ++lastId;
     }
 
-    private void saveFolder(ObjectKey key, WriterFolder folder) throws IOException {
+    private void saveFolder(ObjectKey key, MakerFolder folder) throws IOException {
         objectMap.put(key, folder);
         folder.writeCompleteRecord(key, recordStream);
     }
 
-    private OutputStream saveFile(ObjectKey key, WriterFile file) throws IOException {
+    private OutputStream saveFile(ObjectKey key, MakerFile file) throws IOException {
         objectMap.put(key, file);
         lastFile = file;
         return file.writeCompleteRecord(key, recordStream);
@@ -98,7 +98,7 @@ public class StandardPackWriter implements PackWriter {
 
     private void saveCatalog() throws IOException {
         recordStream.startCatalog();
-        for (Map.Entry<ObjectKey, WriterObject> entry : objectMap.entrySet()) {
+        for (Map.Entry<ObjectKey, MakerObject> entry : objectMap.entrySet()) {
             entry.getValue().writeCatalogRecord(entry.getKey(), recordStream);
         }
         writeLong(null, recordStream);
@@ -107,12 +107,12 @@ public class StandardPackWriter implements PackWriter {
     private ObjectKey createNewKey(Iterable<String> path) throws IOException {
         LinkedList<String> list = Lists.newLinkedList(path);
         String objectName = list.removeLast();
-        WriterFolder parent = null;
+        MakerFolder parent = null;
         for (String folderName : list) {
             ObjectKey key = createKey(parent, folderName);
-            parent = (WriterFolder) objectMap.get(key);
+            parent = (MakerFolder) objectMap.get(key);
             if (parent == null) {
-                parent = new WriterFolder(nextId(), null);
+                parent = new MakerFolder(nextId(), null);
                 saveFolder(key, parent);
             }
         }
@@ -121,7 +121,7 @@ public class StandardPackWriter implements PackWriter {
         return key;
     }
 
-    private static ObjectKey createKey(WriterFolder parent, String name) {
+    private static ObjectKey createKey(MakerFolder parent, String name) {
         return new ObjectKey(parent == null ? null : parent.getId(), name);
     }
 }

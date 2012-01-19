@@ -14,27 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.cli;
+package org.b1.pack.api.maker;
 
-import org.b1.pack.api.writer.PwFolder;
-
-import java.util.List;
-
-public class FsPwFolder implements PwFolder {
-
-    private final FsObject fsObject;
-
-    public FsPwFolder(FsObject fsObject) {
-        this.fsObject = fsObject;
-    }
-
-    @Override
-    public List<String> getPath() {
-        return fsObject.getPath();
-    }
-
-    @Override
-    public Long getLastModifiedTime() {
-        return fsObject.getFile().lastModified();
-    }
+public interface PmFile extends PmObject {
 }

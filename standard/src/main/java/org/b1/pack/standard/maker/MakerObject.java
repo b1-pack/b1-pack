@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.maker;
 
 import com.google.common.base.Charsets;
-import org.b1.pack.api.writer.PwObject;
+import org.b1.pack.api.maker.PmObject;
 import org.b1.pack.standard.common.ObjectKey;
 import org.b1.pack.standard.common.RecordPointer;
 
@@ -26,13 +26,13 @@ import java.io.OutputStream;
 
 import static org.b1.pack.standard.common.Numbers.writeLong;
 
-public abstract class WriterObject {
+public abstract class MakerObject {
 
     private final long id;
     private final Long modifiedAt;
     private RecordPointer pointer;
 
-    protected WriterObject(long id, PwObject object) {
+    protected MakerObject(long id, PmObject object) {
         this.id = id;
         this.modifiedAt = object == null ? System.currentTimeMillis() : object.getLastModifiedTime();
     }

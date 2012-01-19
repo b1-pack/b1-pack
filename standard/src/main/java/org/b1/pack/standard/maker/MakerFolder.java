@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.maker;
 
-import org.b1.pack.api.writer.PwFolder;
+import org.b1.pack.api.maker.PmFolder;
 import org.b1.pack.standard.common.ObjectKey;
 
 import java.io.IOException;
@@ -25,9 +25,9 @@ import java.io.OutputStream;
 import static org.b1.pack.standard.common.Constants.CATALOG_FOLDER;
 import static org.b1.pack.standard.common.Constants.COMPLETE_FOLDER;
 
-public class WriterFolder extends WriterObject {
+public class MakerFolder extends MakerObject {
 
-    public WriterFolder(long id, PwFolder folder) {
+    public MakerFolder(long id, PmFolder folder) {
         super(id, folder);
     }
 

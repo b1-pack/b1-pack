@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package org.b1.pack.cli;
+package org.b1.pack.api.maker;
+
+import org.b1.pack.api.common.PackException;
+import org.b1.pack.api.common.PackService;
 
 import java.io.IOException;
+import java.util.ServiceLoader;
 
-public class AddCommand implements PackCommand {
+public abstract class PmFactory {
 
-    @Override
-    public void execute(ArgSet argSet) throws IOException {
-        if ("w".equals(argSet.getTypeFlag())) {
-            new MakeCommand().execute(argSet);
-        } else {
-            ArgSet.checkParameter(argSet.getTypeFlag() == null, "Invalid type");
-            new BuildCommand().execute(argSet);
+    public static PmFactory newInstance(String format) {
+        for (PackService packService : ServiceLoader.load(PackService.class)) {
+            PmFactory factory = packService.getPwFactory(format);
+            if (factory != null) return factory;
         }
+        throw new PackException("Unsupported format: " + format);
     }
+
+    public abstract PackMaker createPackWriter(PmProvider provider) throws IOException;
+
 }

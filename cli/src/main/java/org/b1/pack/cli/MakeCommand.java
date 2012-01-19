@@ -18,48 +18,48 @@ package org.b1.pack.cli;
 
 import com.google.common.io.Files;
 import org.b1.pack.api.common.PackException;
-import org.b1.pack.api.writer.PackWriter;
-import org.b1.pack.api.writer.PwFactory;
+import org.b1.pack.api.maker.PackMaker;
+import org.b1.pack.api.maker.PmFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 
-public class WriteCommand implements PackCommand {
+public class MakeCommand implements PackCommand {
 
     @Override
     public void execute(ArgSet argSet) throws IOException {
         System.out.println("Starting");
         File outputFolder = FileTools.getOutputFolder(argSet);
         Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
-        FsPwProvider provider = new FsPwProvider(outputFolder, argSet.getPackName(), argSet.getVolumeSize());
-        PackWriter writer = PwFactory.newInstance(argSet.getTypeFormat()).createPackWriter(provider);
+        FsPmProvider provider = new FsPmProvider(outputFolder, argSet.getPackName(), argSet.getVolumeSize());
+        PackMaker maker = PmFactory.newInstance(argSet.getTypeFormat()).createPackWriter(provider);
         try {
             for (FsObject fsObject : fsObjects) {
-                addObject(writer, fsObject);
+                addObject(maker, fsObject);
             }
         } finally {
-            writer.close();
+            maker.close();
         }
         System.out.println();
         System.out.println("Done");
     }
 
-    private void addObject(PackWriter writer, FsObject fsObject) throws IOException {
+    private void addObject(PackMaker maker, FsObject fsObject) throws IOException {
         File file = fsObject.getFile();
         System.out.println("Adding " + file);
         if (file.isFile()) {
-            addFile(writer, fsObject);
+            addFile(maker, fsObject);
         } else if (file.isDirectory()) {
-            writer.addFolder(new FsPwFolder(fsObject));
+            maker.addFolder(new FsPmFolder(fsObject));
         } else {
             throw new PackException("Not found: " + file);
         }
     }
 
-    private void addFile(PackWriter writer, FsObject fsObject) throws IOException {
-        OutputStream stream = writer.addFile(new FsPwFile(fsObject));
+    private void addFile(PackMaker maker, FsObject fsObject) throws IOException {
+        OutputStream stream = maker.addFile(new FsPmFile(fsObject));
         try {
             Files.copy(fsObject.getFile(), stream);
         } finally {

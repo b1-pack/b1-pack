@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.maker;
 
 import com.google.common.io.CountingOutputStream;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.common.PackException;
-import org.b1.pack.api.writer.PwProvider;
-import org.b1.pack.api.writer.PwVolume;
+import org.b1.pack.api.maker.PmProvider;
+import org.b1.pack.api.maker.PmVolume;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
 import org.b1.pack.standard.common.VolumeNameExpert;
@@ -45,18 +45,18 @@ public class PackRecordStream extends OutputStream {
 
     private final ByteArrayOutputStream chunk = new ByteArrayOutputStream(MAX_CHUNK_SIZE);
     private final String archiveId = Volumes.createArchiveId();
-    private final PwProvider provider;
+    private final PmProvider provider;
     private final VolumeNameExpert nameExpert;
     private RecordPointer catalogPointer;
     private long volumeNumber;
-    private PwVolume volume;
+    private PmVolume volume;
     private CountingOutputStream volumeStream;
     private CheckedOutputStream chunkStream;
     private long volumeLimit;
     private int chunkLimit;
     private long volumeSize;
 
-    public PackRecordStream(PwProvider provider) {
+    public PackRecordStream(PmProvider provider) {
         this.provider = provider;
         nameExpert = new VolumeNameExpert(provider.getPackName(), provider.getExpectedVolumeCount());
     }

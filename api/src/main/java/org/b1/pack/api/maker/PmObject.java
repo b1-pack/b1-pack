@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.common;
+package org.b1.pack.api.maker;
 
-import org.b1.pack.api.builder.PbFactory;
-import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.api.maker.PmFactory;
+import java.util.List;
 
-public abstract class PackService {
+public interface PmObject {
 
-    public static final String B1 = "B1";
+    List<String> getPath();
 
-    public PbFactory getPbFactory(String format) {
-        return null;
-    }
-
-    public PxFactory getPxFactory(String format) {
-        return null;
-    }
-
-    public PmFactory getPwFactory(String format) {
-        return null;
-    }
+    Long getLastModifiedTime();
 }

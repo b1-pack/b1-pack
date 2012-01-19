@@ -19,7 +19,7 @@ package org.b1.pack.standard.common;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.*;
 import org.b1.pack.api.explorer.*;
-import org.b1.pack.api.writer.*;
+import org.b1.pack.api.maker.*;
 import org.junit.Test;
 
 import java.io.*;
@@ -68,17 +68,17 @@ public class IntegrationTest {
         String volumeName = packName + ".b1";
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        PwProvider pwProvider = createPwProvider(packName, volumeName, buffer);
-        PackWriter writer = PwFactory.newInstance(B1).createPackWriter(pwProvider);
+        PmProvider pmProvider = createPwProvider(packName, volumeName, buffer);
+        PackMaker maker = PmFactory.newInstance(B1).createPackWriter(pmProvider);
         try {
-            OutputStream stream = writer.addFile(createPwFile(folderName, fileName, fileTime));
+            OutputStream stream = maker.addFile(createPwFile(folderName, fileName, fileTime));
             try {
                 stream.write(fileContent);
             } finally {
                 stream.close();
             }
         } finally {
-            writer.close();
+            maker.close();
         }
         byte[] volumeContent = buffer.toByteArray();
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
@@ -145,9 +145,9 @@ public class IntegrationTest {
         return stream.toByteArray();
     }
 
-    private static PwProvider createPwProvider(final String packName, final String volumeName,
+    private static PmProvider createPwProvider(final String packName, final String volumeName,
                                                final ByteArrayOutputStream buffer) {
-        return new PwProvider() {
+        return new PmProvider() {
             @Override
             public String getPackName() {
                 return packName;
@@ -159,15 +159,15 @@ public class IntegrationTest {
             }
 
             @Override
-            public PwVolume getVolume(String name) {
+            public PmVolume getVolume(String name) {
                 assertEquals(volumeName, name);
                 return createPwVolume(buffer);
             }
         };
     }
 
-    private static PwVolume createPwVolume(final ByteArrayOutputStream buffer) {
-        return new PwVolume() {
+    private static PmVolume createPwVolume(final ByteArrayOutputStream buffer) {
+        return new PmVolume() {
             @Override
             public OutputStream getOutputStream() throws IOException {
                 buffer.reset();
@@ -176,8 +176,8 @@ public class IntegrationTest {
         };
     }
 
-    private static PwFile createPwFile(final String folderName, final String fileName, final long fileTime) {
-        return new PwFile() {
+    private static PmFile createPwFile(final String folderName, final String fileName, final long fileTime) {
+        return new PmFile() {
             @Override
             public List<String> getPath() {
                 return asList(folderName, fileName);

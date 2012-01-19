@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.common;
+package org.b1.pack.cli;
 
-import org.b1.pack.api.builder.PbFactory;
-import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.api.maker.PmFactory;
+import org.b1.pack.api.maker.PmFile;
 
-public abstract class PackService {
+import java.util.List;
 
-    public static final String B1 = "B1";
+public class FsPmFile implements PmFile {
 
-    public PbFactory getPbFactory(String format) {
-        return null;
+    private final FsObject fsObject;
+
+    public FsPmFile(FsObject fsObject) {
+        this.fsObject = fsObject;
     }
 
-    public PxFactory getPxFactory(String format) {
-        return null;
+    @Override
+    public List<String> getPath() {
+        return fsObject.getPath();
     }
 
-    public PmFactory getPwFactory(String format) {
-        return null;
+    @Override
+    public Long getLastModifiedTime() {
+        return fsObject.getFile().lastModified();
     }
 }

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.maker;
 
 import com.google.common.io.CountingOutputStream;
-import org.b1.pack.api.writer.PwFile;
+import org.b1.pack.api.maker.PmFile;
 import org.b1.pack.standard.common.ObjectKey;
 import org.b1.pack.standard.common.OutputStreamWrapper;
 
@@ -27,11 +27,11 @@ import java.io.OutputStream;
 import static org.b1.pack.standard.common.Constants.*;
 import static org.b1.pack.standard.common.Numbers.writeLong;
 
-public class WriterFile extends WriterObject {
+public class MakerFile extends MakerObject {
 
     private Long size;
 
-    public WriterFile(long id, PwFile file) {
+    public MakerFile(long id, PmFile file) {
         super(id, file);
     }
 

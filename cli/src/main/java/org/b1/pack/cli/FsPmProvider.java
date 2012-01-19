@@ -16,18 +16,18 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.writer.PwProvider;
-import org.b1.pack.api.writer.PwVolume;
+import org.b1.pack.api.maker.PmProvider;
+import org.b1.pack.api.maker.PmVolume;
 
 import java.io.File;
 
-public class FsPwProvider extends PwProvider {
+public class FsPmProvider extends PmProvider {
 
     private final File outputFolder;
     private final String packName;
     private final long volumeSize;
 
-    public FsPwProvider(File outputFolder, String packName, long volumeSize) {
+    public FsPmProvider(File outputFolder, String packName, long volumeSize) {
         this.outputFolder = outputFolder;
         this.packName = packName;
         this.volumeSize = volumeSize;
@@ -44,7 +44,7 @@ public class FsPwProvider extends PwProvider {
     }
 
     @Override
-    public PwVolume getVolume(String name) {
-        return new FsPwVolume(new File(outputFolder, name), volumeSize);
+    public PmVolume getVolume(String name) {
+        return new FsPmVolume(new File(outputFolder, name), volumeSize);
     }
 }

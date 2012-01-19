@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.maker;
 
-import org.b1.pack.api.writer.PackWriter;
-import org.b1.pack.api.writer.PwFactory;
-import org.b1.pack.api.writer.PwProvider;
+import org.b1.pack.api.maker.PackMaker;
+import org.b1.pack.api.maker.PmFactory;
+import org.b1.pack.api.maker.PmProvider;
 
 import java.io.IOException;
 
-public class StandardPwFactory extends PwFactory {
+public class StandardPmFactory extends PmFactory {
 
     @Override
-    public PackWriter createPackWriter(PwProvider provider) throws IOException {
-        return new StandardPackWriter(provider);
+    public PackMaker createPackWriter(PmProvider provider) throws IOException {
+        return new StandardPackMaker(provider);
     }
 }

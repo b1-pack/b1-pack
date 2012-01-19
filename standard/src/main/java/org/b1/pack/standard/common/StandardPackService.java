@@ -19,10 +19,10 @@ package org.b1.pack.standard.common;
 import org.b1.pack.api.builder.PbFactory;
 import org.b1.pack.api.common.PackService;
 import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.api.writer.PwFactory;
+import org.b1.pack.api.maker.PmFactory;
 import org.b1.pack.standard.builder.StandardPbFactory;
 import org.b1.pack.standard.explorer.StandardPxFactory;
-import org.b1.pack.standard.writer.StandardPwFactory;
+import org.b1.pack.standard.maker.StandardPmFactory;
 
 public class StandardPackService extends PackService {
 
@@ -43,9 +43,9 @@ public class StandardPackService extends PackService {
     }
 
     @Override
-    public PwFactory getPwFactory(String format) {
+    public PmFactory getPwFactory(String format) {
         if (format.equals(B1)) {
-            return new StandardPwFactory();
+            return new StandardPmFactory();
         }
         return super.getPwFactory(format);
     }

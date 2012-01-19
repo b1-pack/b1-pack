@@ -16,15 +16,15 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.writer.PwFile;
+import org.b1.pack.api.maker.PmFolder;
 
 import java.util.List;
 
-public class FsPwFile implements PwFile {
+public class FsPmFolder implements PmFolder {
 
     private final FsObject fsObject;
 
-    public FsPwFile(FsObject fsObject) {
+    public FsPmFolder(FsObject fsObject) {
         this.fsObject = fsObject;
     }
 
