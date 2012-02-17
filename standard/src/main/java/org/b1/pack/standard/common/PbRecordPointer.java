@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
 import org.b1.pack.api.builder.Writable;
 
@@ -33,6 +33,12 @@ public class PbRecordPointer implements Writable {
         blockOffset = new PbMutableInt(blockOffsetSize);
         recordOffset = new PbMutableInt(recordOffsetSize);
         writable = new CompositeWritable(volumeNumber, blockOffset, recordOffset);
+    }
+
+    public void init(RecordPointer pointer) {
+        setVolumeNumber(pointer.volumeNumber);
+        setBlockOffset(pointer.blockOffset);
+        setRecordOffset(pointer.recordOffset);
     }
 
     public void setVolumeNumber(long volumeNumber) {

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
-import org.b1.pack.standard.common.CompositeWritable;
-import org.b1.pack.standard.common.PbRecordPointer;
+public class PbInt extends ByteArrayWritable {
 
-public class PbCatalogFolder extends CompositeWritable {
+    public static final PbInt NULL = new PbInt(null);
+    public static final PbInt ZERO = new PbInt(0L);
 
-    public PbCatalogFolder(PbRecordPointer pointer, PbRecordHeader header) {
-        super(pointer, header);
+    public PbInt(Long value) {
+        super(Numbers.serializeLong(value));
     }
 }

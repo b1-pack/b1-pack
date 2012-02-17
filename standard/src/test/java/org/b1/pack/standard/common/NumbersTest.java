@@ -38,8 +38,8 @@ public class NumbersTest {
         checkWrite(new byte[]{127}, -63L);
         checkWrite(new byte[]{-128, 1}, 64L);
         checkWrite(new byte[]{-127, 1}, -64L);
-        assertEquals(10, Numbers.serializeLong(Long.MAX_VALUE).length);
-        assertEquals(10, Numbers.serializeLong(Long.MIN_VALUE).length);
+        assertEquals(10, Numbers.getSerializedSize(Long.MAX_VALUE));
+        assertEquals(10, Numbers.getSerializedSize(Long.MIN_VALUE));
     }
 
     @Test

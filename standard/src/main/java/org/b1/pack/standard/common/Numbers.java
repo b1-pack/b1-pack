@@ -23,6 +23,9 @@ import java.io.*;
 
 public class Numbers {
 
+    public static final int MAX_LONG_SIZE = getSerializedSize(Long.MIN_VALUE);
+    public static final int MAX_INT_SIZE = getSerializedSize((long) Integer.MIN_VALUE);
+
     public static byte[] serializeLong(Long value) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -52,6 +55,10 @@ public class Numbers {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static int getSerializedSize(long value) {
+        return serializeLong(value).length;
     }
 
     public static void writeLong(@Nullable Long value, OutputStream stream) throws IOException {

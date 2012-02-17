@@ -27,4 +27,6 @@ public class Constants {
     public static final int COMPLETE_FOLDER = 4;
 
     public static final int PLAIN_BLOCK = 1;
+    public static final int LZMA_BLOCK = 2;
+    public static final int AES_BLOCK = 3;
 }

@@ -16,6 +16,9 @@
 
 package org.b1.pack.standard.builder;
 
+import org.b1.pack.standard.common.CompositeWritable;
+import org.b1.pack.standard.common.PbInt;
+
 public class PbRecordHeader extends CompositeWritable {
 
     public PbRecordHeader(long id, Long parentId, String name, Long modifiedAt) {

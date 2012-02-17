@@ -20,6 +20,7 @@ import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.*;
 import org.b1.pack.api.explorer.*;
 import org.b1.pack.api.maker.*;
+import org.b1.pack.api.writer.*;
 import org.junit.Test;
 
 import java.io.*;
@@ -80,6 +81,29 @@ public class IntegrationTest {
         } finally {
             maker.close();
         }
+        byte[] volumeContent = buffer.toByteArray();
+        verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
+    }
+
+    //@Test
+    public void testWriter() throws IOException {
+        String folderName = "writerFolder";
+        String fileName = "writerFile.txt";
+        long fileTime = System.currentTimeMillis();
+        final byte[] fileContent = "Hello, test!".getBytes(UTF_8);
+        String packName = "writerTest";
+        String volumeName = packName + ".b1";
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        WriterProvider provider = createWriterProvider(buffer);
+        final WriterEntry folder = createWriterEntry(null, folderName, fileTime);
+        final WriterEntry file = createWriterEntry(folder, fileName, fileTime);
+        PackWriter.getInstance(B1).write(provider, new WriterCommand() {
+            @Override
+            public void execute(WriterPack pack) throws IOException {
+                pack.addFolder(folder);
+                pack.addFile(file, createWriterContent(fileContent));
+            }
+        });
         byte[] volumeContent = buffer.toByteArray();
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
@@ -166,8 +190,33 @@ public class IntegrationTest {
         };
     }
 
+    private static WriterProvider createWriterProvider(final ByteArrayOutputStream buffer) {
+        return new WriterProvider() {
+            @Override
+            public boolean isSeekable() {
+                return false;
+            }
+
+            @Override
+            public WriterVolume getVolume(long number) throws IOException {
+                assertEquals(1, number);
+                return createWriterVolume(buffer);
+            }
+        };
+    }
+
     private static PmVolume createPwVolume(final ByteArrayOutputStream buffer) {
         return new PmVolume() {
+            @Override
+            public OutputStream getOutputStream() throws IOException {
+                buffer.reset();
+                return buffer;
+            }
+        };
+    }
+
+    private static WriterVolume createWriterVolume(final ByteArrayOutputStream buffer) {
+        return new WriterVolume() {
             @Override
             public OutputStream getOutputStream() throws IOException {
                 buffer.reset();
@@ -186,6 +235,39 @@ public class IntegrationTest {
             @Override
             public Long getLastModifiedTime() {
                 return fileTime;
+            }
+        };
+    }
+
+    private static WriterEntry createWriterEntry(final WriterEntry parent, final String fileName, final long fileTime) {
+        return new WriterEntry() {
+            @Override
+            public WriterEntry getParent() {
+                return parent;
+            }
+
+            @Override
+            public String getName() {
+                return fileName;
+            }
+
+            @Override
+            public Long getLastModifiedTime() {
+                return fileTime;
+            }
+        };
+    }
+
+    private WriterContent createWriterContent(final byte[] fileContent) {
+        return new WriterContent() {
+            @Override
+            public Long getSize() throws IOException {
+                return (long) fileContent.length;
+            }
+
+            @Override
+            public InputStream getInputStream() throws IOException {
+                return new ByteArrayInputStream(fileContent);
             }
         };
     }

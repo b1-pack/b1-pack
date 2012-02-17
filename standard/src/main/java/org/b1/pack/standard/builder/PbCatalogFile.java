@@ -16,6 +16,10 @@
 
 package org.b1.pack.standard.builder;
 
+import org.b1.pack.standard.common.CompositeWritable;
+import org.b1.pack.standard.common.PbInt;
+import org.b1.pack.standard.common.PbRecordPointer;
+
 public class PbCatalogFile extends CompositeWritable {
 
     public PbCatalogFile(PbRecordPointer pointer, PbRecordHeader header, long size) {

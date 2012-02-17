@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
-import org.b1.pack.standard.common.CompositeWritable;
-import org.b1.pack.standard.common.PbRecordPointer;
+import org.b1.pack.api.builder.Writable;
 
-public class PbCatalogFolder extends CompositeWritable {
+public class PbBinary extends CompositeWritable {
 
-    public PbCatalogFolder(PbRecordPointer pointer, PbRecordHeader header) {
-        super(pointer, header);
+    public PbBinary(Writable content) {
+        super(new PbInt(content.getSize()), content, PbInt.ZERO);
     }
 }

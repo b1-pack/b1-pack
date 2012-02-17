@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.api.writer;
 
-import org.b1.pack.standard.common.Numbers;
+import java.io.IOException;
 
-public class PbInt extends ByteArrayWritable {
+public abstract class WriterPack {
 
-    public static final PbInt NULL = new PbInt(null);
-    public static final PbInt ZERO = new PbInt(0L);
+    public abstract void addFolder(WriterEntry entry) throws IOException;
 
-    public PbInt(Long value) {
-        super(Numbers.serializeLong(value));
+    public abstract void addFile(WriterEntry entry, WriterContent content) throws IOException;
+
+    public void flush() throws IOException {
+        //no-op
     }
 }

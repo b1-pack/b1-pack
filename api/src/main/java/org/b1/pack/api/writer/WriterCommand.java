@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.api.writer;
 
-import org.b1.pack.api.builder.Writable;
+import java.io.IOException;
 
-public class PbBinary extends CompositeWritable {
+public interface WriterCommand {
 
-    public PbBinary(Writable content) {
-        super(new PbInt(content.getSize()), content, PbInt.ZERO);
-    }
+    void execute(WriterPack pack) throws IOException;
+
 }

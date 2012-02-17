@@ -20,8 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.b1.pack.api.builder.*;
-import org.b1.pack.standard.common.Numbers;
-import org.b1.pack.standard.common.ObjectKey;
+import org.b1.pack.standard.common.*;
 
 import javax.annotation.Nullable;
 import java.util.Deque;
@@ -43,7 +42,7 @@ public class StandardPackBuilder implements PackBuilder {
     public StandardPackBuilder(PbProvider provider) {
         this.packName = provider.getPackName();
         this.volumeSize = provider.getVolumeSize();
-        blockOffsetSize = volumeSize == 0 ? PbMutableInt.MAX_LONG_SIZE : Numbers.serializeLong(volumeSize - 1).length;
+        blockOffsetSize = volumeSize == 0 ? Numbers.MAX_LONG_SIZE : Numbers.getSerializedSize(volumeSize - 1);
         catalogPointer = createPointer();
         pointerMap.put(PbInt.NULL, catalogPointer);
     }
@@ -74,7 +73,7 @@ public class StandardPackBuilder implements PackBuilder {
     }
 
     private PbRecordPointer createPointer() {
-        return new PbRecordPointer(PbMutableInt.MAX_INT_SIZE, blockOffsetSize, 1);
+        return new PbRecordPointer(Numbers.MAX_INT_SIZE, blockOffsetSize, 1);
     }
 
     private PbRecordHeader createHeader(PbObject object) {

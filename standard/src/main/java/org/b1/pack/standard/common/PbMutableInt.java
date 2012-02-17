@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.standard.common.ByteArrayWritable;
 import org.b1.pack.standard.common.Numbers;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class PbMutableInt implements Writable {
-
-    public static final int MAX_LONG_SIZE = Numbers.serializeLong(Long.MIN_VALUE).length;
-    public static final int MAX_INT_SIZE = Numbers.serializeLong((long) Integer.MIN_VALUE).length;
 
     private final int size;
     private ByteArrayWritable value;

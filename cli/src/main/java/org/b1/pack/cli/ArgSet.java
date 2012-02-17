@@ -53,7 +53,7 @@ public class ArgSet {
         OptionSpec<String> volumeOption = parser.accepts("v").withRequiredArg();
         OptionSpec<String> typeOption = parser.accepts("type").withRequiredArg();
         OptionSpec<String> outputOption = parser.accepts("o").withRequiredArg();
-        OptionSpec<String> compressionOption = parser.accepts("mx").withRequiredArg();
+        OptionSpec<String> compressionOption = parser.accepts("m").withRequiredArg();
         OptionSpec helpOption = parser.acceptsAll(Arrays.asList("?", "h", "help"));
         OptionSpec passwordOption = parser.accepts("p");
         OptionSet optionSet = parser.parse(args);

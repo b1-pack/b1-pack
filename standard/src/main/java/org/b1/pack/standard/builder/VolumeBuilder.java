@@ -21,10 +21,7 @@ import com.google.common.collect.Lists;
 import org.b1.pack.api.builder.PbVolume;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.common.PackException;
-import org.b1.pack.standard.common.Constants;
-import org.b1.pack.standard.common.RecordPointer;
-import org.b1.pack.standard.common.VolumeNameExpert;
-import org.b1.pack.standard.common.Volumes;
+import org.b1.pack.standard.common.*;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -99,7 +96,7 @@ public class VolumeBuilder {
     private long addChunk(Writable content, long contentOffset) {
         long chunkSize = Math.min(content.getSize() - contentOffset, Constants.MAX_CHUNK_SIZE);
         Writable chunk = new PartialWritable(content, contentOffset, contentOffset + chunkSize);
-        PbBlock block = new PbBlock(new PbPlainBlock(chunk));
+        PbBlock block = PbBlock.wrapPlainBlock(new PbPlainBlock(chunk));
         if (volumeLimit != 0) {
             long freeSpace = volumeLimit - volumeContent.getSize();
             if (block.getSize() > freeSpace) {
@@ -108,7 +105,7 @@ public class VolumeBuilder {
                     return 0;
                 }
                 chunk = new PartialWritable(content, contentOffset, contentOffset + chunkSize);
-                block = new PbBlock(new PbPlainBlock(chunk));
+                block = PbBlock.wrapPlainBlock(new PbPlainBlock(chunk));
             }
         }
         if (contentOffset == 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.api.compression;
 
-import org.b1.pack.standard.common.CompositeWritable;
-import org.b1.pack.standard.common.PbRecordPointer;
+public class LzmaCompressionMethod extends CompressionMethod {
 
-public class PbCatalogFolder extends CompositeWritable {
-
-    public PbCatalogFolder(PbRecordPointer pointer, PbRecordHeader header) {
-        super(pointer, header);
+    public long getSolidBlockSize() {
+        return Integer.MAX_VALUE;
     }
 }

@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
-import org.b1.pack.api.builder.PbFolder;
-import org.b1.pack.standard.common.CompositeWritable;
+import org.b1.pack.api.builder.Writable;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class PbCompleteFolder extends CompositeWritable {
+public class PartialWritable implements Writable {
 
-    private final PbFolder folder;
+    private final Writable content;
+    private final long startIndex;
+    private final long endIndex;
 
-    public PbCompleteFolder(PbRecordHeader header, PbFolder folder) {
-        super(header);
-        this.folder = folder;
+    public PartialWritable(Writable content, long startIndex, long endIndex) {
+        this.content = content;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
+    }
+
+    @Override
+    public long getSize() {
+        return endIndex - startIndex;
     }
 
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
-        if (start == 0 && folder != null) {
-            folder.beforeAdd();
-        }
-        super.writeTo(stream, start, end);
+        content.writeTo(stream, startIndex + start, startIndex + end);
     }
 }

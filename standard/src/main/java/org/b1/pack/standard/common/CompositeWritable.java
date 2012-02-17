@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
 import com.google.common.collect.Maps;
 import org.b1.pack.api.builder.Writable;

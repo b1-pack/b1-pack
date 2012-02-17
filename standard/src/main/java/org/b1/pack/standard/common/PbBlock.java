@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
-import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.Writable;
 
-import java.io.IOException;
-import java.io.OutputStream;
+public class PbBlock extends CompositeWritable {
 
-public class ByteArrayWritable implements Writable {
-
-    private final byte[] bytes;
-
-    public ByteArrayWritable(byte[] bytes) {
-        this.bytes = bytes;
+    private PbBlock(long code, Writable writable) {
+        super(new PbInt(code), writable);
     }
 
-    @Override
-    public long getSize() {
-        return bytes.length;
-    }
-
-    @Override
-    public void writeTo(OutputStream stream, long start, long end) throws IOException {
-        stream.write(bytes, Ints.checkedCast(start), Ints.checkedCast(end - start));
+    public static PbBlock wrapPlainBlock(PbPlainBlock block) {
+        return new PbBlock(Constants.PLAIN_BLOCK, block);
     }
 }

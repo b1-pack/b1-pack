@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.api.writer;
 
-import org.b1.pack.standard.common.CompositeWritable;
-import org.b1.pack.standard.common.PbRecordPointer;
+public abstract class WriterEntry {
 
-public class PbCatalogFolder extends CompositeWritable {
+    public abstract WriterEntry getParent();
 
-    public PbCatalogFolder(PbRecordPointer pointer, PbRecordHeader header) {
-        super(pointer, header);
+    public abstract String getName();
+
+    public abstract Long getLastModifiedTime();
+
+    public boolean isImmediate() {
+        return false;
+    }
+    
+    public boolean isCompressible() {
+        return true;
     }
 }

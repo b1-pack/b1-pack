@@ -17,6 +17,8 @@
 package org.b1.pack.standard.builder;
 
 import org.b1.pack.api.builder.PbFile;
+import org.b1.pack.standard.common.CompositeWritable;
+import org.b1.pack.standard.common.PbBinary;
 
 import java.io.IOException;
 import java.io.OutputStream;

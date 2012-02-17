@@ -14,32 +14,29 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
+import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.Writable;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class PartialWritable implements Writable {
+public class ByteArrayWritable implements Writable {
 
-    private final Writable content;
-    private final long startIndex;
-    private final long endIndex;
+    private final byte[] bytes;
 
-    public PartialWritable(Writable content, long startIndex, long endIndex) {
-        this.content = content;
-        this.startIndex = startIndex;
-        this.endIndex = endIndex;
+    public ByteArrayWritable(byte[] bytes) {
+        this.bytes = bytes;
     }
 
     @Override
     public long getSize() {
-        return endIndex - startIndex;
+        return bytes.length;
     }
 
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
-        content.writeTo(stream, startIndex + start, startIndex + end);
+        stream.write(bytes, Ints.checkedCast(start), Ints.checkedCast(end - start));
     }
 }

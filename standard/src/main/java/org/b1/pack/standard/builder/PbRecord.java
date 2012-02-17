@@ -17,7 +17,10 @@
 package org.b1.pack.standard.builder;
 
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.standard.common.CompositeWritable;
 import org.b1.pack.standard.common.Constants;
+import org.b1.pack.standard.common.PbInt;
+import org.b1.pack.standard.common.PbRecordPointer;
 
 public class PbRecord extends CompositeWritable {
 

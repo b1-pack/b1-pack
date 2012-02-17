@@ -41,7 +41,7 @@ import static org.b1.pack.standard.common.Volumes.createVolumeTail;
 
 public class PackRecordStream extends OutputStream {
 
-    private static final int PLAIN_BLOCK_OVERHEAD = Numbers.serializeLong((long) MAX_CHUNK_SIZE).length + 6;
+    private static final int PLAIN_BLOCK_OVERHEAD = Numbers.getSerializedSize(MAX_CHUNK_SIZE) + 6;
 
     private final ByteArrayOutputStream chunk = new ByteArrayOutputStream(MAX_CHUNK_SIZE);
     private final String archiveId = Volumes.createArchiveId();

@@ -18,6 +18,9 @@ package org.b1.pack.standard.builder;
 
 import com.google.common.base.Charsets;
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.standard.common.ByteArrayWritable;
+import org.b1.pack.standard.common.CompositeWritable;
+import org.b1.pack.standard.common.PbInt;
 
 public class PbText extends CompositeWritable {
 

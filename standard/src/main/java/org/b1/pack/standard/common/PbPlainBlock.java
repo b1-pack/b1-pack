@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.standard.common;
 
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.standard.common.ByteArrayWritable;
+import org.b1.pack.standard.common.CompositeWritable;
+import org.b1.pack.standard.common.PbBinary;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,6 +44,7 @@ public class PbPlainBlock implements Writable {
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
         int size = Ints.checkedCast(content.getSize());
+        //todo optimize performance
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(size);
         Adler32 adler32 = new Adler32();
         content.writeTo(new CheckedOutputStream(outputStream, adler32), 0, size);
