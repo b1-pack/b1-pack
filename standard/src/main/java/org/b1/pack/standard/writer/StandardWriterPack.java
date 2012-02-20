@@ -36,7 +36,7 @@ class StandardWriterPack extends WriterPack {
     private final List<WriterObject> objectList = Lists.newArrayList();
     private final ArchiveWriter writer;
     private long objectCount;
-    private long lastId;
+    private boolean catalogMode;
     private PbRecordPointer nextCatalogPointer;
 
     public StandardWriterPack(WriterProvider provider) {
@@ -73,7 +73,7 @@ class StandardWriterPack extends WriterPack {
 
     private long getNewId(WriterEntry entry) {
         checkArgument(!objectMap.containsKey(entry), "Duplicate entry");
-        return ++lastId;
+        return ++objectCount;
     }
 
     private WriterFolder getParent(WriterEntry entry) {
@@ -87,7 +87,6 @@ class StandardWriterPack extends WriterPack {
     }
 
     private void addObject(WriterEntry entry, WriterObject object) throws IOException {
-        objectCount++;
         objectMap.put(entry, object);
         objectList.add(object);
         if (entry.isImmediate()) {
@@ -128,18 +127,18 @@ class StandardWriterPack extends WriterPack {
         }
     }
 
+    private void setCatalogMode() throws IOException {
+        writer.saveCatalogPoiner();
+        initNextCatalogPointer();
+        catalogMode = true;
+    }
+
     private void setContentMode() throws IOException {
-        if (writer.getCatalogPointer() != null && nextCatalogPointer == null) {
+        if (catalogMode && nextCatalogPointer == null) {
             nextCatalogPointer = writer.createEmptyPointer();
             writer.write(nextCatalogPointer);
         }
-    }
-
-    private void setCatalogMode() throws IOException {
-        if (writer.getCatalogPointer() == null) {
-            writer.setCatalogPointer(writer.getCurrentPointer());
-        }
-        initNextCatalogPointer();
+        catalogMode = false;
     }
 
     private void initNextCatalogPointer() throws IOException {

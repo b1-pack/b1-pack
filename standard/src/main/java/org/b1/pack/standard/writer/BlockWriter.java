@@ -34,11 +34,11 @@ class BlockWriter extends OutputStream {
     private final List<VolumeWriter> suspendedWriters = Lists.newArrayList();
     private final ByteArrayOutputStream readyContent = new ByteArrayOutputStream();
     private final WriterProvider provider;
-    private CompositeWritable futureContent;
+    private CompositeWritable suspendedContent = new CompositeWritable();
     private VolumeWriter volumeWriter;
     private RecordPointer catalogPointer;
     private Long objectCount;
-    private int freeSpace;
+    private long maxContentSize;
 
     public BlockWriter(WriterProvider provider) {
         this.provider = provider;
@@ -46,7 +46,7 @@ class BlockWriter extends OutputStream {
 
     public RecordPointer getCurrentPointer() throws IOException {
         ensureFreeSpace();
-        return new RecordPointer(volumeWriter.getVolumeNumber(), volumeWriter.getStreamEnd(), readyContent.size());
+        return new RecordPointer(volumeWriter.getVolumeNumber(), volumeWriter.getStreamEnd(), getContentSize());
     }
 
     @Override
@@ -58,7 +58,7 @@ class BlockWriter extends OutputStream {
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
         while (len > 0) {
-            int size = Math.min(len, ensureFreeSpace());
+            int size = Ints.checkedCast(Math.min(len, ensureFreeSpace()));
             readyContent.write(b, off, size);
             off += size;
             len -= size;
@@ -70,11 +70,8 @@ class BlockWriter extends OutputStream {
         long len = value.getSize();
         while (len > 0) {
             long size = Math.min(len, ensureFreeSpace());
-            if (futureContent == null) {
-                futureContent = new CompositeWritable();
-            }
             suspendReadyContent();
-            futureContent.add(new PartialWritable(value, off, off + size));
+            suspendedContent.add(new PartialWritable(value, off, off + size));
             off += size;
             len -= size;
         }
@@ -82,7 +79,7 @@ class BlockWriter extends OutputStream {
 
     private void suspendReadyContent() {
         if (readyContent.size() > 0) {
-            futureContent.add(new ByteArrayWritable(readyContent.toByteArray()));
+            suspendedContent.add(new ByteArrayWritable(readyContent.toByteArray()));
             readyContent.reset();
         }
     }
@@ -101,23 +98,25 @@ class BlockWriter extends OutputStream {
 
     }
 
-    public RecordPointer getCatalogPointer() {
-        return catalogPointer;
-    }
-
     public void setObjectCount(Long objectCount) {
         this.objectCount = objectCount;
         if (volumeWriter != null) volumeWriter.setObjectCount(objectCount);
     }
 
-    public void setCatalogPointer(RecordPointer catalogPointer) throws IOException {
-        this.catalogPointer = catalogPointer;
-        if (volumeWriter != null) volumeWriter.setCatalogPointer(catalogPointer);
+    public void saveCatalogPoiner() throws IOException {
+        if (catalogPointer != null) {
+            return;
+        }
+        catalogPointer = getCurrentPointer();//todo reserve more space
+        if (volumeWriter != null) {
+            volumeWriter.setCatalogPointer(catalogPointer);
+        }
     }
 
-    private int ensureFreeSpace() throws IOException {
-        if (freeSpace > 0) {
-            return freeSpace;
+    private long ensureFreeSpace() throws IOException {
+        long result = maxContentSize - getContentSize();
+        if (result > 0) {
+            return result;
         }
         if (volumeWriter == null) {
             createVolumeWriter(1);
@@ -131,7 +130,11 @@ class BlockWriter extends OutputStream {
             contentSize = getMaxContentSize();
             Preconditions.checkArgument(contentSize > 0, "Volume size too small");
         }
-        return freeSpace = Ints.checkedCast(contentSize);
+        return maxContentSize = contentSize;
+    }
+
+    private long getContentSize() {
+        return suspendedContent.getSize() + readyContent.size();
     }
 
     private void createVolumeWriter(long volumeNumber) throws IOException {
@@ -154,16 +157,16 @@ class BlockWriter extends OutputStream {
         return size - Math.max(0, getBlockSize(size) - space);
     }
 
+
     private long getBlockSize(long chunkSize) {
         return Numbers.getSerializedSize(chunkSize) + chunkSize + PbInt.NULL.getSize() + Ints.BYTES;
     }
 
-
     private void flushBlock() throws IOException {
-        if (futureContent != null) {
+        if (suspendedContent.getSize() > 0) {
             suspendReadyContent();
-            volumeWriter.suspendBlock(createBlock(futureContent));
-            futureContent = null;
+            volumeWriter.suspendBlock(createBlock(suspendedContent));
+            suspendedContent = new CompositeWritable();
         } else if (readyContent.size() > 0) {
             //todo avoid array coping
             volumeWriter.writeBlock(createBlock(new ByteArrayWritable(readyContent.toByteArray())));

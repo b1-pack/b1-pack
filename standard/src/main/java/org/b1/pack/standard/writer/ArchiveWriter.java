@@ -79,19 +79,15 @@ class ArchiveWriter extends OutputStream {
         blockWriter.close();
     }
 
-    public RecordPointer getCatalogPointer() {
-        return blockWriter.getCatalogPointer();
-    }
-
-    public void setCatalogPointer(RecordPointer catalogPointer) throws IOException {
-        blockWriter.setCatalogPointer(catalogPointer);
-    }
-
     public void setObjectCount(Long objectCount) {
         blockWriter.setObjectCount(objectCount);
     }
 
     public void setCompressible(boolean compressible) throws IOException {
         //todo
+    }
+
+    public void saveCatalogPoiner() throws IOException {
+        blockWriter.saveCatalogPoiner();
     }
 }
