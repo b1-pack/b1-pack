@@ -17,7 +17,7 @@
 package org.b1.pack.standard.writer;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
+import com.google.common.io.CountingOutputStream;
 import org.b1.pack.api.writer.WriterContent;
 import org.b1.pack.api.writer.WriterEntry;
 import org.b1.pack.standard.common.PbMutableInt;
@@ -25,7 +25,6 @@ import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.maker.ChunkedOutputStream;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import static org.b1.pack.standard.common.Constants.*;
 import static org.b1.pack.standard.common.Numbers.MAX_LONG_SIZE;
@@ -43,7 +42,7 @@ class WriterFile extends WriterObject {
     }
 
     @Override
-    public void saveCatalogRecord(ArchiveWriter writer) throws IOException {
+    public void saveCatalogRecord(RecordWriter writer) throws IOException {
         writeBasicCatalogRecord(CATALOG_FILE, writer);
         if (size != null) {
             Numbers.writeLong(size, writer);
@@ -54,27 +53,30 @@ class WriterFile extends WriterObject {
     }
 
     @Override
-    public void saveCompleteRecord(ArchiveWriter writer) throws IOException {
+    public void saveCompleteRecord(RecordWriter writer) throws IOException {
         if (writeBasicCompleteRecord(COMPLETE_FILE, writer)) {
-            InputStream inputStream = content.getInputStream();
-            try {
-                writeContent(inputStream, writer);
-            } finally {
-                inputStream.close();
+            if (size != null) {
+                writeFixedSizeContent(writer);
+            } else {
+                writeChunkedContent(writer);
             }
         }
     }
 
-    private void writeContent(InputStream inputStream, ArchiveWriter stream) throws IOException {
-        if (size != null) {
-            Numbers.writeLong(size, stream);
-            Preconditions.checkState(ByteStreams.copy(inputStream, stream) == size, "Content size does not match");
-            Numbers.writeLong(0, stream);
-        } else {
-            ChunkedOutputStream outputStream = new ChunkedOutputStream(MAX_CHUNK_SIZE, stream);
-            size = ByteStreams.copy(inputStream, outputStream);
-            outputStream.close();
-            if (futureSize != null) futureSize.setValue(size);
-        }
+    private void writeFixedSizeContent(RecordWriter writer) throws IOException {
+        Numbers.writeLong(size, writer);
+        CountingOutputStream stream = new CountingOutputStream(writer);
+        content.writeTo(stream);
+        Preconditions.checkState(stream.getCount() == size, "Content size does not match");
+        Numbers.writeLong(0, writer);
+    }
+
+    private void writeChunkedContent(RecordWriter writer) throws IOException {
+        ChunkedOutputStream chunkedOutputStream = new ChunkedOutputStream(MAX_CHUNK_SIZE, writer);
+        CountingOutputStream stream = new CountingOutputStream(chunkedOutputStream);
+        content.writeTo(stream);
+        size = stream.getCount();
+        chunkedOutputStream.close();
+        if (futureSize != null) futureSize.setValue(size);
     }
 }

@@ -49,6 +49,18 @@ class BlockWriter extends OutputStream {
         return new RecordPointer(volumeWriter.getVolumeNumber(), volumeWriter.getStreamEnd(), getContentSize());
     }
 
+    public void setObjectCount(Long objectCount) {
+        this.objectCount = objectCount;
+        if (volumeWriter != null) volumeWriter.setObjectCount(objectCount);
+    }
+
+    public void saveCatalogPoiner() throws IOException {
+        if (catalogPointer == null) {
+            catalogPointer = getCurrentPointer();//todo reserve more space
+            if (volumeWriter != null) volumeWriter.setCatalogPointer(catalogPointer);
+        }
+    }
+
     @Override
     public void write(int b) throws IOException {
         ensureFreeSpace();
@@ -77,39 +89,40 @@ class BlockWriter extends OutputStream {
         }
     }
 
-    private void suspendReadyContent() {
-        if (readyContent.size() > 0) {
-            suspendedContent.add(new ByteArrayWritable(readyContent.toByteArray()));
-            readyContent.reset();
-        }
-    }
-
     @Override
     public void flush() throws IOException {
-
+        flushContent();
+        ensureFreeSpace();
+        for (VolumeWriter writer : suspendedWriters) {
+            writer.close(false);
+        }
+        suspendedWriters.clear();
+        volumeWriter.flush();
     }
 
     @Override
     public void close() throws IOException {
-
+        flush();
+        volumeWriter.close(true);
     }
 
-    public void complete() throws IOException {
-
-    }
-
-    public void setObjectCount(Long objectCount) {
-        this.objectCount = objectCount;
-        if (volumeWriter != null) volumeWriter.setObjectCount(objectCount);
-    }
-
-    public void saveCatalogPoiner() throws IOException {
-        if (catalogPointer != null) {
-            return;
+    public void cleanup() {
+        for (VolumeWriter writer : suspendedWriters) {
+            writer.cleanup();
         }
-        catalogPointer = getCurrentPointer();//todo reserve more space
         if (volumeWriter != null) {
-            volumeWriter.setCatalogPointer(catalogPointer);
+            volumeWriter.cleanup();
+        }
+    }
+
+    private long getContentSize() {
+        return suspendedContent.getSize() + readyContent.size();
+    }
+
+    private void suspendReadyContent() {
+        if (readyContent.size() > 0) {
+            suspendedContent.add(new ByteArrayWritable(readyContent.toByteArray()));
+            readyContent.reset();
         }
     }
 
@@ -121,7 +134,7 @@ class BlockWriter extends OutputStream {
         if (volumeWriter == null) {
             createVolumeWriter(1);
         } else {
-            flushBlock();
+            flushContent();
         }
         long contentSize = getMaxContentSize();
         if (contentSize <= 0) {
@@ -131,10 +144,6 @@ class BlockWriter extends OutputStream {
             Preconditions.checkArgument(contentSize > 0, "Volume size too small");
         }
         return maxContentSize = contentSize;
-    }
-
-    private long getContentSize() {
-        return suspendedContent.getSize() + readyContent.size();
     }
 
     private void createVolumeWriter(long volumeNumber) throws IOException {
@@ -147,7 +156,7 @@ class BlockWriter extends OutputStream {
         if (volumeWriter.isSuspended()) {
             suspendedWriters.add(volumeWriter);
         } else {
-            volumeWriter.complete(false);
+            volumeWriter.close(false);
         }
     }
 
@@ -162,7 +171,7 @@ class BlockWriter extends OutputStream {
         return Numbers.getSerializedSize(chunkSize) + chunkSize + PbInt.NULL.getSize() + Ints.BYTES;
     }
 
-    private void flushBlock() throws IOException {
+    private void flushContent() throws IOException {
         if (suspendedContent.getSize() > 0) {
             suspendReadyContent();
             volumeWriter.suspendBlock(createBlock(suspendedContent));

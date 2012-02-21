@@ -30,12 +30,12 @@ class WriterFolder extends WriterObject {
     }
 
     @Override
-    public void saveCatalogRecord(ArchiveWriter writer) throws IOException {
+    public void saveCatalogRecord(RecordWriter writer) throws IOException {
         writeBasicCatalogRecord(CATALOG_FOLDER, writer);
     }
 
     @Override
-    public void saveCompleteRecord(ArchiveWriter writer) throws IOException {
+    public void saveCompleteRecord(RecordWriter writer) throws IOException {
         writeBasicCompleteRecord(COMPLETE_FOLDER, writer);
     }
 }

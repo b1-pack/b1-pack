@@ -25,14 +25,14 @@ import org.b1.pack.standard.common.RecordPointer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class ArchiveWriter extends OutputStream {
+class RecordWriter extends OutputStream {
 
     private final WriterProvider provider;
     private final BlockWriter blockWriter;
     private final int volumeNumberSize;
     private final int blockOffsetSize;
 
-    public ArchiveWriter(WriterProvider provider) {
+    public RecordWriter(WriterProvider provider) {
         this.provider = provider;
         blockWriter = new BlockWriter(provider);
         volumeNumberSize = Numbers.getSerializedSize(provider.getMaxVolumeCount());
@@ -70,13 +70,13 @@ class ArchiveWriter extends OutputStream {
         blockWriter.flush();
     }
 
-    public void complete() throws IOException {
-        blockWriter.complete();
-    }
-
     @Override
     public void close() throws IOException {
         blockWriter.close();
+    }
+
+    public void cleanup() {
+        blockWriter.cleanup();
     }
 
     public void setObjectCount(Long objectCount) {

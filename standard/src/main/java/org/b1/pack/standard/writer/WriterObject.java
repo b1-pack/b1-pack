@@ -44,17 +44,17 @@ abstract class WriterObject {
         this.compressible = entry.isCompressible();
     }
 
-    public abstract void saveCatalogRecord(ArchiveWriter writer) throws IOException;
+    public abstract void saveCatalogRecord(RecordWriter writer) throws IOException;
 
-    public abstract void saveCompleteRecord(ArchiveWriter writer) throws IOException;
+    public abstract void saveCompleteRecord(RecordWriter writer) throws IOException;
 
-    protected void writeBasicCatalogRecord(int recordType, ArchiveWriter writer) throws IOException {
+    protected void writeBasicCatalogRecord(int recordType, RecordWriter writer) throws IOException {
         Numbers.writeLong(recordType, writer);
         writePointer(writer);
         writeHeader(writer);
     }
 
-    protected boolean writeBasicCompleteRecord(int recordType, ArchiveWriter writer) throws IOException {
+    protected boolean writeBasicCompleteRecord(int recordType, RecordWriter writer) throws IOException {
         if (completeRecordSaved) {
             return false;
         }
@@ -72,7 +72,7 @@ abstract class WriterObject {
         return true;
     }
 
-    private void writePointer(ArchiveWriter writer) throws IOException {
+    private void writePointer(RecordWriter writer) throws IOException {
         if (pointer != null) {
             Numbers.writeLong(pointer.volumeNumber, writer);
             Numbers.writeLong(pointer.blockOffset, writer);

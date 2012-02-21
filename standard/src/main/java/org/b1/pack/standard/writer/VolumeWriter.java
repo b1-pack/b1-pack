@@ -17,6 +17,7 @@
 package org.b1.pack.standard.writer;
 
 import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.writer.WriterVolume;
 import org.b1.pack.standard.common.PbBlock;
@@ -31,16 +32,16 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.SortedMap;
 
-class VolumeWriter implements Flushable, Closeable {
+class VolumeWriter {
 
     private final SortedMap<Long, PbBlock> suspendedBlocks = Maps.newTreeMap();
     private final String archiveId;
     private final long volumeNumber;
     private final long maxVolumeSize;
     private final WriterVolume volume;
+    private OutputStream outputStream;
     private Long objectCount;
     private RecordPointer catalogPointer;
-    private OutputStream outputStream;
     private long sizeLimit;
     private long spaceLimit;
     private long streamEnd;
@@ -57,16 +58,16 @@ class VolumeWriter implements Flushable, Closeable {
         return volumeNumber;
     }
 
-    public boolean isSuspended() {
-        return !suspendedBlocks.isEmpty();
+    public long getStreamEnd() {
+        return streamEnd;
     }
 
     public long getFreeSpace() {
         return spaceLimit - streamEnd;
     }
 
-    public long getStreamEnd() {
-        return streamEnd;
+    public boolean isSuspended() {
+        return !suspendedBlocks.isEmpty();
     }
 
     public void setObjectCount(Long objectCount) {
@@ -92,15 +93,6 @@ class VolumeWriter implements Flushable, Closeable {
         streamEnd += block.getSize();
     }
 
-    public void complete(boolean lastVolume) throws IOException {
-        flush();
-        seekToEnd();
-        writeToStream(PbInt.NULL);
-        outputStream.write(Volumes.createVolumeTail(lastVolume, catalogPointer, lastVolume ? 0 : sizeLimit - streamEnd));
-        close();
-        volume.afterSave();
-    }
-
     public void flush() throws IOException {
         initialize();
         if (suspendedBlocks.isEmpty()) return;
@@ -112,12 +104,22 @@ class VolumeWriter implements Flushable, Closeable {
         suspendedBlocks.clear();
     }
 
-    @Override
-    public void close() throws IOException {
-        if (outputStream != null) {
-            outputStream.close();
-            outputStream = null;
-        }
+    public void close(boolean lastVolume) throws IOException {
+        flush();
+        seekToEnd();
+        writeToStream(PbInt.NULL);
+        outputStream.write(Volumes.createVolumeTail(lastVolume, catalogPointer, lastVolume ? 0 : sizeLimit - streamEnd));
+        outputStream.close();
+        volume.afterSave();
+    }
+
+    public void cleanup() {
+        Closeables.closeQuietly(outputStream);
+    }
+
+    private void setLimits() throws IOException {
+        sizeLimit = Math.min(maxVolumeSize, volume.getMaxSize());
+        spaceLimit = sizeLimit - Volumes.createVolumeTail(false, catalogPointer, 0).length - PbInt.NULL.getSize();
     }
 
     private void initialize() throws IOException {
@@ -128,11 +130,6 @@ class VolumeWriter implements Flushable, Closeable {
         streamEnd = volumeHead.length;
         streamAtEnd = true;
         setLimits();
-    }
-
-    private void setLimits() throws IOException {
-        sizeLimit = Math.min(maxVolumeSize, volume.getMaxSize());
-        spaceLimit = sizeLimit - Volumes.createVolumeTail(false, catalogPointer, 0).length - PbInt.NULL.getSize();
     }
 
     private void seekToEnd() throws IOException {

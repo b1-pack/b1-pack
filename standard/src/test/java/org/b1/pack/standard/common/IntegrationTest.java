@@ -266,8 +266,8 @@ public class IntegrationTest {
             }
 
             @Override
-            public InputStream getInputStream() throws IOException {
-                return new ByteArrayInputStream(fileContent);
+            public void writeTo(OutputStream stream) throws IOException {
+                stream.write(fileContent);
             }
         };
     }

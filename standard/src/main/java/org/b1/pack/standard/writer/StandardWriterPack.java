@@ -34,13 +34,13 @@ class StandardWriterPack extends WriterPack {
 
     private final WeakHashMap<WriterEntry, WriterObject> objectMap = new WeakHashMap<WriterEntry, WriterObject>();
     private final List<WriterObject> objectList = Lists.newArrayList();
-    private final ArchiveWriter writer;
+    private final RecordWriter writer;
     private long objectCount;
     private boolean catalogMode;
     private PbRecordPointer nextCatalogPointer;
 
     public StandardWriterPack(WriterProvider provider) {
-        writer = new ArchiveWriter(provider);
+        writer = new RecordWriter(provider);
     }
 
     @Override
@@ -58,17 +58,17 @@ class StandardWriterPack extends WriterPack {
         flush(true);
     }
 
-    public void complete() throws IOException {
+    public void close() throws IOException {
         writer.setObjectCount(objectCount);
         flush(false);
         writer.setCompressible(false);
-        initNextCatalogPointer();
+        setCatalogMode();
         Numbers.writeLong(null, writer);
-        writer.complete();
+        writer.close();
     }
 
-    public void close() throws IOException {
-        writer.close();
+    public void cleanup() {
+        writer.cleanup();
     }
 
     private long getNewId(WriterEntry entry) {
@@ -129,7 +129,10 @@ class StandardWriterPack extends WriterPack {
 
     private void setCatalogMode() throws IOException {
         writer.saveCatalogPoiner();
-        initNextCatalogPointer();
+        if (nextCatalogPointer != null) {
+            nextCatalogPointer.init(writer.getCurrentPointer());
+            nextCatalogPointer = null;
+        }
         catalogMode = true;
     }
 
@@ -139,12 +142,5 @@ class StandardWriterPack extends WriterPack {
             writer.write(nextCatalogPointer);
         }
         catalogMode = false;
-    }
-
-    private void initNextCatalogPointer() throws IOException {
-        if (nextCatalogPointer != null) {
-            nextCatalogPointer.init(writer.getCurrentPointer());
-            nextCatalogPointer = null;
-        }
     }
 }

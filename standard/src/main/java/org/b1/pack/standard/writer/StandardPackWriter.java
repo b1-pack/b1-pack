@@ -31,9 +31,9 @@ public class StandardPackWriter extends PackWriter {
         StandardWriterPack pack = new StandardWriterPack(provider);
         try {
             command.execute(pack);
-            pack.complete();
-        } finally {
             pack.close();
+        } finally {
+            pack.cleanup();
         }
     }
 

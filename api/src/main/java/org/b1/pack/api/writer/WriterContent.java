@@ -17,11 +17,11 @@
 package org.b1.pack.api.writer;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 public abstract class WriterContent {
 
     public abstract Long getSize() throws IOException;
 
-    public abstract InputStream getInputStream() throws IOException;
+    public abstract void writeTo(OutputStream stream) throws IOException;
 }
