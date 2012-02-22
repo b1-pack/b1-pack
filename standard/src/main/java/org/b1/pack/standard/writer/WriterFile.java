@@ -17,7 +17,6 @@
 package org.b1.pack.standard.writer;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.CountingOutputStream;
 import org.b1.pack.api.writer.WriterContent;
 import org.b1.pack.api.writer.WriterEntry;
 import org.b1.pack.standard.common.Constants;
@@ -63,7 +62,7 @@ class WriterFile extends WriterObject {
 
     private void writeFixedSizeContent(RecordWriter recordWriter) throws IOException {
         Numbers.writeLong(size, recordWriter);
-        CountingOutputStream stream = new CountingOutputStream(recordWriter);
+        ContentOutputStream stream = new ContentOutputStream(recordWriter);
         content.writeTo(stream);
         Preconditions.checkState(stream.getCount() == size, "Content size does not match");
         Numbers.writeLong(0, recordWriter);
@@ -71,7 +70,7 @@ class WriterFile extends WriterObject {
 
     private void writeChunkedContent(RecordWriter recordWriter) throws IOException {
         ChunkedOutputStream chunkedOutputStream = new ChunkedOutputStream(Constants.MAX_CHUNK_SIZE, recordWriter);
-        CountingOutputStream stream = new CountingOutputStream(chunkedOutputStream);
+        ContentOutputStream stream = new ContentOutputStream(recordWriter);
         content.writeTo(stream);
         size = stream.getCount();
         chunkedOutputStream.close();

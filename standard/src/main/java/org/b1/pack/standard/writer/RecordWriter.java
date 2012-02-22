@@ -51,6 +51,18 @@ class RecordWriter extends OutputStream {
         return new PbRecordPointer(volumeNumberSize, blockOffsetSize, Numbers.MAX_LONG_SIZE);//todo
     }
 
+    public void setObjectCount(Long objectCount) {
+        blockWriter.setObjectCount(objectCount);
+    }
+
+    public void saveCatalogPoiner() throws IOException {
+        blockWriter.saveCatalogPoiner();
+    }
+
+    public void setCompressible(boolean compressible) throws IOException {
+        //todo
+    }
+
     @Override
     public void write(int b) throws IOException {
         blockWriter.write(b);
@@ -77,17 +89,5 @@ class RecordWriter extends OutputStream {
 
     public void cleanup() {
         blockWriter.cleanup();
-    }
-
-    public void setObjectCount(Long objectCount) {
-        blockWriter.setObjectCount(objectCount);
-    }
-
-    public void setCompressible(boolean compressible) throws IOException {
-        //todo
-    }
-
-    public void saveCatalogPoiner() throws IOException {
-        blockWriter.saveCatalogPoiner();
     }
 }

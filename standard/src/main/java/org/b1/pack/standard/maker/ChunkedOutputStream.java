@@ -66,14 +66,13 @@ public class ChunkedOutputStream extends OutputStream {
 
     @Override
     public void close() throws IOException {
-        if (count > 0) {
-            flushBuffer();
-        }
+        flushBuffer();
         Numbers.writeLong(0, stream);
         count = Integer.MAX_VALUE;
     }
 
     private void flushBuffer() throws IOException {
+        if (count == 0) return;
         Numbers.writeLong(count, stream);
         stream.write(buffer, 0, count);
         count = 0;
