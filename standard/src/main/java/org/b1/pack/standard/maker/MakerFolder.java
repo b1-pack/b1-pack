@@ -17,13 +17,11 @@
 package org.b1.pack.standard.maker;
 
 import org.b1.pack.api.maker.PmFolder;
+import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.ObjectKey;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static org.b1.pack.standard.common.Constants.CATALOG_FOLDER;
-import static org.b1.pack.standard.common.Constants.COMPLETE_FOLDER;
 
 public class MakerFolder extends MakerObject {
 
@@ -32,10 +30,10 @@ public class MakerFolder extends MakerObject {
     }
 
     public void writeCompleteRecord(ObjectKey key, PackRecordStream stream) throws IOException {
-        writeCompleteRecordPart(COMPLETE_FOLDER, key, stream);
+        writeCompleteRecordPart(Constants.COMPLETE_FOLDER, key, stream);
     }
 
     public void writeCatalogRecord(ObjectKey key, OutputStream stream) throws IOException {
-        writeCatalogRecordPart(CATALOG_FOLDER, key, stream);
+        writeCatalogRecordPart(Constants.CATALOG_FOLDER, key, stream);
     }
 }

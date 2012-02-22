@@ -16,11 +16,9 @@
 
 package org.b1.pack.standard.explorer;
 
+import com.google.common.base.Preconditions;
 import org.b1.pack.standard.common.RecordPointer;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.Long.parseLong;
-import static org.b1.pack.standard.common.Volumes.*;
+import org.b1.pack.standard.common.Volumes;
 
 public class HeaderSet {
 
@@ -35,7 +33,7 @@ public class HeaderSet {
         HeaderParser parser = new HeaderParser();
         parser.parse(s);
         for (String item : parser.getItems()) {
-            int i = item.indexOf(COLON);
+            int i = item.indexOf(Volumes.COLON);
             if (i >= 0) {
                 init(item.substring(0, i), item.substring(i + 1));
             }
@@ -71,26 +69,26 @@ public class HeaderSet {
     }
 
     private void init(String key, String value) {
-        if (key.equals(B1)) {
-            checkArgument(headerType == null);
+        if (key.equals(Volumes.B1)) {
+            Preconditions.checkArgument(headerType == null);
             headerType = value;
-        } else if (key.equals(V)) {
-            checkArgument(schemaVersion == null);
+        } else if (key.equals(Volumes.V)) {
+            Preconditions.checkArgument(schemaVersion == null);
             schemaVersion = Double.valueOf(value);
-        } else if (key.equals(A)) {
-            checkArgument(archiveId == null);
+        } else if (key.equals(Volumes.A)) {
+            Preconditions.checkArgument(archiveId == null);
             archiveId = value;
-        } else if (key.equals(N)) {
-            checkArgument(volumeNumber == null);
+        } else if (key.equals(Volumes.N)) {
+            Preconditions.checkArgument(volumeNumber == null);
             volumeNumber = Long.valueOf(value);
-        } else if (key.equals(T)) {
-            checkArgument(objectTotal == null);
+        } else if (key.equals(Volumes.T)) {
+            Preconditions.checkArgument(objectTotal == null);
             objectTotal = Long.valueOf(value);
-        } else if (key.equals(C)) {
-            checkArgument(catalogPointer == null);
-            String[] values = value.split(SLASH);
-            checkArgument(values.length == 3);
-            catalogPointer = new RecordPointer(parseLong(values[0]), parseLong(values[1]), parseLong(values[2]));
+        } else if (key.equals(Volumes.C)) {
+            Preconditions.checkArgument(catalogPointer == null);
+            String[] values = value.split(Volumes.SLASH);
+            Preconditions.checkArgument(values.length == 3);
+            catalogPointer = new RecordPointer(Long.parseLong(values[0]), Long.parseLong(values[1]), Long.parseLong(values[2]));
         }
     }
 }

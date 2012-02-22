@@ -22,8 +22,6 @@ import com.google.common.base.Preconditions;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 public class VolumeNameExpert {
 
     public static final Pattern NAME_PATTERN = Pattern.compile("(.*?)(\\.[bB]1)?");
@@ -45,7 +43,7 @@ public class VolumeNameExpert {
         if (format != null) {
             builder.append(".part").append(String.format(format, volumeNumber));
         } else {
-            checkArgument(volumeNumber == 1);
+            Preconditions.checkArgument(volumeNumber == 1);
         }
         return builder.append(extension).toString();
     }

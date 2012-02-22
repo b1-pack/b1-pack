@@ -16,12 +16,15 @@
 
 package org.b1.pack.standard.explorer;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.explorer.PackExplorer;
 import org.b1.pack.api.explorer.PxObject;
 import org.b1.pack.api.explorer.PxVisitor;
+import org.b1.pack.standard.common.Constants;
+import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PermanentList;
 import org.b1.pack.standard.common.RecordPointer;
 
@@ -29,12 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.b1.pack.standard.common.Constants.*;
-import static org.b1.pack.standard.common.Numbers.readLong;
-import static org.b1.pack.standard.explorer.RecordHeader.readRecordHeader;
 
 public class StandardPackExplorer implements PackExplorer {
 
@@ -61,22 +58,22 @@ public class StandardPackExplorer implements PackExplorer {
         InputStream stream = navigator.getRecordStream(headerSet.getCatalogPointer());
         try {
             Long recordType;
-            while ((total == null || objects.size() < total) && (recordType = readLong(stream)) != null) {
+            while ((total == null || objects.size() < total) && (recordType = Numbers.readLong(stream)) != null) {
                 switch (Ints.checkedCast(recordType)) {
-                    case RECORD_POINTER:
+                    case Constants.RECORD_POINTER:
                         RecordPointer catalogPointer = readPointer(stream);
                         stream.close();
                         stream = navigator.getRecordStream(catalogPointer);
                         break;
-                    case CATALOG_FILE:
+                    case Constants.CATALOG_FILE:
                         RecordPointer filePointer = readPointer(stream);
-                        RecordHeader fileHeader = readRecordHeader(stream);
-                        Long fileSize = readLong(stream);
+                        RecordHeader fileHeader = RecordHeader.readRecordHeader(stream);
+                        Long fileSize = Numbers.readLong(stream);
                         objects.add(new StandardPxFile(navigator, filePointer, fileHeader, getPath(pathMap, fileHeader), fileSize));
                         break;
-                    case CATALOG_FOLDER:
+                    case Constants.CATALOG_FOLDER:
                         readPointer(stream); // ignore for now
-                        RecordHeader folderHeader = readRecordHeader(stream);
+                        RecordHeader folderHeader = RecordHeader.readRecordHeader(stream);
                         objects.add(new StandardPxFolder(folderHeader, getPath(pathMap, folderHeader)));
                         break;
                     default:
@@ -97,12 +94,12 @@ public class StandardPackExplorer implements PackExplorer {
     private static List<String> getPath(Map<Long, PermanentList<String>> map, RecordHeader header) {
         PermanentList<String> path = header.parentId == null
                 ? PermanentList.of(header.name)
-                : checkNotNull(map.get(header.parentId), "Invalid reference").with(header.name);
-        checkArgument(map.put(header.id, path) == null, "Double entry");
+                : Preconditions.checkNotNull(map.get(header.parentId), "Invalid reference").with(header.name);
+        Preconditions.checkArgument(map.put(header.id, path) == null, "Double entry");
         return path;
     }
 
     private static RecordPointer readPointer(InputStream stream) throws IOException {
-        return new RecordPointer(readLong(stream), readLong(stream), readLong(stream));
+        return new RecordPointer(Numbers.readLong(stream), Numbers.readLong(stream), Numbers.readLong(stream));
     }
 }

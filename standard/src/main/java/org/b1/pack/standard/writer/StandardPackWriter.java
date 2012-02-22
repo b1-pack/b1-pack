@@ -28,12 +28,14 @@ public class StandardPackWriter extends PackWriter {
 
     @Override
     public void write(WriterProvider provider, WriterCommand command) throws IOException {
+        boolean pending = true;
         StandardWriterPack pack = new StandardWriterPack(provider);
         try {
             command.execute(pack);
             pack.close();
+            pending = false;
         } finally {
-            pack.cleanup();
+            if (pending) pack.cleanup();
         }
     }
 

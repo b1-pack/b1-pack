@@ -16,22 +16,20 @@
 
 package org.b1.pack.standard.maker;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.b1.pack.api.maker.PackMaker;
 import org.b1.pack.api.maker.PmFile;
 import org.b1.pack.api.maker.PmFolder;
 import org.b1.pack.api.maker.PmProvider;
+import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.ObjectKey;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static org.b1.pack.standard.common.Numbers.writeLong;
 
 public class StandardPackMaker implements PackMaker {
 
@@ -78,7 +76,7 @@ public class StandardPackMaker implements PackMaker {
     }
 
     private void checkLastFileWritten() {
-        checkState(lastFile == null || lastFile.isWritten(), "File stream not closed");
+        Preconditions.checkState(lastFile == null || lastFile.isWritten(), "File stream not closed");
     }
 
     private long nextId() {
@@ -101,7 +99,7 @@ public class StandardPackMaker implements PackMaker {
         for (Map.Entry<ObjectKey, MakerObject> entry : objectMap.entrySet()) {
             entry.getValue().writeCatalogRecord(entry.getKey(), recordStream);
         }
-        writeLong(null, recordStream);
+        Numbers.writeLong(null, recordStream);
     }
 
     private ObjectKey createNewKey(Iterable<String> path) throws IOException {
@@ -117,7 +115,7 @@ public class StandardPackMaker implements PackMaker {
             }
         }
         ObjectKey key = createKey(parent, objectName);
-        checkArgument(!objectMap.containsKey(key));
+        Preconditions.checkArgument(!objectMap.containsKey(key));
         return key;
     }
 

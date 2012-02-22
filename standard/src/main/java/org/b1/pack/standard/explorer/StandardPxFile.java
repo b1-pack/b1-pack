@@ -16,18 +16,16 @@
 
 package org.b1.pack.standard.explorer;
 
+import com.google.common.base.Preconditions;
 import org.b1.pack.api.explorer.PxFile;
 import org.b1.pack.api.explorer.PxVisitor;
+import org.b1.pack.standard.common.Constants;
+import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.b1.pack.standard.common.Constants.COMPLETE_FILE;
-import static org.b1.pack.standard.common.Numbers.readLong;
-import static org.b1.pack.standard.explorer.RecordHeader.readRecordHeader;
 
 public class StandardPxFile implements PxFile {
 
@@ -65,8 +63,8 @@ public class StandardPxFile implements PxFile {
         boolean pending = true;
         InputStream stream = navigator.getRecordStream(pointer);
         try {
-            checkArgument(readLong(stream) == COMPLETE_FILE);
-            readRecordHeader(stream); // ignore for now
+            Preconditions.checkArgument(Numbers.readLong(stream) == Constants.COMPLETE_FILE);
+            RecordHeader.readRecordHeader(stream); // ignore for now
             pending = false;
             return new ChunkedInputStream(stream);
         } finally {

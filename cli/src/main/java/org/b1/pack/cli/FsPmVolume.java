@@ -16,6 +16,7 @@
 
 package org.b1.pack.cli;
 
+import com.google.common.base.Preconditions;
 import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.maker.PmVolume;
 
@@ -23,8 +24,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public class FsPmVolume extends PmVolume {
 
@@ -45,7 +44,7 @@ public class FsPmVolume extends PmVolume {
         if (file.exists()) {
             throw new PackException("File already exists: " + file);
         }
-        checkState(tempFile == null);
+        Preconditions.checkState(tempFile == null);
         tempFile = FileTools.createTempFile(file);
         return new FileOutputStream(tempFile);
     }
@@ -57,6 +56,6 @@ public class FsPmVolume extends PmVolume {
 
     @Override
     public void complete() throws IOException {
-        checkState(tempFile.renameTo(file));
+        Preconditions.checkState(tempFile.renameTo(file));
     }
 }

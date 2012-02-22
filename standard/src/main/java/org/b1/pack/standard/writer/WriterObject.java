@@ -18,16 +18,15 @@ package org.b1.pack.standard.writer;
 
 import com.google.common.base.Charsets;
 import org.b1.pack.api.writer.WriterEntry;
-import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.Numbers;
+import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 abstract class WriterObject {
 
-    protected final long id;
+    private final long id;
     private final WriterFolder parent;
     private final String name;
     private final Long lastModifiedTime;
@@ -44,59 +43,59 @@ abstract class WriterObject {
         this.compressible = entry.isCompressible();
     }
 
-    public abstract void saveCatalogRecord(RecordWriter writer) throws IOException;
+    public abstract void saveCatalogRecord(RecordWriter recordWriter) throws IOException;
 
-    public abstract void saveCompleteRecord(RecordWriter writer) throws IOException;
+    public abstract void saveCompleteRecord(RecordWriter recordWriter) throws IOException;
 
-    protected void writeBasicCatalogRecord(int recordType, RecordWriter writer) throws IOException {
-        Numbers.writeLong(recordType, writer);
-        writePointer(writer);
-        writeHeader(writer);
+    protected void writeBasicCatalogRecord(int recordType, RecordWriter recordWriter) throws IOException {
+        Numbers.writeLong(recordType, recordWriter);
+        writePointer(recordWriter);
+        writeHeader(recordWriter);
     }
 
-    protected boolean writeBasicCompleteRecord(int recordType, RecordWriter writer) throws IOException {
+    protected boolean writeBasicCompleteRecord(int recordType, RecordWriter recordWriter) throws IOException {
         if (completeRecordSaved) {
             return false;
         }
         if (parent != null) {
-            parent.saveCompleteRecord(writer);
+            parent.saveCompleteRecord(recordWriter);
         }
         completeRecordSaved = true;
-        writer.setCompressible(compressible);
-        pointer = writer.getCurrentPointer();
+        recordWriter.setCompressible(compressible);
+        pointer = recordWriter.getCurrentPointer();
         if (futurePointer != null) {
             futurePointer.init(pointer);
         }
-        Numbers.writeLong(recordType, writer);
-        writeHeader(writer);
+        Numbers.writeLong(recordType, recordWriter);
+        writeHeader(recordWriter);
         return true;
     }
 
-    private void writePointer(RecordWriter writer) throws IOException {
+    private void writePointer(RecordWriter recordWriter) throws IOException {
         if (pointer != null) {
-            Numbers.writeLong(pointer.volumeNumber, writer);
-            Numbers.writeLong(pointer.blockOffset, writer);
-            Numbers.writeLong(pointer.recordOffset, writer);
+            Numbers.writeLong(pointer.volumeNumber, recordWriter);
+            Numbers.writeLong(pointer.blockOffset, recordWriter);
+            Numbers.writeLong(pointer.recordOffset, recordWriter);
         } else {
-            futurePointer = writer.createEmptyPointer();
-            writer.write(futurePointer);
+            futurePointer = recordWriter.createEmptyPointer();
+            recordWriter.write(futurePointer);
         }
     }
 
-    private void writeHeader(OutputStream stream) throws IOException {
-        Numbers.writeLong(id, stream);
-        Numbers.writeLong(parent == null ? null : parent.id, stream);
-        writeString(stream, name);
+    private void writeHeader(RecordWriter recordWriter) throws IOException {
+        Numbers.writeLong(id, recordWriter);
+        Numbers.writeLong(parent == null ? null : ((WriterObject) parent).id, recordWriter);
+        writeString(recordWriter, name);
         if (lastModifiedTime != null) {
-            Numbers.writeLong(0, stream);
-            Numbers.writeLong(lastModifiedTime, stream);
+            Numbers.writeLong(0, recordWriter);
+            Numbers.writeLong(lastModifiedTime, recordWriter);
         }
-        Numbers.writeLong(null, stream);
+        Numbers.writeLong(null, recordWriter);
     }
 
-    private static void writeString(OutputStream stream, String s) throws IOException {
+    private static void writeString(RecordWriter recordWriter, String s) throws IOException {
         byte[] bytes = s.getBytes(Charsets.UTF_8);
-        Numbers.writeLong(bytes.length, stream);
-        stream.write(bytes);
+        Numbers.writeLong(bytes.length, recordWriter);
+        recordWriter.write(bytes);
     }
 }

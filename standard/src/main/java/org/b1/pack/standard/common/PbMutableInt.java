@@ -17,8 +17,6 @@
 package org.b1.pack.standard.common;
 
 import org.b1.pack.api.builder.Writable;
-import org.b1.pack.standard.common.ByteArrayWritable;
-import org.b1.pack.standard.common.Numbers;
 
 import java.io.IOException;
 import java.io.OutputStream;

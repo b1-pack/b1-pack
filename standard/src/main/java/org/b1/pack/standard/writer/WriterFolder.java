@@ -17,11 +17,9 @@
 package org.b1.pack.standard.writer;
 
 import org.b1.pack.api.writer.WriterEntry;
+import org.b1.pack.standard.common.Constants;
 
 import java.io.IOException;
-
-import static org.b1.pack.standard.common.Constants.CATALOG_FOLDER;
-import static org.b1.pack.standard.common.Constants.COMPLETE_FOLDER;
 
 class WriterFolder extends WriterObject {
 
@@ -30,12 +28,12 @@ class WriterFolder extends WriterObject {
     }
 
     @Override
-    public void saveCatalogRecord(RecordWriter writer) throws IOException {
-        writeBasicCatalogRecord(CATALOG_FOLDER, writer);
+    public void saveCatalogRecord(RecordWriter recordWriter) throws IOException {
+        writeBasicCatalogRecord(Constants.CATALOG_FOLDER, recordWriter);
     }
 
     @Override
-    public void saveCompleteRecord(RecordWriter writer) throws IOException {
-        writeBasicCompleteRecord(COMPLETE_FOLDER, writer);
+    public void saveCompleteRecord(RecordWriter recordWriter) throws IOException {
+        writeBasicCompleteRecord(Constants.COMPLETE_FOLDER, recordWriter);
     }
 }

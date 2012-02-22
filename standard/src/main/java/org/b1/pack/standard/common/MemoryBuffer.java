@@ -22,8 +22,6 @@ import com.google.common.primitives.Ints;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 
-import static com.google.common.base.Preconditions.checkPositionIndexes;
-
 public final class MemoryBuffer extends ByteArrayOutputStream {
 
     private int index;
@@ -75,7 +73,7 @@ public final class MemoryBuffer extends ByteArrayOutputStream {
     }
 
     public String getString(int offset, int length, Charset charset) {
-        checkPositionIndexes(offset, offset + length, count);
+        Preconditions.checkPositionIndexes(offset, offset + length, count);
         return new String(buf, offset, length, charset);
     }
 }

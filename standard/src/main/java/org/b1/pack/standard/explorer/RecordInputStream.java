@@ -16,6 +16,7 @@
 
 package org.b1.pack.standard.explorer;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import com.google.common.primitives.Ints;
@@ -29,14 +30,9 @@ import java.io.InputStream;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedOutputStream;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.io.ByteStreams.readFully;
-import static com.google.common.io.ByteStreams.skipFully;
-import static org.b1.pack.standard.common.Constants.MAX_CHUNK_SIZE;
-
 public class RecordInputStream extends InputStream {
 
-    private final MemoryBuffer memoryBuffer = new MemoryBuffer(MAX_CHUNK_SIZE + 1);
+    private final MemoryBuffer memoryBuffer = new MemoryBuffer(Constants.MAX_CHUNK_SIZE + 1);
     private final VolumeManager volumeManager;
     private long volumeNumber;
     private long blockOffset;
@@ -90,7 +86,7 @@ public class RecordInputStream extends InputStream {
                 }
                 long delta = pointer.blockOffset - stream.getCount();
                 if (delta >= 0) {
-                    skipFully(stream, delta);
+                    ByteStreams.skipFully(stream, delta);
                     readNextBlock();
                     memoryBuffer.setIndex(pointer.recordOffset);
                     return;
@@ -100,7 +96,7 @@ public class RecordInputStream extends InputStream {
         }
         stream = volumeManager.getInputStream(pointer.volumeNumber);
         volumeNumber = pointer.volumeNumber;
-        skipFully(stream, pointer.blockOffset - stream.getCount());
+        ByteStreams.skipFully(stream, pointer.blockOffset - stream.getCount());
         readNextBlock();
         memoryBuffer.setIndex(pointer.recordOffset);
     }
@@ -122,12 +118,12 @@ public class RecordInputStream extends InputStream {
 
     private void readBlock(Long blockType) throws IOException {
         memoryBuffer.reset();
-        checkArgument(blockType == Constants.PLAIN_BLOCK);
+        Preconditions.checkArgument(blockType == Constants.PLAIN_BLOCK);
         Adler32 adler32 = new Adler32();
         ByteStreams.copy(new ChunkedInputStream(stream), new CheckedOutputStream(memoryBuffer, adler32));
         byte[] buffer = new byte[4];
-        readFully(stream, buffer);
-        checkArgument(Ints.fromByteArray(buffer) == (int) adler32.getValue(), "Invalid checksum");
-        checkArgument(memoryBuffer.size() > 0);
+        ByteStreams.readFully(stream, buffer);
+        Preconditions.checkArgument(Ints.fromByteArray(buffer) == (int) adler32.getValue(), "Invalid checksum");
+        Preconditions.checkArgument(memoryBuffer.size() > 0);
     }
 }

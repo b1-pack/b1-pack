@@ -18,9 +18,6 @@ package org.b1.pack.standard.common;
 
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.Writable;
-import org.b1.pack.standard.common.ByteArrayWritable;
-import org.b1.pack.standard.common.CompositeWritable;
-import org.b1.pack.standard.common.PbBinary;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

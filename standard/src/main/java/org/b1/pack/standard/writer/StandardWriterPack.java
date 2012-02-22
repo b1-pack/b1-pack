@@ -16,6 +16,7 @@
 
 package org.b1.pack.standard.writer;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.b1.pack.api.writer.WriterContent;
 import org.b1.pack.api.writer.WriterEntry;
@@ -28,19 +29,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 class StandardWriterPack extends WriterPack {
 
     private final WeakHashMap<WriterEntry, WriterObject> objectMap = new WeakHashMap<WriterEntry, WriterObject>();
     private final List<WriterObject> objectList = Lists.newArrayList();
-    private final RecordWriter writer;
+    private final RecordWriter recordWriter;
     private long objectCount;
     private boolean catalogMode;
     private PbRecordPointer nextCatalogPointer;
 
     public StandardWriterPack(WriterProvider provider) {
-        writer = new RecordWriter(provider);
+        recordWriter = new RecordWriter(provider);
     }
 
     @Override
@@ -59,20 +58,20 @@ class StandardWriterPack extends WriterPack {
     }
 
     public void close() throws IOException {
-        writer.setObjectCount(objectCount);
+        recordWriter.setObjectCount(objectCount);
+        recordWriter.setCompressible(false);
         flush(false);
-        writer.setCompressible(false);
         setCatalogMode();
-        Numbers.writeLong(null, writer);
-        writer.close();
+        Numbers.writeLong(null, recordWriter);
+        recordWriter.close();
     }
 
     public void cleanup() {
-        writer.cleanup();
+        recordWriter.cleanup();
     }
 
     private long getNewId(WriterEntry entry) {
-        checkArgument(!objectMap.containsKey(entry), "Duplicate entry");
+        Preconditions.checkArgument(!objectMap.containsKey(entry), "Duplicate entry");
         return ++objectCount;
     }
 
@@ -91,7 +90,7 @@ class StandardWriterPack extends WriterPack {
         objectList.add(object);
         if (entry.isImmediate()) {
             setContentMode();
-            object.saveCompleteRecord(writer);
+            object.saveCompleteRecord(recordWriter);
         }
     }
 
@@ -99,38 +98,38 @@ class StandardWriterPack extends WriterPack {
         if (intermediate && objectList.isEmpty()) {
             return;
         }
-        if (writer.isSeekable()) {
-            writer.setCompressible(false);
+        if (recordWriter.isSeekable()) {
+            recordWriter.setCompressible(false);
             saveCatalogRecords();
             saveCompleteRecords();
         } else {
             saveCompleteRecords();
             if (intermediate) return;
-            writer.setCompressible(true);
+            recordWriter.setCompressible(true);
             saveCatalogRecords();
         }
         objectList.clear();
-        writer.flush();
+        recordWriter.flush();
     }
 
     private void saveCatalogRecords() throws IOException {
         setCatalogMode();
         for (WriterObject object : objectList) {
-            object.saveCatalogRecord(writer);
+            object.saveCatalogRecord(recordWriter);
         }
     }
 
     private void saveCompleteRecords() throws IOException {
         setContentMode();
         for (WriterObject object : objectList) {
-            object.saveCompleteRecord(writer);
+            object.saveCompleteRecord(recordWriter);
         }
     }
 
     private void setCatalogMode() throws IOException {
-        writer.saveCatalogPoiner();
+        recordWriter.saveCatalogPoiner();
         if (nextCatalogPointer != null) {
-            nextCatalogPointer.init(writer.getCurrentPointer());
+            nextCatalogPointer.init(recordWriter.getCurrentPointer());
             nextCatalogPointer = null;
         }
         catalogMode = true;
@@ -138,8 +137,8 @@ class StandardWriterPack extends WriterPack {
 
     private void setContentMode() throws IOException {
         if (catalogMode && nextCatalogPointer == null) {
-            nextCatalogPointer = writer.createEmptyPointer();
-            writer.write(nextCatalogPointer);
+            nextCatalogPointer = recordWriter.createEmptyPointer();
+            recordWriter.write(nextCatalogPointer);
         }
         catalogMode = false;
     }

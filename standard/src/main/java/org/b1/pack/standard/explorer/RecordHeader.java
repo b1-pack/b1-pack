@@ -20,11 +20,10 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
+import org.b1.pack.standard.common.Numbers;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.b1.pack.standard.common.Numbers.readLong;
 
 public class RecordHeader {
 
@@ -41,21 +40,21 @@ public class RecordHeader {
     }
 
     public static RecordHeader readRecordHeader(InputStream stream) throws IOException {
-        Long id = readLong(stream);
-        Long parentId = readLong(stream);
+        Long id = Numbers.readLong(stream);
+        Long parentId = Numbers.readLong(stream);
         String name = readText(stream);
         Long lastModifiedTime = null;
-        Long code = readLong(stream);
+        Long code = Numbers.readLong(stream);
         if (code != null) {
             Preconditions.checkArgument(code == 0);
-            lastModifiedTime = readLong(stream);
-            Preconditions.checkArgument(readLong(stream) == null);
+            lastModifiedTime = Numbers.readLong(stream);
+            Preconditions.checkArgument(Numbers.readLong(stream) == null);
         }
         return new RecordHeader(id, parentId, name, lastModifiedTime);
     }
 
     private static String readText(InputStream stream) throws IOException {
-        Long size = readLong(stream);
+        Long size = Numbers.readLong(stream);
         if (size == null) {
             return null;
         }

@@ -18,8 +18,8 @@ package org.b1.pack.standard.writer;
 
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.writer.WriterProvider;
-import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.Numbers;
+import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;

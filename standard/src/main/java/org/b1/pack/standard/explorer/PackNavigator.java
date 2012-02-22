@@ -16,14 +16,13 @@
 
 package org.b1.pack.standard.explorer;
 
+import com.google.common.base.Preconditions;
 import org.b1.pack.standard.common.InputStreamWrapper;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public class PackNavigator implements Closeable {
 
@@ -35,7 +34,7 @@ public class PackNavigator implements Closeable {
     }
 
     public InputStream getRecordStream(RecordPointer pointer) throws IOException {
-        checkState(!streamOpen, "Only one stream can be open at a time");
+        Preconditions.checkState(!streamOpen, "Only one stream can be open at a time");
         recordStream.seek(pointer);
         streamOpen = true;
         return new InputStreamWrapper<RecordInputStream>(recordStream) {

@@ -18,13 +18,12 @@ package org.b1.pack.standard.maker;
 
 import com.google.common.base.Charsets;
 import org.b1.pack.api.maker.PmObject;
+import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.ObjectKey;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static org.b1.pack.standard.common.Numbers.writeLong;
 
 public abstract class MakerObject {
 
@@ -45,32 +44,32 @@ public abstract class MakerObject {
 
     protected void writeCompleteRecordPart(int recordType, ObjectKey key, PackRecordStream recordStream) throws IOException {
         pointer = recordStream.getCurrentPointer();
-        writeLong(recordType, recordStream);
+        Numbers.writeLong(recordType, recordStream);
         writeHeader(key, recordStream);
     }
 
     protected void writeCatalogRecordPart(int recordType, ObjectKey key, OutputStream stream) throws IOException {
-        writeLong(recordType, stream);
+        Numbers.writeLong(recordType, stream);
         writePointer(stream);
         writeHeader(key, stream);
     }
 
     private void writePointer(OutputStream stream) throws IOException {
-        writeLong(pointer.volumeNumber, stream);
-        writeLong(pointer.blockOffset, stream);
-        writeLong(pointer.recordOffset, stream);
+        Numbers.writeLong(pointer.volumeNumber, stream);
+        Numbers.writeLong(pointer.blockOffset, stream);
+        Numbers.writeLong(pointer.recordOffset, stream);
     }
 
     private void writeHeader(ObjectKey key, OutputStream stream) throws IOException {
-        writeLong(id, stream);
-        writeLong(key.getParentId(), stream);
+        Numbers.writeLong(id, stream);
+        Numbers.writeLong(key.getParentId(), stream);
         byte[] name = key.getName().getBytes(Charsets.UTF_8);
-        writeLong(name.length, stream);
+        Numbers.writeLong(name.length, stream);
         stream.write(name);
         if (modifiedAt != null) {
-            writeLong(0, stream);
-            writeLong(modifiedAt, stream);
+            Numbers.writeLong(0, stream);
+            Numbers.writeLong(modifiedAt, stream);
         }
-        writeLong(null, stream);
+        Numbers.writeLong(null, stream);
     }
 }

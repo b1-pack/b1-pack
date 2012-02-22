@@ -18,14 +18,13 @@ package org.b1.pack.standard.maker;
 
 import com.google.common.io.CountingOutputStream;
 import org.b1.pack.api.maker.PmFile;
+import org.b1.pack.standard.common.Constants;
+import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.ObjectKey;
 import org.b1.pack.standard.common.OutputStreamWrapper;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static org.b1.pack.standard.common.Constants.*;
-import static org.b1.pack.standard.common.Numbers.writeLong;
 
 public class MakerFile extends MakerObject {
 
@@ -36,21 +35,21 @@ public class MakerFile extends MakerObject {
     }
 
     public OutputStream writeCompleteRecord(ObjectKey key, final PackRecordStream recordStream) throws IOException {
-        writeCompleteRecordPart(COMPLETE_FILE, key, recordStream);
-        return new OutputStreamWrapper<CountingOutputStream>(new CountingOutputStream(new ChunkedOutputStream(MAX_CHUNK_SIZE, recordStream))) {
+        writeCompleteRecordPart(Constants.COMPLETE_FILE, key, recordStream);
+        return new OutputStreamWrapper<CountingOutputStream>(new CountingOutputStream(new ChunkedOutputStream(Constants.MAX_CHUNK_SIZE, recordStream))) {
             @Override
             public void close() throws IOException {
                 super.close();
                 long count = stream.getCount();
-                writeLong(count, recordStream);
+                Numbers.writeLong(count, recordStream);
                 size = count;
             }
         };
     }
 
     public void writeCatalogRecord(ObjectKey key, OutputStream stream) throws IOException {
-        writeCatalogRecordPart(CATALOG_FILE, key, stream);
-        writeLong(size, stream);
+        writeCatalogRecordPart(Constants.CATALOG_FILE, key, stream);
+        Numbers.writeLong(size, stream);
     }
 
     public boolean isWritten() {

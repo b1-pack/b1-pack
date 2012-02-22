@@ -16,22 +16,20 @@
 
 package org.b1.pack.standard.explorer;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.explorer.PxProvider;
 import org.b1.pack.api.explorer.PxVolume;
 import org.b1.pack.standard.common.MemoryBuffer;
+import org.b1.pack.standard.common.Volumes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.io.ByteStreams.copy;
-import static com.google.common.io.ByteStreams.skipFully;
-import static org.b1.pack.standard.common.Volumes.*;
 
 public class VolumeManager implements Closeable {
 
@@ -104,8 +102,8 @@ public class VolumeManager implements Closeable {
         if (archiveId == null) {
             archiveId = set.getArchiveId();
         }
-        checkVolume(volume, set.getHeaderType().equals(volumeNumber == 1 ? AS : VS));
-        checkVolume(volume, set.getSchemaVersion() != null && set.getSchemaVersion() <= SCHEMA_VERSION);
+        checkVolume(volume, set.getHeaderType().equals(volumeNumber == 1 ? Volumes.AS : Volumes.VS));
+        checkVolume(volume, set.getSchemaVersion() != null && set.getSchemaVersion() <= Volumes.SCHEMA_VERSION);
         checkVolume(volume, set.getArchiveId() != null && set.getArchiveId().equals(archiveId));
         checkVolume(volume, set.getVolumeNumber() != null && set.getVolumeNumber() == volumeNumber);
     }
@@ -115,27 +113,27 @@ public class VolumeManager implements Closeable {
         while (true) {
             int b = stream.read();
             checkVolume(volume, b != -1);
-            if ((byte) b == SEPARATOR_BYTE) break;
+            if ((byte) b == Volumes.SEPARATOR_BYTE) break;
             buffer.write(b);
-            if (buffer.size() == B1_AS.length()) {
-                String signature = buffer.toString(UTF_8.name());
-                checkVolume(volume, signature.equals(B1_AS) || signature.equals(B1_VS));
+            if (buffer.size() == Volumes.B1_AS.length()) {
+                String signature = buffer.toString(Charsets.UTF_8.name());
+                checkVolume(volume, signature.equals(Volumes.B1_AS) || signature.equals(Volumes.B1_VS));
             }
         }
-        checkVolume(volume, buffer.size() > B1_AS.length());
-        return buffer.toString(UTF_8.name());
+        checkVolume(volume, buffer.size() > Volumes.B1_AS.length());
+        return buffer.toString(Charsets.UTF_8.name());
     }
 
     private static String readTail(PxVolume volume, CountingInputStream stream) throws IOException {
         long available = volume.getSize() - stream.getCount();
         int capacity = Ints.checkedCast(Math.min(available, MAX_TAIL_SIZE));
         MemoryBuffer buffer = new MemoryBuffer(capacity);
-        skipFully(stream, available - capacity);
-        copy(stream, buffer);
-        int index = buffer.lastIndexOf(SEPARATOR_BYTE) + 1;
+        ByteStreams.skipFully(stream, available - capacity);
+        ByteStreams.copy(stream, buffer);
+        int index = buffer.lastIndexOf(Volumes.SEPARATOR_BYTE) + 1;
         checkVolume(volume, index > 0);
-        String result = buffer.getString(index, capacity - index, UTF_8);
-        checkVolume(volume, result.endsWith(B1_AE) || result.endsWith(B1_VE));
+        String result = buffer.getString(index, capacity - index, Charsets.UTF_8);
+        checkVolume(volume, result.endsWith(Volumes.B1_AE) || result.endsWith(Volumes.B1_VE));
         return result;
     }
 

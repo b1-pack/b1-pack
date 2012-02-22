@@ -16,15 +16,13 @@
 
 package org.b1.pack.standard.maker;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.maker.PmProvider;
 import org.b1.pack.api.maker.PmVolume;
-import org.b1.pack.standard.common.Numbers;
-import org.b1.pack.standard.common.RecordPointer;
-import org.b1.pack.standard.common.VolumeNameExpert;
-import org.b1.pack.standard.common.Volumes;
+import org.b1.pack.standard.common.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,18 +30,11 @@ import java.io.OutputStream;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedOutputStream;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.b1.pack.standard.common.Constants.PLAIN_BLOCK;
-import static org.b1.pack.standard.common.Constants.MAX_CHUNK_SIZE;
-import static org.b1.pack.standard.common.Numbers.writeLong;
-import static org.b1.pack.standard.common.Volumes.createVolumeHead;
-import static org.b1.pack.standard.common.Volumes.createVolumeTail;
-
 public class PackRecordStream extends OutputStream {
 
-    private static final int PLAIN_BLOCK_OVERHEAD = Numbers.getSerializedSize(MAX_CHUNK_SIZE) + 6;
+    private static final int PLAIN_BLOCK_OVERHEAD = Numbers.getSerializedSize(Constants.MAX_CHUNK_SIZE) + 6;
 
-    private final ByteArrayOutputStream chunk = new ByteArrayOutputStream(MAX_CHUNK_SIZE);
+    private final ByteArrayOutputStream chunk = new ByteArrayOutputStream(Constants.MAX_CHUNK_SIZE);
     private final String archiveId = Volumes.createArchiveId();
     private final PmProvider provider;
     private final VolumeNameExpert nameExpert;
@@ -67,7 +58,7 @@ public class PackRecordStream extends OutputStream {
     }
 
     public void startCatalog() throws IOException {
-        checkState(catalogPointer == null);
+        Preconditions.checkState(catalogPointer == null);
         //todo ensure more free space
         catalogPointer = getCurrentPointer();
         setVolumeLimit();
@@ -126,22 +117,22 @@ public class PackRecordStream extends OutputStream {
     }
 
     private void startVolume() throws IOException {
-        checkState(volume == null);
-        checkState(volumeStream == null);
+        Preconditions.checkState(volume == null);
+        Preconditions.checkState(volumeStream == null);
         volume = provider.getVolume(nameExpert.getVolumeName(++volumeNumber));
         volumeSize = volume.getSize();
         volumeStream = new CountingOutputStream(volume.getOutputStream());
-        volumeStream.write(createVolumeHead(archiveId, volumeNumber, null));
+        volumeStream.write(Volumes.createVolumeHead(archiveId, volumeNumber, null));
     }
 
     private void setVolumeLimit() {
-        volumeLimit = volumeSize == 0 ? Long.MAX_VALUE : volumeSize - createVolumeTail(false, catalogPointer, 0).length - 1;
+        volumeLimit = volumeSize == 0 ? Long.MAX_VALUE : volumeSize - Volumes.createVolumeTail(false, catalogPointer, 0).length - 1;
     }
 
     private void endVolume(boolean lastVolume) throws IOException {
         if (volumeStream == null) return;
         try {
-            writeLong(null, volumeStream);
+            Numbers.writeLong(null, volumeStream);
             volumeStream.write(Volumes.createVolumeTail(lastVolume, catalogPointer, lastVolume ? 0 : volumeSize - volumeStream.getCount()));
         } finally {
             volumeStream.close();
@@ -150,21 +141,21 @@ public class PackRecordStream extends OutputStream {
     }
 
     private void startChunk() {
-        checkState(chunk.size() == 0);
-        checkState(chunkStream == null);
+        Preconditions.checkState(chunk.size() == 0);
+        Preconditions.checkState(chunkStream == null);
         chunkStream = new CheckedOutputStream(chunk, new Adler32());
     }
 
     private void setChunkLimit() {
-        chunkLimit = volumeStream == null ? 0 : (int) Math.min(MAX_CHUNK_SIZE, volumeLimit - volumeStream.getCount() - PLAIN_BLOCK_OVERHEAD);
+        chunkLimit = volumeStream == null ? 0 : (int) Math.min(Constants.MAX_CHUNK_SIZE, volumeLimit - volumeStream.getCount() - PLAIN_BLOCK_OVERHEAD);
     }
 
     private void endChunk() throws IOException {
         if (chunk.size() > 0) {
-            writeLong(PLAIN_BLOCK, volumeStream);
-            writeLong((long) chunk.size(), volumeStream);
+            Numbers.writeLong(Constants.PLAIN_BLOCK, volumeStream);
+            Numbers.writeLong((long) chunk.size(), volumeStream);
             chunk.writeTo(volumeStream);
-            writeLong(0L, volumeStream);
+            Numbers.writeLong(0L, volumeStream);
             volumeStream.write(Ints.toByteArray((int) chunkStream.getChecksum().getValue()));
             chunk.reset();
         }
