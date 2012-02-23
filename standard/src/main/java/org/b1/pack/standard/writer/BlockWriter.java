@@ -25,10 +25,9 @@ import org.b1.pack.standard.common.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
-class BlockWriter extends OutputStream {
+class BlockWriter extends ChunkWriter {
 
     private final String archiveId = Volumes.createArchiveId();
     private final List<VolumeWriter> suspendedWriters = Lists.newArrayList();
@@ -39,11 +38,13 @@ class BlockWriter extends OutputStream {
     private RecordPointer catalogPointer;
     private Long objectCount;
     private long maxContentSize;
+    private boolean compressed;
 
     public BlockWriter(WriterProvider provider) {
         this.provider = provider;
     }
 
+    @Override
     public RecordPointer getCurrentPointer() throws IOException {
         ensureFreeSpace();
         return new RecordPointer(volumeWriter.getVolumeNumber(), volumeWriter.getStreamEnd(), getContentSize());
@@ -54,11 +55,22 @@ class BlockWriter extends OutputStream {
         if (volumeWriter != null) volumeWriter.setObjectCount(objectCount);
     }
 
-    public void saveCatalogPoiner() throws IOException {
-        if (catalogPointer == null) {
-            catalogPointer = getCurrentPointer();//todo reserve more space
-            if (volumeWriter != null) volumeWriter.setCatalogPointer(catalogPointer);
+    public void setCompressed(boolean compressed) throws IOException {
+        flushContent();
+        this.compressed = compressed;
+    }
+
+    public RecordPointer saveCatalogPointer() throws IOException {
+        flushContent();
+        if (catalogPointer != null) {
+            return getCurrentPointer();
         }
+        //todo reserve more space
+        catalogPointer = getCurrentPointer();
+        if (volumeWriter != null) {
+            volumeWriter.setCatalogPointer(catalogPointer);
+        }
+        return catalogPointer;
     }
 
     @Override
@@ -77,6 +89,7 @@ class BlockWriter extends OutputStream {
         }
     }
 
+    @Override
     public void write(Writable value) throws IOException {
         long off = 0;
         long len = value.getSize();
@@ -184,6 +197,7 @@ class BlockWriter extends OutputStream {
     }
 
     private PbBlock createBlock(Writable content) {
-        return PbBlock.wrapPlainBlock(new PbPlainBlock(content));
+        PbPlainBlock block = new PbPlainBlock(content);
+        return compressed ? PbBlock.wrapLzmaBlock(block) : PbBlock.wrapPlainBlock(block);
     }
 }

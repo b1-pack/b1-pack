@@ -17,18 +17,18 @@
 package org.b1.pack.standard.writer;
 
 import SevenZip.Compression.LZMA.Encoder;
+import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.compression.LzmaCompressionMethod;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-class LzmaCompressor extends OutputStream implements Callable<Void> {
+class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
     private final PipedInputStream pipedInputStream = new PipedInputStream();
     private final PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
@@ -38,7 +38,7 @@ class LzmaCompressor extends OutputStream implements Callable<Void> {
     private final Future<Void> future;
     private long count;
 
-    public LzmaCompressor(LzmaCompressionMethod compressionMethod, BlockWriter blockWriter, ExecutorService executorService) throws IOException {
+    public LzmaWriter(LzmaCompressionMethod compressionMethod, BlockWriter blockWriter, ExecutorService executorService) throws IOException {
         this.blockWriter = blockWriter;
         this.compressionMethod = compressionMethod;
         this.startPointer = blockWriter.getCurrentPointer();
@@ -47,6 +47,10 @@ class LzmaCompressor extends OutputStream implements Callable<Void> {
 
     public RecordPointer getCurrentPointer() throws IOException {
         return new RecordPointer(startPointer.volumeNumber, startPointer.blockOffset, count);
+    }
+
+    public long getCount() {
+        return count;
     }
 
     @Override
@@ -59,6 +63,11 @@ class LzmaCompressor extends OutputStream implements Callable<Void> {
     public void write(byte[] b, int off, int len) throws IOException {
         pipedOutputStream.write(b, off, len);
         count += len;
+    }
+
+    @Override
+    public void write(Writable value) throws IOException {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -78,5 +87,9 @@ class LzmaCompressor extends OutputStream implements Callable<Void> {
         encoder.WriteCoderProperties(blockWriter);
         encoder.Code(pipedInputStream, blockWriter, -1, -1, null);
         return null;
+    }
+
+    public void cleanup() {
+        future.cancel(true);
     }
 }

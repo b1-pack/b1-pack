@@ -24,6 +24,7 @@ import org.b1.pack.api.writer.WriterPack;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PbRecordPointer;
+import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
 import java.util.List;
@@ -127,9 +128,9 @@ class StandardWriterPack extends WriterPack {
     }
 
     private void setCatalogMode() throws IOException {
-        recordWriter.saveCatalogPoiner();
+        RecordPointer pointer = recordWriter.saveCatalogPointer();
         if (nextCatalogPointer != null) {
-            nextCatalogPointer.init(recordWriter.getCurrentPointer());
+            nextCatalogPointer.init(pointer);
             nextCatalogPointer = null;
         }
         catalogMode = true;

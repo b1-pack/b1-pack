@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.common;
+package org.b1.pack.standard.writer;
 
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.standard.common.RecordPointer;
 
-public class PbBlock extends CompositeWritable {
+import java.io.IOException;
+import java.io.OutputStream;
 
-    private PbBlock(long code, Writable writable) {
-        super(new PbInt(code), writable);
-    }
+abstract class ChunkWriter extends OutputStream {
 
-    public static PbBlock wrapPlainBlock(PbPlainBlock block) {
-        return new PbBlock(Constants.PLAIN_BLOCK, block);
-    }
+    public abstract RecordPointer getCurrentPointer() throws IOException;
 
-    public static PbBlock wrapLzmaBlock(PbPlainBlock block) {
-        return new PbBlock(Constants.LZMA_BLOCK, block);
-    }
+    public abstract void write(Writable value) throws IOException;
 }
