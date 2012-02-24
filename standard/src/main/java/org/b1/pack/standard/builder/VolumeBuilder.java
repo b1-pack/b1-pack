@@ -31,8 +31,7 @@ public class VolumeBuilder {
 
     private final List<CompositeWritable> volumeContents = Lists.newArrayList();
     private final String archiveId = Volumes.createArchiveId();
-    private final String packName;
-    private final long volumeSize;
+    private final long maxVolumeSize;
     private final Map<Writable, PbRecordPointer> pointerMap;
     private final RecordPointer catalogPointer;
     private final long volumeLimit;
@@ -40,13 +39,12 @@ public class VolumeBuilder {
     private long volumeNumber;
     private CompositeWritable volumeContent;
 
-    public VolumeBuilder(String packName, long volumeSize, Map<Writable, PbRecordPointer> pointerMap, long objectCount) {
-        this.packName = packName;
-        this.volumeSize = volumeSize;
+    public VolumeBuilder(long maxVolumeSize, Map<Writable, PbRecordPointer> pointerMap, long objectCount) {
+        this.maxVolumeSize = maxVolumeSize;
         this.pointerMap = pointerMap;
         initVolume(objectCount);
         catalogPointer = new RecordPointer(volumeNumber, volumeContent.getSize(), 0);
-        volumeLimit = volumeSize == 0 ? 0 : volumeSize - PbInt.NULL.getSize() - Volumes.createVolumeTail(false, catalogPointer, 0).length;
+        volumeLimit = maxVolumeSize - PbInt.NULL.getSize() - Volumes.createVolumeTail(false, catalogPointer, 0).length;
     }
 
     public void addContent(Writable content) {
@@ -71,10 +69,9 @@ public class VolumeBuilder {
             completeVolume(true);
         }
         int volumeCount = volumeContents.size();
-        VolumeNameExpert nameExpert = new VolumeNameExpert(packName, volumeLimit == 0 ? 0 : volumeCount);
         List<PbVolume> result = Lists.newArrayListWithCapacity(volumeCount);
         for (int i = 0; i < volumeCount; i++) {
-            result.add(new StandardPbVolume(nameExpert.getVolumeName(i + 1), volumeContents.get(i)));
+            result.add(new StandardPbVolume(i + 1, volumeContents.get(i)));
         }
         return result;
     }
@@ -87,7 +84,7 @@ public class VolumeBuilder {
 
     private void completeVolume(boolean lastVolume) {
         volumeContent.add(PbInt.NULL);
-        long minSize = lastVolume ? 0 : volumeSize - volumeContent.getSize();
+        long minSize = lastVolume ? 0 : maxVolumeSize - volumeContent.getSize();
         volumeContent.add(new ByteArrayWritable(Volumes.createVolumeTail(lastVolume, catalogPointer, minSize)));
         volumeContents.add(volumeContent);
         volumeContent = null;
@@ -97,16 +94,14 @@ public class VolumeBuilder {
         long chunkSize = Math.min(content.getSize() - contentOffset, Constants.MAX_CHUNK_SIZE);
         Writable chunk = new PartialWritable(content, contentOffset, contentOffset + chunkSize);
         PbBlock block = PbBlock.wrapPlainBlock(new PbPlainBlock(chunk));
-        if (volumeLimit != 0) {
-            long freeSpace = volumeLimit - volumeContent.getSize();
-            if (block.getSize() > freeSpace) {
-                chunkSize -= block.getSize() - freeSpace;
-                if (chunkSize <= 0) {
-                    return 0;
-                }
-                chunk = new PartialWritable(content, contentOffset, contentOffset + chunkSize);
-                block = PbBlock.wrapPlainBlock(new PbPlainBlock(chunk));
+        long freeSpace = volumeLimit - volumeContent.getSize();
+        if (block.getSize() > freeSpace) {
+            chunkSize -= block.getSize() - freeSpace;
+            if (chunkSize <= 0) {
+                return 0;
             }
+            chunk = new PartialWritable(content, contentOffset, contentOffset + chunkSize);
+            block = PbBlock.wrapPlainBlock(new PbPlainBlock(chunk));
         }
         if (contentOffset == 0) {
             updatePointers(content);

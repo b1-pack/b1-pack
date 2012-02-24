@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,37 @@ package org.b1.pack.cli;
 import com.google.common.io.Files;
 import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.maker.PackMaker;
-import org.b1.pack.api.maker.PmFactory;
+import org.b1.pack.api.writer.PackWriter;
+import org.b1.pack.api.writer.WriterCommand;
+import org.b1.pack.api.writer.WriterPack;
+import org.b1.pack.api.writer.WriterProvider;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
-public class MakeCommand implements PackCommand {
+public class WriteCommand implements PackCommand {
 
     @Override
     public void execute(ArgSet argSet) throws IOException {
+        ArgSet.checkParameter(argSet.getTypeFlag() == null, "Invalid type");
         System.out.println("Starting");
-        File outputFolder = FileTools.getOutputFolder(argSet);
-        Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
-        FsPmProvider provider = new FsPmProvider(outputFolder, argSet.getPackName(), argSet.isSplit() ? 1 : 0, argSet.getVolumeSize());
-        PackMaker maker = PmFactory.newInstance(argSet.getTypeFormat()).createPackMaker(provider);
-        try {
-            for (FsObject fsObject : fsObjects) {
-                addObject(maker, fsObject);
+        Map<List<String>, FsObject> rootMap = FileTools.createRootMap(argSet.getFileNames());
+
+        //todo
+        WriterProvider provider = new FsWriterProvider(
+                FileTools.getOutputFolder(argSet),
+                argSet.getPackName(),
+                argSet.isSplit() ? 1 : 0, argSet.getVolumeSize());
+        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, new WriterCommand() {
+            @Override
+            public void execute(WriterPack pack) throws IOException {
+
             }
-        } finally {
-            maker.close();
-        }
+        });
+
         System.out.println();
         System.out.println("Done");
     }

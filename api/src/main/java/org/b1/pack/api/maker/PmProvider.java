@@ -18,10 +18,6 @@ package org.b1.pack.api.maker;
 
 public abstract class PmProvider {
 
-    public abstract String getPackName();
-
-    public abstract long getExpectedVolumeCount();
-
-    public abstract PmVolume getVolume(String name);
+    public abstract PmVolume getVolume(long number);
 
 }

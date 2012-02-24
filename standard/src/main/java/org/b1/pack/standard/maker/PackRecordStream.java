@@ -37,7 +37,6 @@ public class PackRecordStream extends OutputStream {
     private final ByteArrayOutputStream chunk = new ByteArrayOutputStream(Constants.MAX_CHUNK_SIZE);
     private final String archiveId = Volumes.createArchiveId();
     private final PmProvider provider;
-    private final VolumeNameExpert nameExpert;
     private RecordPointer catalogPointer;
     private long volumeNumber;
     private PmVolume volume;
@@ -49,7 +48,6 @@ public class PackRecordStream extends OutputStream {
 
     public PackRecordStream(PmProvider provider) {
         this.provider = provider;
-        nameExpert = new VolumeNameExpert(provider.getPackName(), provider.getExpectedVolumeCount());
     }
 
     public RecordPointer getCurrentPointer() throws IOException {
@@ -119,7 +117,7 @@ public class PackRecordStream extends OutputStream {
     private void startVolume() throws IOException {
         Preconditions.checkState(volume == null);
         Preconditions.checkState(volumeStream == null);
-        volume = provider.getVolume(nameExpert.getVolumeName(++volumeNumber));
+        volume = provider.getVolume(++volumeNumber);
         volumeSize = volume.getSize();
         volumeStream = new CountingOutputStream(volume.getOutputStream());
         volumeStream.write(Volumes.createVolumeHead(archiveId, volumeNumber, null));

@@ -96,7 +96,7 @@ class VolumeWriter {
         if (suspendedBlocks.isEmpty()) return;
         streamAtEnd = false;
         for (Map.Entry<Long, PbBlock> entry : suspendedBlocks.entrySet()) {
-            volume.seek(entry.getKey());
+            volume.seek(outputStream, entry.getKey());
             writeToStream(entry.getValue());
         }
         suspendedBlocks.clear();
@@ -132,7 +132,7 @@ class VolumeWriter {
 
     private void seekToEnd() throws IOException {
         if (streamAtEnd) return;
-        volume.seek(streamEnd);
+        volume.seek(outputStream, streamEnd);
         streamAtEnd = true;
     }
 

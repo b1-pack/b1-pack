@@ -23,28 +23,16 @@ import java.io.File;
 
 public class FsPmProvider extends PmProvider {
 
-    private final File outputFolder;
-    private final String packName;
+    private VolumeNameExpert nameExpert;
     private final long volumeSize;
 
-    public FsPmProvider(File outputFolder, String packName, long volumeSize) {
-        this.outputFolder = outputFolder;
-        this.packName = packName;
-        this.volumeSize = volumeSize;
+    public FsPmProvider(File outputFolder, String packName, int volumeCount, long maxVolumeSize) {
+        this.nameExpert = new VolumeNameExpert(outputFolder, packName, volumeCount);
+        this.volumeSize = maxVolumeSize;
     }
 
     @Override
-    public String getPackName() {
-        return packName;
-    }
-
-    @Override
-    public long getExpectedVolumeCount() {
-        return volumeSize == 0 ? 0 : 1;
-    }
-
-    @Override
-    public PmVolume getVolume(String name) {
-        return new FsPmVolume(new File(outputFolder, name), volumeSize);
+    public PmVolume getVolume(long number) {
+        return new FsPmVolume(nameExpert.getVolumeFile(number), volumeSize);
     }
 }

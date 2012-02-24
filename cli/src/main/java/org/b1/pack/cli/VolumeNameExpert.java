@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.common;
+package org.b1.pack.cli;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class VolumeNameExpert {
 
-    public static final Pattern NAME_PATTERN = Pattern.compile("(.*?)(\\.[bB]1)?");
+    private static final Pattern NAME_PATTERN = Pattern.compile("(.*?)(\\.[bB]1)?");
 
+    private final File outputFolder;
     private final String baseName;
     private final String extension;
     private final String format;
 
-    public VolumeNameExpert(String packName, long volumeCount) {
+    public VolumeNameExpert(File outputFolder, String packName, long volumeCount) {
+        this.outputFolder = outputFolder;
         Matcher matcher = NAME_PATTERN.matcher(packName);
         Preconditions.checkState(matcher.matches());
         baseName = matcher.group(1);
@@ -38,7 +41,11 @@ public class VolumeNameExpert {
         format = volumeCount == 0 ? null : "%0" + (String.valueOf(volumeCount).length() + 1) + "d";
     }
 
-    public String getVolumeName(long volumeNumber) {
+    public File getVolumeFile(long volumeNumber) {
+        return new File(outputFolder, getVolumeName(volumeNumber));
+    }
+
+    private String getVolumeName(long volumeNumber) {
         StringBuilder builder = new StringBuilder(baseName);
         if (format != null) {
             builder.append(".part").append(String.format(format, volumeNumber));

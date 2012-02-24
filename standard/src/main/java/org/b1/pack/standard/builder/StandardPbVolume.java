@@ -24,17 +24,17 @@ import java.io.OutputStream;
 
 public class StandardPbVolume implements PbVolume {
 
-    private final String name;
+    private final long number;
     private final Writable content;
 
-    public StandardPbVolume(String name, Writable content) {
-        this.name = name;
+    public StandardPbVolume(long number, Writable content) {
+        this.number = number;
         this.content = content;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public long getNumber() {
+        return number;
     }
 
     @Override

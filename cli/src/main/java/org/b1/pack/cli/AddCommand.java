@@ -22,11 +22,12 @@ public class AddCommand implements PackCommand {
 
     @Override
     public void execute(ArgSet argSet) throws IOException {
-        if ("w".equals(argSet.getTypeFlag())) {
+        if ("builder".equals(argSet.getTypeFlag())) {
+            new BuildCommand().execute(argSet);
+        } else if ("maker".equals(argSet.getTypeFlag())) {
             new MakeCommand().execute(argSet);
         } else {
-            ArgSet.checkParameter(argSet.getTypeFlag() == null, "Invalid type");
-            new BuildCommand().execute(argSet);
+            new WriteCommand().execute(argSet);
         }
     }
 }

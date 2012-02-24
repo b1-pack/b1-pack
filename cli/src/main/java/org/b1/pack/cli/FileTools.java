@@ -54,7 +54,7 @@ public class FileTools {
     }
 
     public static Set<FsObject> getFsObjects(List<String> names) {
-        Map<List<String>, FsObject> map = createRootMap(names.isEmpty() ? Collections.singleton(".") : names);
+        Map<List<String>, FsObject> map = createRootMap(names);
         Set<FsObject> result = Sets.newLinkedHashSet();
         for (FsObject fsObject : map.values()) {
             addPrecedingObjects(result, fsObject, map);
@@ -63,9 +63,9 @@ public class FileTools {
         return result;
     }
 
-    private static Map<List<String>, FsObject> createRootMap(Iterable<String> names) {
+    public static Map<List<String>, FsObject> createRootMap(List<String> names) {
         Map<List<String>, FsObject> map = Maps.newLinkedHashMap();
-        for (String name : names) {
+        for (String name : names.isEmpty() ? Collections.singleton(".") : names) {
             File file = new File(name);
             List<String> path = getPath(file);
             if (map.put(path, new FsObject(file, path)) != null) {

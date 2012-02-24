@@ -23,7 +23,7 @@ public abstract class WriterVolume {
 
     public abstract OutputStream getOutputStream() throws IOException;
 
-    public void seek(long newPosition) throws IOException {
+    public void seek(OutputStream stream, long position) throws IOException {
         throw new UnsupportedOperationException();
     }
 

@@ -24,6 +24,7 @@ import org.b1.pack.api.common.PackException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 public class BuildCommand implements PackCommand {
@@ -35,12 +36,7 @@ public class BuildCommand implements PackCommand {
         Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
         PackBuilder builder = PbFactory.newInstance(argSet.getTypeFormat()).createPackBuilder(new PbProvider() {
             @Override
-            public String getPackName() {
-                return argSet.getPackName();
-            }
-
-            @Override
-            public long getVolumeSize() {
+            public long getMaxVolumeSize() {
                 return argSet.getVolumeSize();
             }
         });
@@ -54,21 +50,22 @@ public class BuildCommand implements PackCommand {
                 throw new PackException("Not found: " + file);
             }
         }
-        for (PbVolume volume : builder.getVolumes()) {
-            buildVolume(outputFolder, volume);
+        List<PbVolume> volumes = builder.getVolumes();
+        VolumeNameExpert expert = new VolumeNameExpert(outputFolder, argSet.getPackName(), argSet.isSplit() ? volumes.size() : 0);
+        for (int i = 0, volumesSize = volumes.size(); i < volumesSize; i++) {
+            buildVolume(expert.getVolumeFile(i + 1), volumes.get(i));
         }
         System.out.println();
         System.out.println("Done");
     }
 
-    private void buildVolume(File outputFolder, PbVolume volume) throws IOException {
-        File volumeFile = new File(outputFolder, volume.getName());
+    private void buildVolume(File file, PbVolume volume) throws IOException {
         System.out.println();
-        System.out.println("Creating volume " + volumeFile);
+        System.out.println("Creating volume " + file);
         System.out.println();
-        if (volumeFile.exists()) {
-            throw new PackException("File already exists: " + volumeFile);
+        if (file.exists()) {
+            throw new PackException("File already exists: " + file);
         }
-        FileTools.saveToFile(volume, volumeFile);
+        FileTools.saveToFile(volume, file);
     }
 }

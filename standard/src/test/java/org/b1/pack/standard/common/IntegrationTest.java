@@ -49,13 +49,13 @@ public class IntegrationTest {
         final String packName = "builderTest";
         String volumeName = packName + ".b1";
         // START SNIPPET: builder
-        PackBuilder builder = PbFactory.newInstance(B1).createPackBuilder(createPbProvider(packName));
+        PackBuilder builder = PbFactory.newInstance(B1).createPackBuilder(new PbProvider());
         PbFile pbFile = createPbFile(folderName, fileName, fileTime, fileContent);
         builder.addFile(pbFile);
         PbVolume pbVolume = getOnlyElement(builder.getVolumes());
         byte[] volumeContent = getPbVolumeContent(pbVolume);
         // END SNIPPET: builder
-        assertEquals(volumeName, pbVolume.getName());
+        assertEquals(1, pbVolume.getNumber());
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
 
@@ -69,7 +69,7 @@ public class IntegrationTest {
         String volumeName = packName + ".b1";
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        PmProvider pmProvider = createPwProvider(packName, volumeName, buffer);
+        PmProvider pmProvider = createPwProvider(1, buffer);
         PackMaker maker = PmFactory.newInstance(B1).createPackMaker(pmProvider);
         try {
             OutputStream stream = maker.addFile(createPwFile(folderName, fileName, fileTime));
@@ -85,7 +85,7 @@ public class IntegrationTest {
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
 
-    //@Test
+    @Test
     public void testWriter() throws IOException {
         String folderName = "writerFolder";
         String fileName = "writerFile.txt";
@@ -129,15 +129,6 @@ public class IntegrationTest {
         assertArrayEquals(fileContent, getPxFileContent(file));
     }
 
-    private static PbProvider createPbProvider(final String packName) {
-        return new PbProvider() {
-            @Override
-            public String getPackName() {
-                return packName;
-            }
-        };
-    }
-
     private static PbFile createPbFile(final String folderName, final String fileName,
                                        final long lastModifiedTime, final byte[] content) {
         return new PbFile() {
@@ -169,22 +160,11 @@ public class IntegrationTest {
         return stream.toByteArray();
     }
 
-    private static PmProvider createPwProvider(final String packName, final String volumeName,
-                                               final ByteArrayOutputStream buffer) {
+    private static PmProvider createPwProvider(final long volumeNumber, final ByteArrayOutputStream buffer) {
         return new PmProvider() {
             @Override
-            public String getPackName() {
-                return packName;
-            }
-
-            @Override
-            public long getExpectedVolumeCount() {
-                return 0;
-            }
-
-            @Override
-            public PmVolume getVolume(String name) {
-                assertEquals(volumeName, name);
+            public PmVolume getVolume(long number) {
+                assertEquals(volumeNumber, number);
                 return createPwVolume(buffer);
             }
         };

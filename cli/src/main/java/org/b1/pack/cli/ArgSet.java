@@ -33,14 +33,15 @@ import java.util.regex.Pattern;
 public class ArgSet {
 
     public static final Pattern SIZE_PATTERN = Pattern.compile("(\\d+)([kMG]?B)");
-    public static final Pattern TYPE_PATTERN = Pattern.compile("(.*?)(?:;(.))?");
+    public static final Pattern TYPE_PATTERN = Pattern.compile("(.*?)(?::(.+))?");
     public static final ImmutableMap<String, Integer> SIZE_MULTIPLIERS =
             ImmutableMap.of("B", 1, "kB", 1000, "MB", 1000 * 1000, "GB", 1000 * 1000 * 1000);
 
     private String command;
     private String packName;
     private List<String> fileNames;
-    private long volumeSize;
+    private boolean split;
+    private long volumeSize = Long.MAX_VALUE;
     private String typeFormat = PackService.B1;
     private String typeFlag;
     private String outputDirectory;
@@ -61,7 +62,7 @@ public class ArgSet {
         command = arguments.pollFirst();
         packName = arguments.pollFirst();
         fileNames = arguments;
-        initVolumeSize(optionSet.valueOf(volumeOption));
+        initVolumes(optionSet.valueOf(volumeOption));
         initType(optionSet.valueOf(typeOption));
         outputDirectory = optionSet.valueOf(outputOption);
         compressionMethod = optionSet.valueOf(compressionOption);
@@ -75,10 +76,11 @@ public class ArgSet {
         }
     }
 
-    private void initVolumeSize(String size) {
+    private void initVolumes(String size) {
         if (size == null) return;
         Matcher matcher = SIZE_PATTERN.matcher(size);
         checkParameter(matcher.matches(), "Invalid volume size");
+        split = true;
         volumeSize = Long.parseLong(matcher.group(1)) * SIZE_MULTIPLIERS.get(matcher.group(2));
     }
 
@@ -100,6 +102,10 @@ public class ArgSet {
 
     public List<String> getFileNames() {
         return fileNames;
+    }
+
+    public boolean isSplit() {
+        return split;
     }
 
     public long getVolumeSize() {

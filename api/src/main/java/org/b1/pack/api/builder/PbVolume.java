@@ -18,6 +18,6 @@ package org.b1.pack.api.builder;
 
 public interface PbVolume extends Writable {
 
-    String getName();
+    long getNumber();
 
 }

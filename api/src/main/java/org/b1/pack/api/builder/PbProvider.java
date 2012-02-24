@@ -16,11 +16,9 @@
 
 package org.b1.pack.api.builder;
 
-public abstract class PbProvider {
+public class PbProvider {
 
-    public abstract String getPackName();
-
-    public long getVolumeSize() {
-        return 0;
+    public long getMaxVolumeSize() {
+        return Long.MAX_VALUE;
     }
 }

@@ -33,16 +33,14 @@ public class StandardPackBuilder implements PackBuilder {
     private final List<PbRecord> catalogRecords = Lists.newArrayList();
     private final List<PbRecord> completeRecords = Lists.newArrayList();
     private final Map<Writable, PbRecordPointer> pointerMap = Maps.newHashMap();
-    private final String packName;
-    private final long volumeSize;
+    private final long maxVolumeSize;
     private final int blockOffsetSize;
     private final PbRecordPointer catalogPointer;
     private long objectCount;
 
     public StandardPackBuilder(PbProvider provider) {
-        this.packName = provider.getPackName();
-        this.volumeSize = provider.getVolumeSize();
-        blockOffsetSize = volumeSize == 0 ? Numbers.MAX_LONG_SIZE : Numbers.getSerializedSize(volumeSize - 1);
+        maxVolumeSize = provider.getMaxVolumeSize();
+        blockOffsetSize = Numbers.getSerializedSize(maxVolumeSize - 1);
         catalogPointer = createPointer();
         pointerMap.put(PbInt.NULL, catalogPointer);
     }
@@ -63,7 +61,7 @@ public class StandardPackBuilder implements PackBuilder {
 
     @Override
     public List<PbVolume> getVolumes() {
-        VolumeBuilder builder = new VolumeBuilder(packName, volumeSize, pointerMap, objectCount);
+        VolumeBuilder builder = new VolumeBuilder(maxVolumeSize, pointerMap, objectCount);
         builder.addContent(createCatalog());
         for (PbRecord record : completeRecords) {
             builder.addContent(record);
