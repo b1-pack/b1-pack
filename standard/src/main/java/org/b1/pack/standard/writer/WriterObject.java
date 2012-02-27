@@ -28,9 +28,7 @@ abstract class WriterObject {
 
     private final long id;
     private final WriterFolder parent;
-    private final String name;
-    private final Long lastModifiedTime;
-    private final boolean compressible;
+    private final WriterEntry entry;
     private boolean completeRecordSaved;
     private RecordPointer pointer;
     private PbRecordPointer futurePointer;
@@ -38,9 +36,7 @@ abstract class WriterObject {
     protected WriterObject(long id, WriterFolder parent, WriterEntry entry) {
         this.id = id;
         this.parent = parent;
-        this.name = entry.getName();
-        this.lastModifiedTime = entry.getLastModifiedTime();
-        this.compressible = entry.isCompressible();
+        this.entry = entry;
     }
 
     public abstract void saveCatalogRecord(RecordWriter recordWriter) throws IOException;
@@ -60,8 +56,9 @@ abstract class WriterObject {
         if (parent != null) {
             parent.saveCompleteRecord(recordWriter);
         }
+        entry.beforeAdd();
         completeRecordSaved = true;
-        recordWriter.setCompressible(compressible);
+        recordWriter.setCompressible(entry.isCompressible());
         pointer = recordWriter.getCurrentPointer();
         if (futurePointer != null) {
             futurePointer.init(pointer);
@@ -85,7 +82,8 @@ abstract class WriterObject {
     private void writeHeader(RecordWriter recordWriter) throws IOException {
         Numbers.writeLong(id, recordWriter);
         Numbers.writeLong(parent == null ? null : ((WriterObject) parent).id, recordWriter);
-        writeString(recordWriter, name);
+        writeString(recordWriter, entry.getName());
+        Long lastModifiedTime = entry.getLastModifiedTime();
         if (lastModifiedTime != null) {
             Numbers.writeLong(0, recordWriter);
             Numbers.writeLong(lastModifiedTime, recordWriter);

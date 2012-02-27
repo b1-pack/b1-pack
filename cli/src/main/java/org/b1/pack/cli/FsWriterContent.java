@@ -14,25 +14,30 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.writer;
+package org.b1.pack.cli;
 
-public abstract class WriterEntry {
+import com.google.common.io.Files;
+import org.b1.pack.api.writer.WriterContent;
 
-    public abstract WriterEntry getParent();
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 
-    public abstract String getName();
+public class FsWriterContent extends WriterContent {
 
-    public abstract Long getLastModifiedTime();
+    private final File file;
 
-    public boolean isImmediate() {
-        return false;
+    public FsWriterContent(File file) {
+        this.file = file;
     }
-    
-    public boolean isCompressible() {
-        return true;
+
+    @Override
+    public Long getSize() throws IOException {
+        return file.length();
     }
 
-    public void beforeAdd() {
-        //no-op
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        Files.copy(file, stream);
     }
 }
