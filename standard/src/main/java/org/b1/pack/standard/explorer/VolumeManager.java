@@ -17,10 +17,10 @@
 package org.b1.pack.standard.explorer;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.explorer.PxProvider;
 import org.b1.pack.api.explorer.PxVolume;
 import org.b1.pack.standard.common.MemoryBuffer;
@@ -45,9 +45,7 @@ public class VolumeManager implements Closeable {
         HeaderSet result = getHeaderSet(1);
         if (result.getCatalogPointer() == null) {
             result.setCatalogPointer(getHeaderSet(provider.getVolumeCount()).getCatalogPointer());
-            if (result.getCatalogPointer() == null) {
-                throw new PackException("Last volume not found");
-            }
+            Preconditions.checkNotNull(result.getCatalogPointer(), "Last volume not found");
         }
         return result;
     }
@@ -62,11 +60,7 @@ public class VolumeManager implements Closeable {
     }
 
     private PxVolume getVolume(long volumeNumber) {
-        PxVolume volume = provider.getVolume(volumeNumber);
-        if (volume == null) {
-            throw new PackException("Volume " + volumeNumber + " not found");
-        }
-        return volume;
+        return Preconditions.checkNotNull(provider.getVolume(volumeNumber), "Volume %s not found", volumeNumber);
     }
 
     private HeaderSet getHeaderSet(long volumeNumber) throws IOException {
@@ -138,8 +132,6 @@ public class VolumeManager implements Closeable {
     }
 
     private static void checkVolume(PxVolume volume, boolean expression) {
-        if (!expression) {
-            throw new PackException("Volume broken or not a B1 archive: " + volume.getName());
-        }
+        Preconditions.checkState(expression, "Volume broken or not a B1 archive: %s", volume.getName());
     }
 }

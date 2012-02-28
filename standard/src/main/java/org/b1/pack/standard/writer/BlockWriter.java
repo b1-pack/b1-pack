@@ -52,7 +52,6 @@ class BlockWriter extends ChunkWriter {
 
     public void setObjectCount(Long objectCount) {
         this.objectCount = objectCount;
-        if (volumeWriter != null) volumeWriter.setObjectCount(objectCount);
     }
 
     public void setCompressed(boolean compressed) throws IOException {
@@ -160,9 +159,8 @@ class BlockWriter extends ChunkWriter {
     }
 
     private void createVolumeWriter(long volumeNumber) throws IOException {
-        volumeWriter = new VolumeWriter(archiveId, volumeNumber, provider.getMaxVolumeSize(), provider.getVolume(volumeNumber));
-        volumeWriter.setCatalogPointer(catalogPointer);
-        volumeWriter.setObjectCount(objectCount);
+        volumeWriter = new VolumeWriter(archiveId, volumeNumber,
+                objectCount, provider.getMaxVolumeSize(), provider.getVolume(volumeNumber), catalogPointer);
     }
 
     private void completeVolumeWriter() throws IOException {

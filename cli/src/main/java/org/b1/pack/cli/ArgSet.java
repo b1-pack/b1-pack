@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.common.PackService;
 
 import java.util.Arrays;
@@ -70,16 +69,10 @@ public class ArgSet {
         password = optionSet.has(passwordOption);
     }
 
-    public static void checkParameter(boolean expression, Object errorMessage) {
-        if (!expression) {
-            throw new PackException(errorMessage.toString());
-        }
-    }
-
     private void initVolumes(String size) {
         if (size == null) return;
         Matcher matcher = SIZE_PATTERN.matcher(size);
-        checkParameter(matcher.matches(), "Invalid volume size");
+        Preconditions.checkArgument(matcher.matches(), "Invalid volume size: %s", size);
         split = true;
         volumeSize = Long.parseLong(matcher.group(1)) * SIZE_MULTIPLIERS.get(matcher.group(2));
     }

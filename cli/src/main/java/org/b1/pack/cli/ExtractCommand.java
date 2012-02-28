@@ -17,9 +17,9 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.explorer.*;
 
 import java.io.File;
@@ -30,7 +30,7 @@ public class ExtractCommand implements PackCommand {
 
     @Override
     public void execute(ArgSet argSet) throws IOException {
-        ArgSet.checkParameter(argSet.getFileNames().isEmpty(), "Filters not supported");
+        Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         File outputFolder = FileTools.getOutputFolder(argSet);
         System.out.println("Extracting from \"" + file + "\" to \"" + outputFolder + "\".");
@@ -46,9 +46,7 @@ public class ExtractCommand implements PackCommand {
     }
 
     private static void startExtracting(String path, File file) {
-        if (file.exists()) {
-            throw new PackException("Already exists: " + file);
-        }
+        Preconditions.checkState(!file.exists(), "File already exists: %s", file);
         System.out.println("Extracting " + path);
     }
 

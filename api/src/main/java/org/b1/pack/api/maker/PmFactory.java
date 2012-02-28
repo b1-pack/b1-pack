@@ -16,7 +16,6 @@
 
 package org.b1.pack.api.maker;
 
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.common.PackService;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public abstract class PmFactory {
             PmFactory factory = packService.getPmFactory(format);
             if (factory != null) return factory;
         }
-        throw new PackException("Unsupported format: " + format);
+        throw new IllegalArgumentException("Unsupported format: " + format);
     }
 
     public abstract PackMaker createPackMaker(PmProvider provider) throws IOException;

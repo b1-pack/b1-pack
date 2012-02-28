@@ -16,8 +16,6 @@
 
 package org.b1.pack.api.writer;
 
-import org.b1.pack.api.common.PackException;
-
 import java.io.IOException;
 import java.util.ServiceLoader;
 
@@ -31,6 +29,6 @@ public abstract class PackWriter {
         for (PackWriter writer : ServiceLoader.load(PackWriter.class)) {
             if (writer.isFormatSupported(format)) return writer;
         }
-        throw new PackException("Unsupported format: " + format);
+        throw new IllegalArgumentException("Unsupported format: " + format);
     }
 }

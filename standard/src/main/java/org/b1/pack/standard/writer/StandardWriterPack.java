@@ -61,8 +61,6 @@ class StandardWriterPack extends WriterPack {
     public void close() throws IOException {
         recordWriter.setObjectCount(objectCount);
         flush(false);
-        recordWriter.setCompressible(false);
-        setCatalogMode();
         Numbers.writeLong(null, recordWriter);
         recordWriter.close();
     }
@@ -109,6 +107,8 @@ class StandardWriterPack extends WriterPack {
             recordWriter.setCompressible(true);
             saveCatalogRecords();
         }
+        recordWriter.setCompressible(false);
+        setCatalogMode();
         objectList.clear();
         recordWriter.flush();
     }

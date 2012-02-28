@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.b1.pack.api.builder.PbVolume;
 import org.b1.pack.api.builder.Writable;
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.standard.common.*;
 
 import javax.annotation.Nullable;
@@ -56,9 +55,7 @@ public class VolumeBuilder {
                 completeVolume(false);
                 initVolume(null);
                 chunkSize = addChunk(content, contentOffset);
-                if (chunkSize <= 0) {
-                    throw new PackException("Volume size too small");
-                }
+                Preconditions.checkArgument(chunkSize > 0, "Volume size too small");
             }
             contentOffset += chunkSize;
         }

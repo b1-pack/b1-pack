@@ -17,7 +17,6 @@
 package org.b1.pack.cli;
 
 import com.google.common.io.Files;
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.maker.PackMaker;
 import org.b1.pack.api.maker.PmFactory;
 
@@ -54,7 +53,7 @@ public class MakeCommand implements PackCommand {
         } else if (file.isDirectory()) {
             maker.addFolder(new FsPmFolder(fsObject));
         } else {
-            throw new PackException("Not found: " + file);
+            throw new IllegalArgumentException("Not found: " + file);
         }
     }
 

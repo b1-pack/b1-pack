@@ -17,12 +17,12 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.b1.pack.api.builder.Writable;
-import org.b1.pack.api.common.PackException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,14 +68,12 @@ public class FileTools {
         for (String name : names.isEmpty() ? Collections.singleton(".") : names) {
             File file = new File(name);
             List<String> path = getPath(file);
-            if (map.put(path, new FsObject(file, path)) != null) {
-                throw new PackException("Duplicate name: " + path);
-            }
+            Preconditions.checkState(map.put(path, new FsObject(file, path)) == null, "Duplicate path: %s", path);
         }
         return map;
     }
 
-    private static List<String> getPath(File file) {
+    public static List<String> getPath(File file) {
         LinkedList<String> result = Lists.newLinkedList();
         do {
             String name = file.getName();
@@ -119,8 +117,8 @@ public class FileTools {
     }
 
     public static File getOutputFolder(ArgSet argSet) {
-        File outputFolder = new File(Objects.firstNonNull(argSet.getOutputDirectory(), "."));
-        ArgSet.checkParameter(outputFolder.isDirectory(), "Output directory not found");
-        return outputFolder;
+        File result = new File(Objects.firstNonNull(argSet.getOutputDirectory(), "."));
+        Preconditions.checkArgument(result.isDirectory(), "Output directory not found: %s", result);
+        return result;
     }
 }

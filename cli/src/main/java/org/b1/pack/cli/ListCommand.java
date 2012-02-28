@@ -17,6 +17,7 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import org.b1.pack.api.explorer.*;
 
 import javax.annotation.Nullable;
@@ -28,7 +29,7 @@ public class ListCommand implements PackCommand {
 
     @Override
     public void execute(ArgSet argSet) throws IOException {
-        ArgSet.checkParameter(argSet.getFileNames().isEmpty(), "Filters not supported");
+        Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         System.out.println("Listing " + file);
         System.out.println();

@@ -16,11 +16,11 @@
 
 package org.b1.pack.cli;
 
+import com.google.common.base.Preconditions;
 import org.b1.pack.api.builder.PackBuilder;
 import org.b1.pack.api.builder.PbFactory;
 import org.b1.pack.api.builder.PbProvider;
 import org.b1.pack.api.builder.PbVolume;
-import org.b1.pack.api.common.PackException;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class BuildCommand implements PackCommand {
             } else if (file.isDirectory()) {
                 builder.addFolder(new FsPbFolder(fsObject));
             } else {
-                throw new PackException("Not found: " + file);
+                throw new IllegalArgumentException("Not found: " + file);
             }
         }
         List<PbVolume> volumes = builder.getVolumes();
@@ -63,9 +63,7 @@ public class BuildCommand implements PackCommand {
         System.out.println();
         System.out.println("Creating volume " + file);
         System.out.println();
-        if (file.exists()) {
-            throw new PackException("File already exists: " + file);
-        }
+        Preconditions.checkState(!file.exists(), "File already exists: %s", file);
         FileTools.saveToFile(volume, file);
     }
 }

@@ -16,30 +16,34 @@
 
 package org.b1.pack.cli;
 
+import org.b1.pack.api.compression.CompressionMethod;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.api.writer.WriterVolume;
 
-import java.io.File;
 import java.io.IOException;
 
 public class FsWriterProvider extends WriterProvider {
 
-    private final VolumeNameExpert nameExpert;
+    private final VolumeNameExpert volumeNameExpert;
     private final long maxVolumeSize;
+    private final boolean seekable;
+    private final CompressionMethod compressionMethod;
 
-    public FsWriterProvider(File outputFolder, String packName, int volumeCount, long maxVolumeSize) {
-        this.nameExpert = new VolumeNameExpert(outputFolder, packName, volumeCount);
+    public FsWriterProvider(VolumeNameExpert volumeNameExpert, long maxVolumeSize, boolean seekable, CompressionMethod compressionMethod) {
+        this.volumeNameExpert = volumeNameExpert;
         this.maxVolumeSize = maxVolumeSize;
+        this.seekable = seekable;
+        this.compressionMethod = compressionMethod;
     }
 
     @Override
     public boolean isSeekable() {
-        return true;
+        return seekable;
     }
 
     @Override
     public WriterVolume getVolume(long number) throws IOException {
-        return new FsWriterVolume(nameExpert.getVolumeFile(number));
+        return new FsWriterVolume(volumeNameExpert.getVolumeFile(number));
     }
 
     @Override
@@ -50,5 +54,10 @@ public class FsWriterProvider extends WriterProvider {
     @Override
     public long getMaxVolumeCount() {
         return maxVolumeSize == Long.MAX_VALUE ? 1 : Integer.MAX_VALUE;
+    }
+
+    @Override
+    public CompressionMethod getCompressionMethod() {
+        return compressionMethod;
     }
 }

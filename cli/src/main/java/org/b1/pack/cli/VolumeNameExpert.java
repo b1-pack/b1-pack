@@ -42,16 +42,12 @@ public class VolumeNameExpert {
     }
 
     public File getVolumeFile(long volumeNumber) {
-        return new File(outputFolder, getVolumeName(volumeNumber));
-    }
-
-    private String getVolumeName(long volumeNumber) {
         StringBuilder builder = new StringBuilder(baseName);
         if (format != null) {
             builder.append(".part").append(String.format(format, volumeNumber));
         } else {
             Preconditions.checkArgument(volumeNumber == 1);
         }
-        return builder.append(extension).toString();
+        return new File(outputFolder, builder.append(extension).toString());
     }
 }

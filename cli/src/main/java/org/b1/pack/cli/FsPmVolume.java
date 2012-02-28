@@ -17,7 +17,6 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.maker.PmVolume;
 
 import java.io.File;
@@ -41,9 +40,7 @@ public class FsPmVolume extends PmVolume {
         System.out.println();
         System.out.println("Creating volume " + file);
         System.out.println();
-        if (file.exists()) {
-            throw new PackException("File already exists: " + file);
-        }
+        Preconditions.checkState(!file.exists(), "File already exists: %s", file);
         Preconditions.checkState(tempFile == null);
         tempFile = FileTools.createTempFile(file);
         return new FileOutputStream(tempFile);

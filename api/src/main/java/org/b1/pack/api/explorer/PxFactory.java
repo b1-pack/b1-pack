@@ -16,7 +16,6 @@
 
 package org.b1.pack.api.explorer;
 
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.common.PackService;
 
 import java.util.ServiceLoader;
@@ -28,7 +27,7 @@ public abstract class PxFactory {
             PxFactory factory = packService.getPxFactory(format);
             if (factory != null) return factory;
         }
-        throw new PackException("Unsupported format: " + format);
+        throw new IllegalArgumentException("Unsupported format: " + format);
     }
 
     public abstract PackExplorer createPackExplorer(PxProvider provider);

@@ -19,10 +19,12 @@ package org.b1.pack.standard.maker;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.common.PackException;
 import org.b1.pack.api.maker.PmProvider;
 import org.b1.pack.api.maker.PmVolume;
-import org.b1.pack.standard.common.*;
+import org.b1.pack.standard.common.Constants;
+import org.b1.pack.standard.common.Numbers;
+import org.b1.pack.standard.common.RecordPointer;
+import org.b1.pack.standard.common.Volumes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -109,9 +111,7 @@ public class PackRecordStream extends OutputStream {
         startVolume();
         setVolumeLimit();
         setChunkLimit();
-        if (chunkLimit <= 0) {
-            throw new PackException("Volume size too small");
-        }
+        Preconditions.checkState(chunkLimit > 0, "Volume size too small");
     }
 
     private void startVolume() throws IOException {

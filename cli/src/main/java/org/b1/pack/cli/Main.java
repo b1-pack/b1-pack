@@ -16,11 +16,10 @@
 
 package org.b1.pack.cli;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
-import joptsimple.OptionException;
-import org.b1.pack.api.common.PackException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,22 +29,24 @@ public class Main {
     public static final ImmutableMap<String, PackCommand> COMAND_MAP =
             ImmutableMap.of("a", new AddCommand(), "l", new ListCommand(), "x", new ExtractCommand());
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         try {
             ArgSet argSet = new ArgSet(args);
+            String command = argSet.getCommand();
             if (argSet.isHelp()) {
                 printHelp();
-                ArgSet.checkParameter(argSet.getCommand() == null, "Command ignored");
-                return;
+                Preconditions.checkArgument(command == null, "Command ignored");
+            } else {
+                Preconditions.checkNotNull(command, "No command");
+                Preconditions.checkNotNull(COMAND_MAP.get(command), "Invalid command: %s", command).execute(argSet);
             }
-            ArgSet.checkParameter(argSet.getCommand() != null, "No command");
-            PackCommand command = COMAND_MAP.get(argSet.getCommand());
-            ArgSet.checkParameter(command != null, "Invalid command");
-            command.execute(argSet);
-        } catch (OptionException e) {
+        } catch (Exception e) {
             printError(e);
-        } catch (PackException e) {
-            printError(e);
+            if (Boolean.getBoolean(Main.class.getName() + ".debug")) {
+                throw e;
+            } else {
+                System.exit(1);
+            }
         }
     }
 
@@ -61,7 +62,7 @@ public class Main {
     private static void printError(Exception e) {
         System.err.println();
         System.err.print("Error: ");
-        System.err.println(e.getMessage());
+        System.err.println(Objects.firstNonNull(e.getMessage(), e.getClass().getSimpleName()));
         System.err.println();
         System.err.println("For help type: b1 -h");
     }

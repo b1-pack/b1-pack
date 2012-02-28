@@ -16,11 +16,17 @@
 
 package org.b1.pack.cli;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import org.b1.pack.api.writer.*;
+import org.b1.pack.api.compression.CompressionMethod;
+import org.b1.pack.api.compression.LzmaCompressionMethod;
+import org.b1.pack.api.writer.PackWriter;
+import org.b1.pack.api.writer.WriterProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,39 +34,37 @@ public class WriteCommand implements PackCommand {
 
     @Override
     public void execute(ArgSet argSet) throws IOException {
-        ArgSet.checkParameter(argSet.getTypeFlag() == null, "Invalid type");
-        System.out.println("Starting");
         WriterProvider provider = new FsWriterProvider(
-                FileTools.getOutputFolder(argSet),
-                argSet.getPackName(),
-                argSet.isSplit() ? 1 : 0, argSet.getVolumeSize());
-        final Map<List<String>, FsObject> rootMap = FileTools.createRootMap(argSet.getFileNames());
-        final Map<List<String>, WriterEntry> entryMap = Maps.newHashMap();
-        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, new WriterCommand() {
-            @Override
-            public void execute(WriterPack pack) throws IOException {
-                for (FsObject fsObject : rootMap.values()) {
-                    addEntry(pack, getParent(pack, entryMap, fsObject.getPath()), fsObject.getFile());
-                }
-            }
-        });
+                new VolumeNameExpert(FileTools.getOutputFolder(argSet), argSet.getPackName(), argSet.isSplit() ? 1 : 0),
+                argSet.getVolumeSize(),
+                isSeekable(argSet.getTypeFlag()),
+                getCompressionMethod(argSet.getCompressionMethod()));
+        System.out.println("Starting");
+        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, new FsWriterCommand(getBaseFileMap(argSet.getFileNames())));
         System.out.println();
         System.out.println("Done");
     }
 
-    private WriterEntry getParent(WriterPack pack, Map<List<String>, WriterEntry> entryMap, List<String> path) {
-
+    private CompressionMethod getCompressionMethod(String method) {
+        return method == null ? null : new LzmaCompressionMethod();
     }
-    
-    private void addEntry(WriterPack pack, WriterEntry parent, File file) throws IOException {
-        FsWriterEntry entry = new FsWriterEntry(parent, file.getName(), file.lastModified());
-        if (file.isFile()) {
-            pack.addFile(entry, new FsWriterContent(file));
-        } else if (file.isDirectory()) {
-            pack.addFolder(entry);
-            for (File child : file.listFiles()) {
-                addEntry(pack, entry, child);
-            }
+
+    private boolean isSeekable(String typeFlag) {
+        if ("stream".equals(typeFlag)) {
+            return false;
         }
+        Preconditions.checkArgument(typeFlag == null, "Invalid type flag: %s", typeFlag);
+        return true;
+    }
+
+    private Map<List<String>, File> getBaseFileMap(List<String> names) {
+        LinkedHashMap<List<String>, File> result = Maps.newLinkedHashMap();
+        for (String name : names.isEmpty() ? Collections.singleton(".") : names) {
+            File file = new File(name);
+            Preconditions.checkArgument(file.exists(), "File not found: %s", file);
+            List<String> path = FileTools.getPath(file);
+            Preconditions.checkArgument(result.put(path, file) == null, "Duplicate path: %s", path);
+        }
+        return result;
     }
 }

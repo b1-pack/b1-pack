@@ -33,23 +33,34 @@ import java.util.SortedMap;
 class VolumeWriter {
 
     private final SortedMap<Long, PbBlock> suspendedBlocks = Maps.newTreeMap();
-    private final String archiveId;
     private final long volumeNumber;
     private final long maxVolumeSize;
     private final WriterVolume volume;
     private OutputStream outputStream;
-    private Long objectCount;
     private RecordPointer catalogPointer;
     private long sizeLimit;
     private long spaceLimit;
     private long streamEnd;
     private boolean streamAtEnd;
 
-    public VolumeWriter(String archiveId, long volumeNumber, long maxVolumeSize, WriterVolume volume) {
-        this.archiveId = archiveId;
+    public VolumeWriter(String archiveId, long volumeNumber, Long objectCount,
+                        long maxVolumeSize, WriterVolume volume, RecordPointer catalogPointer) throws IOException {
         this.volumeNumber = volumeNumber;
         this.maxVolumeSize = maxVolumeSize;
         this.volume = volume;
+        this.catalogPointer = catalogPointer;
+        byte[] volumeHead = Volumes.createVolumeHead(archiveId, volumeNumber, objectCount);
+        streamEnd = volumeHead.length;
+        streamAtEnd = true;
+        setLimits();
+        boolean pending = true;
+        outputStream = this.volume.getOutputStream();
+        try {
+            outputStream.write(volumeHead);
+            pending = false;
+        } finally {
+            if (pending) cleanup();
+        }
     }
 
     public long getVolumeNumber() {
@@ -68,31 +79,24 @@ class VolumeWriter {
         return !suspendedBlocks.isEmpty();
     }
 
-    public void setObjectCount(Long objectCount) {
-        this.objectCount = objectCount;
-    }
-
     public void setCatalogPointer(RecordPointer catalogPointer) throws IOException {
         this.catalogPointer = catalogPointer;
         setLimits();
     }
 
     public void suspendBlock(PbBlock block) throws IOException {
-        initialize();
         suspendedBlocks.put(streamEnd, block);
         streamAtEnd = false;
         streamEnd += block.getSize();
     }
 
     public void writeBlock(PbBlock block) throws IOException {
-        initialize();
         seekToEnd();
         writeToStream(block);
         streamEnd += block.getSize();
     }
 
     public void flush() throws IOException {
-        initialize();
         if (suspendedBlocks.isEmpty()) return;
         streamAtEnd = false;
         for (Map.Entry<Long, PbBlock> entry : suspendedBlocks.entrySet()) {
@@ -118,16 +122,6 @@ class VolumeWriter {
     private void setLimits() throws IOException {
         sizeLimit = Math.min(maxVolumeSize, volume.getMaxSize());
         spaceLimit = sizeLimit - Volumes.createVolumeTail(false, catalogPointer, 0).length - PbInt.NULL.getSize();
-    }
-
-    private void initialize() throws IOException {
-        if (outputStream != null) return;
-        outputStream = volume.getOutputStream();
-        byte[] volumeHead = Volumes.createVolumeHead(archiveId, volumeNumber, objectCount);
-        outputStream.write(volumeHead);
-        streamEnd = volumeHead.length;
-        streamAtEnd = true;
-        setLimits();
     }
 
     private void seekToEnd() throws IOException {
