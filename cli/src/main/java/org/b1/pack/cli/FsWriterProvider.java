@@ -52,11 +52,6 @@ public class FsWriterProvider extends WriterProvider {
     }
 
     @Override
-    public long getMaxVolumeCount() {
-        return maxVolumeSize == Long.MAX_VALUE ? 1 : Integer.MAX_VALUE;
-    }
-
-    @Override
     public CompressionMethod getCompressionMethod() {
         return compressionMethod;
     }

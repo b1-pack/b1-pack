@@ -16,7 +16,6 @@
 
 package org.b1.pack.cli;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -117,7 +116,9 @@ public class FileTools {
     }
 
     public static File getOutputFolder(ArgSet argSet) {
-        File result = new File(Objects.firstNonNull(argSet.getOutputDirectory(), "."));
+        String outputDirectory = argSet.getOutputDirectory();
+        if (outputDirectory == null) return null;
+        File result = new File(outputDirectory);
         Preconditions.checkArgument(result.isDirectory(), "Output directory not found: %s", result);
         return result;
     }

@@ -20,6 +20,7 @@ import com.google.common.base.Objects;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.compression.LzmaCompressionMethod;
 import org.b1.pack.api.writer.WriterProvider;
+import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.RecordPointer;
@@ -32,19 +33,21 @@ class RecordWriter extends OutputStream {
 
     private final WriterProvider provider;
     private final BlockWriter blockWriter;
-    private final int volumeNumberSize;
-    private final int blockOffsetSize;
     private final LzmaCompressionMethod compressionMethod;
     private final ExecutorService executorService;
+    private final int volumeNumberSize;
+    private final int blockOffsetSize;
+    private final int recordOffsetSize;
     private LzmaWriter lzmaWriter;
 
     public RecordWriter(WriterProvider provider) {
         this.provider = provider;
         blockWriter = new BlockWriter(provider);
-        volumeNumberSize = Numbers.getSerializedSize(provider.getMaxVolumeCount());
-        blockOffsetSize = Numbers.getSerializedSize(provider.getMaxVolumeSize());
         compressionMethod = (LzmaCompressionMethod) provider.getCompressionMethod();
         executorService = compressionMethod == null ? null : provider.getExecutorService();
+        volumeNumberSize = Numbers.getSerializedSize(provider.getMaxVolumeSize() == Long.MAX_VALUE ? 1 : provider.getMaxVolumeCount());
+        blockOffsetSize = Numbers.getSerializedSize(provider.getMaxVolumeSize());
+        recordOffsetSize = Numbers.getSerializedSize(compressionMethod == null ? Constants.MAX_CHUNK_SIZE : compressionMethod.getSolidBlockSize());
     }
 
     public boolean isSeekable() {
@@ -52,8 +55,7 @@ class RecordWriter extends OutputStream {
     }
 
     public PbRecordPointer createEmptyPointer() {
-        //todo optimize pointer max size
-        return new PbRecordPointer(volumeNumberSize, blockOffsetSize, Numbers.MAX_LONG_SIZE);
+        return new PbRecordPointer(volumeNumberSize, blockOffsetSize, recordOffsetSize);
     }
 
     public void setObjectCount(Long objectCount) {

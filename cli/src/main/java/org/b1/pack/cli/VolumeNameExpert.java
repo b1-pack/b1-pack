@@ -48,6 +48,7 @@ public class VolumeNameExpert {
         } else {
             Preconditions.checkArgument(volumeNumber == 1);
         }
-        return new File(outputFolder, builder.append(extension).toString());
+        String name = builder.append(extension).toString();
+        return outputFolder == null ? new File(name) : new File(outputFolder, name);
     }
 }

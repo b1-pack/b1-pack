@@ -33,6 +33,7 @@ public class ExtractCommand implements PackCommand {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         File outputFolder = FileTools.getOutputFolder(argSet);
+        if (outputFolder == null) outputFolder = new File(".");
         System.out.println("Extracting from \"" + file + "\" to \"" + outputFolder + "\".");
         System.out.println();
         PackExplorer explorer = PxFactory.newInstance(argSet.getTypeFormat()).createPackExplorer(VolumeManagerFactory.createVolumeManager(file));
