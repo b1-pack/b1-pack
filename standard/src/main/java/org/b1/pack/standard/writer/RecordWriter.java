@@ -93,16 +93,16 @@ class RecordWriter extends OutputStream {
         getChunkWriter().write(value);
     }
 
-    @Override
-    public void flush() throws IOException {
+    public void save() throws IOException {
         disableCompression();
-        blockWriter.flush();
+        blockWriter.save();
     }
 
     @Override
     public void close() throws IOException {
         disableCompression();
         blockWriter.close();
+        shutdownExecutor();
     }
 
     public void cleanup() {
@@ -110,6 +110,13 @@ class RecordWriter extends OutputStream {
             lzmaWriter.cleanup();
         }
         blockWriter.cleanup();
+        shutdownExecutor();
+    }
+
+    private void shutdownExecutor() {
+        if (executorService != null) {
+            executorService.shutdown();
+        }
     }
 
     private ChunkWriter getChunkWriter() {

@@ -16,6 +16,7 @@
 
 package org.b1.pack.standard.common;
 
+import com.google.common.base.Preconditions;
 import org.b1.pack.api.builder.Writable;
 
 import java.io.IOException;
@@ -41,6 +42,6 @@ public class PbMutableInt implements Writable {
 
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
-        value.writeTo(stream, start, end);
+        Preconditions.checkNotNull(value, "No value").writeTo(stream, start, end);
     }
 }

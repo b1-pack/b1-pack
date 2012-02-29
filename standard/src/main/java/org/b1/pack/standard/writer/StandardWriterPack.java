@@ -55,12 +55,12 @@ class StandardWriterPack extends WriterPack {
 
     @Override
     public void flush() throws IOException {
-        flush(true);
+        save(true);
     }
 
     public void close() throws IOException {
         recordWriter.setObjectCount(objectCount);
-        flush(false);
+        save(false);
         Numbers.writeLong(null, recordWriter);
         recordWriter.close();
     }
@@ -93,7 +93,7 @@ class StandardWriterPack extends WriterPack {
         }
     }
 
-    private void flush(boolean intermediate) throws IOException {
+    private void save(boolean intermediate) throws IOException {
         if (intermediate && objectList.isEmpty()) {
             return;
         }
@@ -110,7 +110,7 @@ class StandardWriterPack extends WriterPack {
         recordWriter.setCompressible(false);
         setCatalogMode();
         objectList.clear();
-        recordWriter.flush();
+        recordWriter.save();
     }
 
     private void saveCatalogRecords() throws IOException {

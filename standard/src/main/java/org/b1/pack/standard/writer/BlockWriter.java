@@ -101,8 +101,7 @@ class BlockWriter extends ChunkWriter {
         }
     }
 
-    @Override
-    public void flush() throws IOException {
+    public void save() throws IOException {
         flushContent();
         ensureFreeSpace();
         for (VolumeWriter writer : suspendedWriters) {
@@ -114,7 +113,7 @@ class BlockWriter extends ChunkWriter {
 
     @Override
     public void close() throws IOException {
-        flush();
+        save();
         volumeWriter.close(true);
     }
 
