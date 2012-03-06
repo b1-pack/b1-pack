@@ -22,6 +22,7 @@ import org.b1.pack.api.writer.WriterContent;
 import org.b1.pack.api.writer.WriterEntry;
 import org.b1.pack.api.writer.WriterPack;
 import org.b1.pack.api.writer.WriterProvider;
+import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.RecordPointer;
@@ -139,6 +140,7 @@ class StandardWriterPack extends WriterPack {
     private void setContentMode() throws IOException {
         if (catalogMode && nextCatalogPointer == null) {
             nextCatalogPointer = recordWriter.createEmptyPointer();
+            Numbers.writeLong(Constants.RECORD_POINTER, recordWriter);
             recordWriter.write(nextCatalogPointer);
         }
         catalogMode = false;
