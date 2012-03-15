@@ -16,18 +16,18 @@
 
 package org.b1.pack.standard.builder;
 
-import org.b1.pack.api.builder.PbVolume;
+import org.b1.pack.api.builder.BuilderVolume;
 import org.b1.pack.api.builder.Writable;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class StandardPbVolume implements PbVolume {
+public class StandardBuilderVolume implements BuilderVolume {
 
     private final long number;
     private final Writable content;
 
-    public StandardPbVolume(long number, Writable content) {
+    public StandardBuilderVolume(long number, Writable content) {
         this.number = number;
         this.content = content;
     }

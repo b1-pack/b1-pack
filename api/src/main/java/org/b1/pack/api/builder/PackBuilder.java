@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,20 @@
 
 package org.b1.pack.api.builder;
 
-public class PbProvider {
+import org.b1.pack.api.common.PackService;
 
-    public long getMaxVolumeSize() {
-        return Long.MAX_VALUE;
+import java.util.ServiceLoader;
+
+public abstract class PackBuilder {
+
+    public static PackBuilder newInstance(String format) {
+        for (PackService packService : ServiceLoader.load(PackService.class)) {
+            PackBuilder factory = packService.getPbFactory(format);
+            if (factory != null) return factory;
+        }
+        throw new IllegalArgumentException("Unsupported format: " + format);
     }
+
+    public abstract BuilderPack createBuilderPack(BuilderProvider provider);
+
 }

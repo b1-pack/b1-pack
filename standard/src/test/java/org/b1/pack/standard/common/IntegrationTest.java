@@ -48,13 +48,13 @@ public class IntegrationTest {
         final String packName = "builderTest";
         String volumeName = packName + ".b1";
         // START SNIPPET: builder
-        BuilderPack builderPack = PbFactory.newInstance(B1).createBuilderPack(new PbProvider());
-        PbFile pbFile = createPbFile(folderName, fileName, fileTime, fileContent);
+        BuilderPack builderPack = PackBuilder.newInstance(B1).createBuilderPack(new BuilderProvider());
+        BuilderFile pbFile = createPbFile(folderName, fileName, fileTime, fileContent);
         builderPack.addFile(pbFile);
-        PbVolume pbVolume = getOnlyElement(builderPack.getVolumes());
-        byte[] volumeContent = getPbVolumeContent(pbVolume);
+        BuilderVolume builderVolume = getOnlyElement(builderPack.getVolumes());
+        byte[] volumeContent = getPbVolumeContent(builderVolume);
         // END SNIPPET: builder
-        assertEquals(1, pbVolume.getNumber());
+        assertEquals(1, builderVolume.getNumber());
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
 
@@ -102,9 +102,9 @@ public class IntegrationTest {
         assertArrayEquals(fileContent, getPxFileContent(file));
     }
 
-    private static PbFile createPbFile(final String folderName, final String fileName,
+    private static BuilderFile createPbFile(final String folderName, final String fileName,
                                        final long lastModifiedTime, final byte[] content) {
-        return new PbFile() {
+        return new BuilderFile() {
             public List<String> getPath() {
                 return asList(folderName, fileName);
             }
@@ -127,9 +127,9 @@ public class IntegrationTest {
         };
     }
 
-    private static byte[] getPbVolumeContent(PbVolume pbVolume) throws IOException {
+    private static byte[] getPbVolumeContent(BuilderVolume builderVolume) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        pbVolume.writeTo(stream, 0, Ints.checkedCast(pbVolume.getSize()));
+        builderVolume.writeTo(stream, 0, Ints.checkedCast(builderVolume.getSize()));
         return stream.toByteArray();
     }
 

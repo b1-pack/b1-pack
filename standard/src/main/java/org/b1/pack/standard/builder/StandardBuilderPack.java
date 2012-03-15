@@ -38,7 +38,7 @@ public class StandardBuilderPack implements BuilderPack {
     private final PbRecordPointer catalogPointer;
     private long objectCount;
 
-    public StandardBuilderPack(PbProvider provider) {
+    public StandardBuilderPack(BuilderProvider provider) {
         maxVolumeSize = provider.getMaxVolumeSize();
         blockOffsetSize = Numbers.getSerializedSize(maxVolumeSize - 1);
         catalogPointer = createPointer();
@@ -46,12 +46,12 @@ public class StandardBuilderPack implements BuilderPack {
     }
 
     @Override
-    public void addFolder(PbFolder folder) {
+    public void addFolder(BuilderFolder folder) {
         addFolderRecords(createHeader(folder), folder);
     }
 
     @Override
-    public void addFile(PbFile file) {
+    public void addFile(BuilderFile file) {
         PbRecordHeader header = createHeader(file);
         PbRecordPointer pointer = createPointer();
         addRecords(pointer,
@@ -60,7 +60,7 @@ public class StandardBuilderPack implements BuilderPack {
     }
 
     @Override
-    public List<PbVolume> getVolumes() {
+    public List<BuilderVolume> getVolumes() {
         VolumeBuilder builder = new VolumeBuilder(maxVolumeSize, pointerMap, objectCount);
         builder.addContent(createCatalog());
         for (PbRecord record : completeRecords) {
@@ -74,7 +74,7 @@ public class StandardBuilderPack implements BuilderPack {
         return new PbRecordPointer(Numbers.MAX_INT_SIZE, blockOffsetSize, 1);
     }
 
-    private PbRecordHeader createHeader(PbObject object) {
+    private PbRecordHeader createHeader(BuilderObject object) {
         Deque<String> path = Lists.newLinkedList(object.getPath());
         String name = path.removeLast();
         Long parentId = null;
@@ -98,7 +98,7 @@ public class StandardBuilderPack implements BuilderPack {
         return id;
     }
 
-    private void addFolderRecords(PbRecordHeader header, @Nullable PbFolder folder) {
+    private void addFolderRecords(PbRecordHeader header, @Nullable BuilderFolder folder) {
         PbRecordPointer pointer = createPointer();
         addRecords(pointer,
                 new PbRecord(new PbCatalogFolder(pointer, header)),

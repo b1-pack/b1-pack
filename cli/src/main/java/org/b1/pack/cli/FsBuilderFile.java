@@ -18,17 +18,17 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
-import org.b1.pack.api.builder.PbFile;
+import org.b1.pack.api.builder.BuilderFile;
 
 import java.io.*;
 import java.util.List;
 
-public class FsPbFile implements PbFile {
+public class FsBuilderFile implements BuilderFile {
 
     private final FsObject fsObject;
     private long size;
 
-    public FsPbFile(FsObject fsObject) {
+    public FsBuilderFile(FsObject fsObject) {
         this.fsObject = fsObject;
         this.size = fsObject.getFile().length();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.builder;
+package org.b1.pack.standard.builder;
 
-public interface PbFolder extends PbObject {
+import org.b1.pack.api.builder.BuilderPack;
+import org.b1.pack.api.builder.PackBuilder;
+import org.b1.pack.api.builder.BuilderProvider;
+
+public class StandardPackBuilder extends PackBuilder {
+
+    @Override
+    public BuilderPack createBuilderPack(BuilderProvider provider) {
+        return new StandardBuilderPack(provider);
+    }
 }

@@ -20,10 +20,10 @@ import java.util.List;
 
 public interface BuilderPack {
 
-    void addFolder(PbFolder folder);
+    void addFolder(BuilderFolder folder);
 
-    void addFile(PbFile file);
+    void addFile(BuilderFile file);
 
-    List<PbVolume> getVolumes();
+    List<BuilderVolume> getVolumes();
 
 }

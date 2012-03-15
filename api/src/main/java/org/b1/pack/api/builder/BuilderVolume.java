@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 b1.org
+ * Copyright 2011 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.builder;
+package org.b1.pack.api.builder;
 
-import org.b1.pack.api.builder.BuilderPack;
-import org.b1.pack.api.builder.PbFactory;
-import org.b1.pack.api.builder.PbProvider;
+public interface BuilderVolume extends Writable {
 
-public class StandardPbFactory extends PbFactory {
+    long getNumber();
 
-    @Override
-    public BuilderPack createBuilderPack(PbProvider provider) {
-        return new StandardBuilderPack(provider);
-    }
 }

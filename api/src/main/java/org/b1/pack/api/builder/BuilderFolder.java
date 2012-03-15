@@ -14,32 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.cli;
+package org.b1.pack.api.builder;
 
-import org.b1.pack.api.builder.PbFolder;
-
-import java.util.List;
-
-public class FsPbFolder implements PbFolder {
-
-    private final FsObject fsObject;
-
-    public FsPbFolder(FsObject fsObject) {
-        this.fsObject = fsObject;
-    }
-
-    @Override
-    public List<String> getPath() {
-        return fsObject.getPath();
-    }
-
-    @Override
-    public Long getLastModifiedTime() {
-        return fsObject.getFile().lastModified();
-    }
-
-    @Override
-    public void beforeAdd() {
-        System.out.println("Adding " + fsObject.getFile());
-    }
+public interface BuilderFolder extends BuilderObject {
 }

@@ -18,7 +18,7 @@ package org.b1.pack.standard.builder;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.b1.pack.api.builder.PbVolume;
+import org.b1.pack.api.builder.BuilderVolume;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.standard.common.*;
 
@@ -61,14 +61,14 @@ public class VolumeBuilder {
         }
     }
 
-    public List<PbVolume> getVolumes() {
+    public List<BuilderVolume> getVolumes() {
         if (volumeContent != null) {
             completeVolume(true);
         }
         int volumeCount = volumeContents.size();
-        List<PbVolume> result = Lists.newArrayListWithCapacity(volumeCount);
+        List<BuilderVolume> result = Lists.newArrayListWithCapacity(volumeCount);
         for (int i = 0; i < volumeCount; i++) {
-            result.add(new StandardPbVolume(i + 1, volumeContents.get(i)));
+            result.add(new StandardBuilderVolume(i + 1, volumeContents.get(i)));
         }
         return result;
     }

@@ -16,7 +16,7 @@
 
 package org.b1.pack.standard.builder;
 
-import org.b1.pack.api.builder.PbFolder;
+import org.b1.pack.api.builder.BuilderFolder;
 import org.b1.pack.standard.common.CompositeWritable;
 
 import java.io.IOException;
@@ -24,9 +24,9 @@ import java.io.OutputStream;
 
 public class PbCompleteFolder extends CompositeWritable {
 
-    private final PbFolder folder;
+    private final BuilderFolder folder;
 
-    public PbCompleteFolder(PbRecordHeader header, PbFolder folder) {
+    public PbCompleteFolder(PbRecordHeader header, BuilderFolder folder) {
         super(header);
         this.folder = folder;
     }

@@ -16,13 +16,9 @@
 
 package org.b1.pack.api.builder;
 
-import java.util.List;
+public class BuilderProvider {
 
-public interface PbObject {
-
-    List<String> getPath();
-
-    Long getLastModifiedTime();
-
-    void beforeAdd();
+    public long getMaxVolumeSize() {
+        return Long.MAX_VALUE;
+    }
 }

@@ -18,9 +18,9 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.api.builder.BuilderPack;
-import org.b1.pack.api.builder.PbFactory;
-import org.b1.pack.api.builder.PbProvider;
-import org.b1.pack.api.builder.PbVolume;
+import org.b1.pack.api.builder.PackBuilder;
+import org.b1.pack.api.builder.BuilderProvider;
+import org.b1.pack.api.builder.BuilderVolume;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class BuildCommand implements PackCommand {
         System.out.println("Starting");
         File outputFolder = FileTools.getOutputFolder(argSet);
         Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
-        BuilderPack builderPack = PbFactory.newInstance(argSet.getTypeFormat()).createBuilderPack(new PbProvider() {
+        BuilderPack builderPack = PackBuilder.newInstance(argSet.getTypeFormat()).createBuilderPack(new BuilderProvider() {
             @Override
             public long getMaxVolumeSize() {
                 return argSet.getVolumeSize();
@@ -43,14 +43,14 @@ public class BuildCommand implements PackCommand {
         for (FsObject fsObject : fsObjects) {
             File file = fsObject.getFile();
             if (file.isFile()) {
-                builderPack.addFile(new FsPbFile(fsObject));
+                builderPack.addFile(new FsBuilderFile(fsObject));
             } else if (file.isDirectory()) {
-                builderPack.addFolder(new FsPbFolder(fsObject));
+                builderPack.addFolder(new FsBuilderFolder(fsObject));
             } else {
                 throw new IllegalArgumentException("Not found: " + file);
             }
         }
-        List<PbVolume> volumes = builderPack.getVolumes();
+        List<BuilderVolume> volumes = builderPack.getVolumes();
         VolumeNameExpert expert = new VolumeNameExpert(outputFolder, argSet.getPackName(), argSet.isSplit() ? volumes.size() : 0);
         for (int i = 0, volumesSize = volumes.size(); i < volumesSize; i++) {
             buildVolume(expert.getVolumeFile(i + 1), volumes.get(i));
@@ -59,7 +59,7 @@ public class BuildCommand implements PackCommand {
         System.out.println("Done");
     }
 
-    private void buildVolume(File file, PbVolume volume) throws IOException {
+    private void buildVolume(File file, BuilderVolume volume) throws IOException {
         System.out.println();
         System.out.println("Creating volume " + file);
         System.out.println();

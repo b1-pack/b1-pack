@@ -16,7 +16,7 @@
 
 package org.b1.pack.standard.builder;
 
-import org.b1.pack.api.builder.PbFile;
+import org.b1.pack.api.builder.BuilderFile;
 import org.b1.pack.standard.common.CompositeWritable;
 import org.b1.pack.standard.common.PbBinary;
 
@@ -25,9 +25,9 @@ import java.io.OutputStream;
 
 public class PbCompleteFile extends CompositeWritable {
 
-    private final PbFile file;
+    private final BuilderFile file;
 
-    public PbCompleteFile(PbRecordHeader header, PbFile file) {
+    public PbCompleteFile(PbRecordHeader header, BuilderFile file) {
         super(header, new PbBinary(file));
         this.file = file;
     }

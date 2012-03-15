@@ -14,7 +14,32 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.builder;
+package org.b1.pack.cli;
 
-public interface PbFile extends PbObject, Writable {
+import org.b1.pack.api.builder.BuilderFolder;
+
+import java.util.List;
+
+public class FsBuilderFolder implements BuilderFolder {
+
+    private final FsObject fsObject;
+
+    public FsBuilderFolder(FsObject fsObject) {
+        this.fsObject = fsObject;
+    }
+
+    @Override
+    public List<String> getPath() {
+        return fsObject.getPath();
+    }
+
+    @Override
+    public Long getLastModifiedTime() {
+        return fsObject.getFile().lastModified();
+    }
+
+    @Override
+    public void beforeAdd() {
+        System.out.println("Adding " + fsObject.getFile());
+    }
 }

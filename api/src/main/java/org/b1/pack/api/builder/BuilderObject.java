@@ -16,8 +16,13 @@
 
 package org.b1.pack.api.builder;
 
-public interface PbVolume extends Writable {
+import java.util.List;
 
-    long getNumber();
+public interface BuilderObject {
 
+    List<String> getPath();
+
+    Long getLastModifiedTime();
+
+    void beforeAdd();
 }
