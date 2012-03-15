@@ -36,11 +36,11 @@ public class ListCommand implements PackCommand {
         System.out.println("Name");
         System.out.println("Type             Size     Date       Time");
         printLine();
-        PackExplorer explorer = PxFactory.newInstance(argSet.getTypeFormat()).createPackExplorer(VolumeManagerFactory.createVolumeManager(file));
+        ExplorerPack explorerPack = PxFactory.newInstance(argSet.getTypeFormat()).createPackExplorer(VolumeManagerFactory.createVolumeManager(file));
         try {
-            explorer.listObjects(new ListVisitor());
+            explorerPack.listObjects(new ListVisitor());
         } finally {
-            explorer.close();
+            explorerPack.close();
         }
         printLine();
         System.out.println();
@@ -68,14 +68,14 @@ public class ListCommand implements PackCommand {
         System.out.println();
     }
 
-    private static class ListVisitor implements PxVisitor {
+    private static class ListVisitor implements ExplorerVisitor {
         @Override
-        public void visit(PxFolder folder) {
+        public void visit(ExplorerFolder folder) {
             printInfo(folder.getPath(), 'D', null, folder.getLastModifiedTime());
         }
 
         @Override
-        public void visit(PxFile file) {
+        public void visit(ExplorerFile file) {
             printInfo(file.getPath(), 'F', file.getSize(), file.getLastModifiedTime());
         }
     }

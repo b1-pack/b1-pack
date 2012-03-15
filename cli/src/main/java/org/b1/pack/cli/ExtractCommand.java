@@ -36,11 +36,11 @@ public class ExtractCommand implements PackCommand {
         if (outputFolder == null) outputFolder = new File(".");
         System.out.println("Extracting from \"" + file + "\" to \"" + outputFolder + "\".");
         System.out.println();
-        PackExplorer explorer = PxFactory.newInstance(argSet.getTypeFormat()).createPackExplorer(VolumeManagerFactory.createVolumeManager(file));
+        ExplorerPack explorerPack = PxFactory.newInstance(argSet.getTypeFormat()).createPackExplorer(VolumeManagerFactory.createVolumeManager(file));
         try {
-            explorer.listObjects(new ExtractVisitor(outputFolder));
+            explorerPack.listObjects(new ExtractVisitor(outputFolder));
         } finally {
-            explorer.close();
+            explorerPack.close();
         }
         System.out.println();
         System.out.println("Done");
@@ -51,7 +51,7 @@ public class ExtractCommand implements PackCommand {
         System.out.println("Extracting " + path);
     }
 
-    private static void extractFile(final PxFile pxFile, File nativeFile) throws IOException {
+    private static void extractFile(final ExplorerFile pxFile, File nativeFile) throws IOException {
         File tempFile = FileTools.createTempFile(nativeFile);
         Files.copy(new InputSupplier<InputStream>() {
             @Override
@@ -68,14 +68,14 @@ public class ExtractCommand implements PackCommand {
         }
     }
 
-    private static void setAttributes(PxObject object, File file) throws IOException {
+    private static void setAttributes(ExplorerObject object, File file) throws IOException {
         Long time = object.getLastModifiedTime();
         if (time != null && !file.setLastModified(time)) {
             throw new IOException("Cannot set time: " + file);
         }
     }
 
-    private static class ExtractVisitor implements PxVisitor {
+    private static class ExtractVisitor implements ExplorerVisitor {
 
         private final File outputFolder;
 
@@ -84,7 +84,7 @@ public class ExtractCommand implements PackCommand {
         }
 
         @Override
-        public void visit(PxFolder folder) throws IOException {
+        public void visit(ExplorerFolder folder) throws IOException {
             String path = getPath(folder);
             File nativeFile = new File(outputFolder, path);
             startExtracting(path, nativeFile);
@@ -93,7 +93,7 @@ public class ExtractCommand implements PackCommand {
         }
 
         @Override
-        public void visit(PxFile file) throws IOException {
+        public void visit(ExplorerFile file) throws IOException {
             String path = getPath(file);
             File nativeFile = new File(outputFolder, path);
             startExtracting(path, nativeFile);
@@ -101,7 +101,7 @@ public class ExtractCommand implements PackCommand {
             setAttributes(file, nativeFile);
         }
 
-        private String getPath(PxObject object) {
+        private String getPath(ExplorerObject object) {
             return Joiner.on(File.separator).join(object.getPath());
         }
     }

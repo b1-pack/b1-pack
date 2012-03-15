@@ -16,33 +16,26 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.explorer.PxVolume;
+import org.b1.pack.api.explorer.ExplorerProvider;
+import org.b1.pack.api.explorer.ExplorerVolume;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
-public class FsPxVolume extends PxVolume {
+public class BasicExplorerProvider extends ExplorerProvider {
 
-    private final File file;
+    private final File packFile;
 
-    public FsPxVolume(File file) {
-        this.file = file;
+    public BasicExplorerProvider(File packFile) {
+        this.packFile = packFile;
     }
 
     @Override
-    public String getName() {
-        return file.getName();
+    public ExplorerVolume getVolume(long number) {
+        return number == 1 ? new FsExplorerVolume(packFile) : null;
     }
 
     @Override
-    public long getSize() {
-        return file.length();
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return new FileInputStream(file);
+    public long getVolumeCount() {
+        return 1;
     }
 }

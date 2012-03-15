@@ -19,12 +19,12 @@ package org.b1.pack.api.explorer;
 import java.io.IOException;
 import java.util.List;
 
-public interface PxObject {
+public interface ExplorerObject {
 
     List<String> getPath();
 
     Long getLastModifiedTime();
 
-    void accept(PxVisitor visitor) throws IOException;
+    void accept(ExplorerVisitor visitor) throws IOException;
 
 }

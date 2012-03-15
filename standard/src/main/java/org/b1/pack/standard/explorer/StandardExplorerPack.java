@@ -20,9 +20,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.explorer.PackExplorer;
-import org.b1.pack.api.explorer.PxObject;
-import org.b1.pack.api.explorer.PxVisitor;
+import org.b1.pack.api.explorer.ExplorerPack;
+import org.b1.pack.api.explorer.ExplorerObject;
+import org.b1.pack.api.explorer.ExplorerVisitor;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PermanentList;
@@ -33,25 +33,25 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-public class StandardPackExplorer implements PackExplorer {
+public class StandardExplorerPack implements ExplorerPack {
 
     private final VolumeManager volumeManager;
     private final PackNavigator navigator;
 
-    public StandardPackExplorer(VolumeManager volumeManager) {
+    public StandardExplorerPack(VolumeManager volumeManager) {
         this.volumeManager = volumeManager;
         this.navigator = new PackNavigator(volumeManager);
     }
 
     @Override
-    public void listObjects(PxVisitor visitor) throws IOException {
-        for (PxObject object : getObjects()) {
+    public void listObjects(ExplorerVisitor visitor) throws IOException {
+        for (ExplorerObject object : getObjects()) {
             object.accept(visitor);
         }
     }
 
-    private List<PxObject> getObjects() throws IOException {
-        List<PxObject> objects = Lists.newArrayList();
+    private List<ExplorerObject> getObjects() throws IOException {
+        List<ExplorerObject> objects = Lists.newArrayList();
         Map<Long, PermanentList<String>> pathMap = Maps.newHashMap();
         HeaderSet headerSet = volumeManager.getHeaderSet();
         Long total = headerSet.getObjectTotal();
@@ -69,12 +69,12 @@ public class StandardPackExplorer implements PackExplorer {
                         RecordPointer filePointer = readPointer(stream);
                         RecordHeader fileHeader = RecordHeader.readRecordHeader(stream);
                         Long fileSize = Numbers.readLong(stream);
-                        objects.add(new StandardPxFile(navigator, filePointer, fileHeader, getPath(pathMap, fileHeader), fileSize));
+                        objects.add(new StandardExplorerFile(navigator, filePointer, fileHeader, getPath(pathMap, fileHeader), fileSize));
                         break;
                     case Constants.CATALOG_FOLDER:
                         readPointer(stream); // ignore for now
                         RecordHeader folderHeader = RecordHeader.readRecordHeader(stream);
-                        objects.add(new StandardPxFolder(folderHeader, getPath(pathMap, folderHeader)));
+                        objects.add(new StandardExplorerFolder(folderHeader, getPath(pathMap, folderHeader)));
                         break;
                     default:
                         throw new IllegalArgumentException("Invalid entry");

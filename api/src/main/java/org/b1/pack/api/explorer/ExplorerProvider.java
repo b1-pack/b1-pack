@@ -19,9 +19,9 @@ package org.b1.pack.api.explorer;
 import java.io.Closeable;
 import java.io.IOException;
 
-public abstract class PxProvider implements Closeable {
+public abstract class ExplorerProvider implements Closeable {
 
-    public abstract PxVolume getVolume(long number);
+    public abstract ExplorerVolume getVolume(long number);
 
     public abstract long getVolumeCount();
 

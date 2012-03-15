@@ -30,6 +30,6 @@ public abstract class PxFactory {
         throw new IllegalArgumentException("Unsupported format: " + format);
     }
 
-    public abstract PackExplorer createPackExplorer(PxProvider provider);
+    public abstract ExplorerPack createPackExplorer(ExplorerProvider provider);
 
 }

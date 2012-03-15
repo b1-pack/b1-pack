@@ -21,8 +21,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.explorer.PxProvider;
-import org.b1.pack.api.explorer.PxVolume;
+import org.b1.pack.api.explorer.ExplorerProvider;
+import org.b1.pack.api.explorer.ExplorerVolume;
 import org.b1.pack.standard.common.MemoryBuffer;
 import org.b1.pack.standard.common.Volumes;
 
@@ -34,10 +34,10 @@ import java.io.InputStream;
 public class VolumeManager implements Closeable {
 
     private static final int MAX_TAIL_SIZE = 1024;
-    private final PxProvider provider;
+    private final ExplorerProvider provider;
     private String archiveId;
 
-    public VolumeManager(PxProvider provider) {
+    public VolumeManager(ExplorerProvider provider) {
         this.provider = provider;
     }
 
@@ -59,12 +59,12 @@ public class VolumeManager implements Closeable {
         provider.close();
     }
 
-    private PxVolume getVolume(long volumeNumber) {
+    private ExplorerVolume getVolume(long volumeNumber) {
         return Preconditions.checkNotNull(provider.getVolume(volumeNumber), "Volume %s not found", volumeNumber);
     }
 
     private HeaderSet getHeaderSet(long volumeNumber) throws IOException {
-        PxVolume volume = getVolume(volumeNumber);
+        ExplorerVolume volume = getVolume(volumeNumber);
         OpenVolume openVolume = getOpenVolume(volume, volumeNumber);
         try {
             HeaderSet result = openVolume.getHeaderSet();
@@ -77,7 +77,7 @@ public class VolumeManager implements Closeable {
         }
     }
 
-    private OpenVolume getOpenVolume(PxVolume volume, long volumeNumber) throws IOException {
+    private OpenVolume getOpenVolume(ExplorerVolume volume, long volumeNumber) throws IOException {
         boolean pending = true;
         CountingInputStream stream = new CountingInputStream(volume.getInputStream());
         try {
@@ -92,7 +92,7 @@ public class VolumeManager implements Closeable {
         }
     }
 
-    private void validateVolume(PxVolume volume, HeaderSet set, long volumeNumber) {
+    private void validateVolume(ExplorerVolume volume, HeaderSet set, long volumeNumber) {
         if (archiveId == null) {
             archiveId = set.getArchiveId();
         }
@@ -102,7 +102,7 @@ public class VolumeManager implements Closeable {
         checkVolume(volume, set.getVolumeNumber() != null && set.getVolumeNumber() == volumeNumber);
     }
 
-    private static String readHead(PxVolume volume, InputStream stream) throws IOException {
+    private static String readHead(ExplorerVolume volume, InputStream stream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         while (true) {
             int b = stream.read();
@@ -118,7 +118,7 @@ public class VolumeManager implements Closeable {
         return buffer.toString(Charsets.UTF_8.name());
     }
 
-    private static String readTail(PxVolume volume, CountingInputStream stream) throws IOException {
+    private static String readTail(ExplorerVolume volume, CountingInputStream stream) throws IOException {
         long available = volume.getSize() - stream.getCount();
         int capacity = Ints.checkedCast(Math.min(available, MAX_TAIL_SIZE));
         MemoryBuffer buffer = new MemoryBuffer(capacity);
@@ -131,7 +131,7 @@ public class VolumeManager implements Closeable {
         return result;
     }
 
-    private static void checkVolume(PxVolume volume, boolean expression) {
+    private static void checkVolume(ExplorerVolume volume, boolean expression) {
         Preconditions.checkState(expression, "Volume broken or not a B1 archive: %s", volume.getName());
     }
 }

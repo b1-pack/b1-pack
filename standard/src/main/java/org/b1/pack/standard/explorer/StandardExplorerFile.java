@@ -17,8 +17,8 @@
 package org.b1.pack.standard.explorer;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.explorer.PxFile;
-import org.b1.pack.api.explorer.PxVisitor;
+import org.b1.pack.api.explorer.ExplorerFile;
+import org.b1.pack.api.explorer.ExplorerVisitor;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public class StandardPxFile implements PxFile {
+public class StandardExplorerFile implements ExplorerFile {
 
     private final PackNavigator navigator;
     private final RecordPointer pointer;
@@ -35,7 +35,7 @@ public class StandardPxFile implements PxFile {
     private final List<String> path;
     private final long size;
 
-    public StandardPxFile(PackNavigator navigator, RecordPointer pointer, RecordHeader header, List<String> path, long size) {
+    public StandardExplorerFile(PackNavigator navigator, RecordPointer pointer, RecordHeader header, List<String> path, long size) {
         this.navigator = navigator;
         this.pointer = pointer;
         this.header = header;
@@ -75,7 +75,7 @@ public class StandardPxFile implements PxFile {
     }
 
     @Override
-    public void accept(PxVisitor visitor) throws IOException {
+    public void accept(ExplorerVisitor visitor) throws IOException {
         visitor.visit(this);
     }
 }

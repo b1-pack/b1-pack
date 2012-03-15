@@ -16,7 +16,7 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.explorer.PxProvider;
+import org.b1.pack.api.explorer.ExplorerProvider;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -26,15 +26,15 @@ public class VolumeManagerFactory {
 
     private static final Pattern PATTERN = Pattern.compile("(?i)(.*\\.part)(\\d+)(.b1)");
 
-    public static PxProvider createVolumeManager(File packFile) {
+    public static ExplorerProvider createVolumeManager(File packFile) {
         Matcher matcher = PATTERN.matcher(packFile.getName());
         if (!matcher.matches()) {
-            return new BasicPxProvider(packFile);
+            return new BasicExplorerProvider(packFile);
         }
         String prefix = matcher.group(1);
         String number = matcher.group(2);
         String suffix = matcher.group(3);
-        return new MultipartPxProvider(prefix, suffix, number.length(), Integer.parseInt(number));
+        return new MultipartExplorerProvider(prefix, suffix, number.length(), Integer.parseInt(number));
     }
 
 }

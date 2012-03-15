@@ -17,12 +17,11 @@
 package org.b1.pack.api.explorer;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-public interface PxFile extends PxObject {
+public interface ExplorerVisitor {
 
-    long getSize();
+    void visit(ExplorerFolder folder) throws IOException;
 
-    InputStream getInputStream() throws IOException;
+    void visit(ExplorerFile file) throws IOException;
 
 }

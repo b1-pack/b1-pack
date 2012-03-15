@@ -14,36 +14,35 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.explorer;
+package org.b1.pack.cli;
 
-import org.b1.pack.api.explorer.PxFolder;
-import org.b1.pack.api.explorer.PxVisitor;
+import org.b1.pack.api.explorer.ExplorerVolume;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
+import java.io.InputStream;
 
-public class StandardPxFolder implements PxFolder {
+public class FsExplorerVolume extends ExplorerVolume {
 
-    private final RecordHeader header;
-    private final List<String> path;
+    private final File file;
 
-    public StandardPxFolder(RecordHeader header, List<String> path) {
-        this.header = header;
-        this.path = path;
+    public FsExplorerVolume(File file) {
+        this.file = file;
     }
 
     @Override
-    public List<String> getPath() {
-        return path;
+    public String getName() {
+        return file.getName();
     }
 
     @Override
-    public Long getLastModifiedTime() {
-        return header.lastModifiedTime;
+    public long getSize() {
+        return file.length();
     }
 
     @Override
-    public void accept(PxVisitor visitor) throws IOException {
-        visitor.visit(this);
+    public InputStream getInputStream() throws IOException {
+        return new FileInputStream(file);
     }
 }

@@ -16,12 +16,11 @@
 
 package org.b1.pack.api.explorer;
 
+import java.io.Closeable;
 import java.io.IOException;
 
-public interface PxVisitor {
+public interface ExplorerPack extends Closeable {
 
-    void visit(PxFolder folder) throws IOException;
-
-    void visit(PxFile file) throws IOException;
+    void listObjects(ExplorerVisitor visitor) throws IOException;
 
 }

@@ -16,20 +16,20 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.explorer.PxProvider;
-import org.b1.pack.api.explorer.PxVolume;
+import org.b1.pack.api.explorer.ExplorerProvider;
+import org.b1.pack.api.explorer.ExplorerVolume;
 
 import java.io.File;
 import java.util.LinkedList;
 
-public class MultipartPxProvider extends PxProvider {
+public class MultipartExplorerProvider extends ExplorerProvider {
 
     private final String prefix;
     private final String suffix;
     private final int digitCount;
     private final int minVolumeCount;
 
-    public MultipartPxProvider(String prefix, String suffix, int digitCount, int minVolumeCount) {
+    public MultipartExplorerProvider(String prefix, String suffix, int digitCount, int minVolumeCount) {
         this.prefix = prefix;
         this.suffix = suffix;
         this.digitCount = digitCount;
@@ -37,7 +37,7 @@ public class MultipartPxProvider extends PxProvider {
     }
 
     @Override
-    public PxVolume getVolume(long number) {
+    public ExplorerVolume getVolume(long number) {
         String n = Long.toString(number);
         LinkedList<String> list = new LinkedList<String>();
         list.add(n);
@@ -47,7 +47,7 @@ public class MultipartPxProvider extends PxProvider {
         while (!list.isEmpty()) {
             File file = new File(prefix + list.removeLast() + suffix);
             if (file.isFile()) {
-                return new FsPxVolume(file);
+                return new FsExplorerVolume(file);
             }
         }
         return null;

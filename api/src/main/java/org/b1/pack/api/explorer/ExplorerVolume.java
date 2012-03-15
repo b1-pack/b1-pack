@@ -16,11 +16,15 @@
 
 package org.b1.pack.api.explorer;
 
-import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 
-public interface PackExplorer extends Closeable {
+public abstract class ExplorerVolume {
 
-    void listObjects(PxVisitor visitor) throws IOException;
+    public abstract String getName();
+
+    public abstract long getSize();
+
+    public abstract InputStream getInputStream() throws IOException;
 
 }

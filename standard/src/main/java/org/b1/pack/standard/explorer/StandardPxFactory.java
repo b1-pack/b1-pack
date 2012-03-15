@@ -16,14 +16,14 @@
 
 package org.b1.pack.standard.explorer;
 
-import org.b1.pack.api.explorer.PackExplorer;
+import org.b1.pack.api.explorer.ExplorerPack;
 import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.api.explorer.PxProvider;
+import org.b1.pack.api.explorer.ExplorerProvider;
 
 public class StandardPxFactory extends PxFactory {
 
     @Override
-    public PackExplorer createPackExplorer(PxProvider provider) {
-        return new StandardPackExplorer(new VolumeManager(provider));
+    public ExplorerPack createPackExplorer(ExplorerProvider provider) {
+        return new StandardExplorerPack(new VolumeManager(provider));
     }
 }

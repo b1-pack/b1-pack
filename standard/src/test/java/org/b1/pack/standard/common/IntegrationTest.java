@@ -88,18 +88,18 @@ public class IntegrationTest {
     private void verifyVolume(String folderName, String fileName, long fileTime, byte[] fileContent,
                               String volumeName, byte[] volumeContent) throws IOException {
         // START SNIPPET: explorer
-        PxVolume pxVolume = createPxVolume(volumeName, volumeContent);
-        PxProvider pxProvider = createPxProvider(pxVolume);
-        PackExplorer explorer = PxFactory.newInstance(B1).createPackExplorer(pxProvider);
-        List<PxFolder> folders = newArrayList();
-        List<PxFile> files = newArrayList();
-        PxVisitor pxVisitor = createPxVisitor(folders, files);
-        explorer.listObjects(pxVisitor);
+        ExplorerVolume explorerVolume = createPxVolume(volumeName, volumeContent);
+        ExplorerProvider explorerProvider = createPxProvider(explorerVolume);
+        ExplorerPack explorerPack = PxFactory.newInstance(B1).createPackExplorer(explorerProvider);
+        List<ExplorerFolder> folders = newArrayList();
+        List<ExplorerFile> files = newArrayList();
+        ExplorerVisitor explorerVisitor = createPxVisitor(folders, files);
+        explorerPack.listObjects(explorerVisitor);
         // END SNIPPET: explorer
 
-        PxFolder folder = getOnlyElement(folders);
+        ExplorerFolder folder = getOnlyElement(folders);
         assertEquals(singletonList(folderName), folder.getPath());
-        PxFile file = getOnlyElement(files);
+        ExplorerFile file = getOnlyElement(files);
         assertEquals(asList(folderName, fileName), file.getPath());
         assertEquals(fileTime, file.getLastModifiedTime().longValue());
         assertEquals(fileContent.length, file.getSize());
@@ -195,8 +195,8 @@ public class IntegrationTest {
         };
     }
 
-    private static PxVolume createPxVolume(final String name, final byte[] packContent) {
-        return new PxVolume() {
+    private static ExplorerVolume createPxVolume(final String name, final byte[] packContent) {
+        return new ExplorerVolume() {
             @Override
             public String getName() {
                 return name;
@@ -214,12 +214,12 @@ public class IntegrationTest {
         };
     }
 
-    private static PxProvider createPxProvider(final PxVolume pxVolume) {
-        return new PxProvider() {
+    private static ExplorerProvider createPxProvider(final ExplorerVolume explorerVolume) {
+        return new ExplorerProvider() {
             @Override
-            public PxVolume getVolume(long number) {
+            public ExplorerVolume getVolume(long number) {
                 checkArgument(number == 1);
-                return pxVolume;
+                return explorerVolume;
             }
 
             @Override
@@ -234,21 +234,21 @@ public class IntegrationTest {
         };
     }
 
-    private static PxVisitor createPxVisitor(final List<PxFolder> folders, final List<PxFile> files) {
-        return new PxVisitor() {
+    private static ExplorerVisitor createPxVisitor(final List<ExplorerFolder> folders, final List<ExplorerFile> files) {
+        return new ExplorerVisitor() {
             @Override
-            public void visit(PxFolder folder) throws IOException {
+            public void visit(ExplorerFolder folder) throws IOException {
                 folders.add(folder);
             }
 
             @Override
-            public void visit(PxFile file) throws IOException {
+            public void visit(ExplorerFile file) throws IOException {
                 files.add(file);
             }
         };
     }
 
-    private static byte[] getPxFileContent(PxFile file) throws IOException {
+    private static byte[] getPxFileContent(ExplorerFile file) throws IOException {
         InputStream inputStream = file.getInputStream();
         try {
             return toByteArray(inputStream);

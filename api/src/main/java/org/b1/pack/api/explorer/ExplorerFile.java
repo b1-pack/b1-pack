@@ -16,5 +16,13 @@
 
 package org.b1.pack.api.explorer;
 
-public interface PxFolder extends PxObject {
+import java.io.IOException;
+import java.io.InputStream;
+
+public interface ExplorerFile extends ExplorerObject {
+
+    long getSize();
+
+    InputStream getInputStream() throws IOException;
+
 }

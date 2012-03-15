@@ -14,28 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.cli;
+package org.b1.pack.api.explorer;
 
-import org.b1.pack.api.explorer.PxProvider;
-import org.b1.pack.api.explorer.PxVolume;
-
-import java.io.File;
-
-public class BasicPxProvider extends PxProvider {
-
-    private final File packFile;
-
-    public BasicPxProvider(File packFile) {
-        this.packFile = packFile;
-    }
-
-    @Override
-    public PxVolume getVolume(long number) {
-        return number == 1 ? new FsPxVolume(packFile) : null;
-    }
-
-    @Override
-    public long getVolumeCount() {
-        return 1;
-    }
+public interface ExplorerFolder extends ExplorerObject {
 }
