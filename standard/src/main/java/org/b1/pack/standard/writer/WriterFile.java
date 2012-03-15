@@ -22,7 +22,6 @@ import org.b1.pack.api.writer.WriterEntry;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PbMutableInt;
-import org.b1.pack.standard.maker.ChunkedOutputStream;
 
 import java.io.IOException;
 

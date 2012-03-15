@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.maker;
+package org.b1.pack.standard.writer;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.standard.common.Numbers;
@@ -22,7 +22,7 @@ import org.b1.pack.standard.common.Numbers;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ChunkedOutputStream extends OutputStream {
+class ChunkedOutputStream extends OutputStream {
 
     private final OutputStream stream;
     private final byte[] buffer;

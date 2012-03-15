@@ -24,8 +24,6 @@ public class AddCommand implements PackCommand {
     public void execute(ArgSet argSet) throws IOException {
         if ("builder".equals(argSet.getTypeFlag())) {
             new BuildCommand().execute(argSet);
-        } else if ("maker".equals(argSet.getTypeFlag())) {
-            new MakeCommand().execute(argSet);
         } else {
             new WriteCommand().execute(argSet);
         }

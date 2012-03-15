@@ -19,7 +19,6 @@ package org.b1.pack.standard.common;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.*;
 import org.b1.pack.api.explorer.*;
-import org.b1.pack.api.maker.*;
 import org.b1.pack.api.writer.*;
 import org.junit.Test;
 
@@ -56,32 +55,6 @@ public class IntegrationTest {
         byte[] volumeContent = getPbVolumeContent(pbVolume);
         // END SNIPPET: builder
         assertEquals(1, pbVolume.getNumber());
-        verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
-    }
-
-    @Test
-    public void testMaker() throws IOException {
-        String folderName = "makerFolder";
-        String fileName = "makerFile.txt";
-        long fileTime = System.currentTimeMillis();
-        byte[] fileContent = "Hello, B1!".getBytes(UTF_8);
-        String packName = "makerTest";
-        String volumeName = packName + ".b1";
-
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        PmProvider pmProvider = createPwProvider(1, buffer);
-        PackMaker maker = PmFactory.newInstance(B1).createPackMaker(pmProvider);
-        try {
-            OutputStream stream = maker.addFile(createPwFile(folderName, fileName, fileTime));
-            try {
-                stream.write(fileContent);
-            } finally {
-                stream.close();
-            }
-        } finally {
-            maker.close();
-        }
-        byte[] volumeContent = buffer.toByteArray();
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
 
@@ -160,16 +133,6 @@ public class IntegrationTest {
         return stream.toByteArray();
     }
 
-    private static PmProvider createPwProvider(final long volumeNumber, final ByteArrayOutputStream buffer) {
-        return new PmProvider() {
-            @Override
-            public PmVolume getVolume(long number) {
-                assertEquals(volumeNumber, number);
-                return createPwVolume(buffer);
-            }
-        };
-    }
-
     private static WriterProvider createWriterProvider(final ByteArrayOutputStream buffer) {
         return new WriterProvider() {
             @Override
@@ -185,36 +148,12 @@ public class IntegrationTest {
         };
     }
 
-    private static PmVolume createPwVolume(final ByteArrayOutputStream buffer) {
-        return new PmVolume() {
-            @Override
-            public OutputStream getOutputStream() throws IOException {
-                buffer.reset();
-                return buffer;
-            }
-        };
-    }
-
     private static WriterVolume createWriterVolume(final ByteArrayOutputStream buffer) {
         return new WriterVolume() {
             @Override
             public OutputStream getOutputStream() throws IOException {
                 buffer.reset();
                 return buffer;
-            }
-        };
-    }
-
-    private static PmFile createPwFile(final String folderName, final String fileName, final long fileTime) {
-        return new PmFile() {
-            @Override
-            public List<String> getPath() {
-                return asList(folderName, fileName);
-            }
-
-            @Override
-            public Long getLastModifiedTime() {
-                return fileTime;
             }
         };
     }

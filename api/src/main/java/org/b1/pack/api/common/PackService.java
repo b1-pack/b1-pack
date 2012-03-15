@@ -18,7 +18,6 @@ package org.b1.pack.api.common;
 
 import org.b1.pack.api.builder.PbFactory;
 import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.api.maker.PmFactory;
 
 public abstract class PackService {
 
@@ -32,7 +31,4 @@ public abstract class PackService {
         return null;
     }
 
-    public PmFactory getPmFactory(String format) {
-        return null;
-    }
 }
