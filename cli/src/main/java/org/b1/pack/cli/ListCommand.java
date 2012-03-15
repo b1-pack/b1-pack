@@ -36,12 +36,13 @@ public class ListCommand implements PackCommand {
         System.out.println("Name");
         System.out.println("Type             Size     Date       Time");
         printLine();
-        ExplorerPack explorerPack = PxFactory.newInstance(argSet.getTypeFormat()).createPackExplorer(VolumeManagerFactory.createVolumeManager(file));
-        try {
-            explorerPack.listObjects(new ListVisitor());
-        } finally {
-            explorerPack.close();
-        }
+        PackExplorer explorer = PackExplorer.getInstance(argSet.getTypeFormat());
+        explorer.explore(ExplorerProviderFactory.createExplorerProvider(file), new ExplorerCommand() {
+            @Override
+            public void execute(ExplorerPack pack) throws IOException {
+                pack.listObjects(new ListVisitor());
+            }
+        });
         printLine();
         System.out.println();
         System.out.println("Done");

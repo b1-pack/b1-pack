@@ -32,16 +32,16 @@ public class ExtractCommand implements PackCommand {
     public void execute(ArgSet argSet) throws IOException {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
-        File outputFolder = FileTools.getOutputFolder(argSet);
-        if (outputFolder == null) outputFolder = new File(".");
+        final File outputFolder = FileTools.getOutputFolder(argSet);
         System.out.println("Extracting from \"" + file + "\" to \"" + outputFolder + "\".");
         System.out.println();
-        ExplorerPack explorerPack = PxFactory.newInstance(argSet.getTypeFormat()).createPackExplorer(VolumeManagerFactory.createVolumeManager(file));
-        try {
-            explorerPack.listObjects(new ExtractVisitor(outputFolder));
-        } finally {
-            explorerPack.close();
-        }
+        PackExplorer explorer = PackExplorer.getInstance(argSet.getTypeFormat());
+        explorer.explore(ExplorerProviderFactory.createExplorerProvider(file), new ExplorerCommand() {
+            @Override
+            public void execute(ExplorerPack pack) throws IOException {
+                pack.listObjects(new ExtractVisitor(outputFolder));
+            }
+        });
         System.out.println();
         System.out.println("Done");
     }
@@ -80,7 +80,7 @@ public class ExtractCommand implements PackCommand {
         private final File outputFolder;
 
         private ExtractVisitor(File outputFolder) {
-            this.outputFolder = outputFolder;
+            this.outputFolder = outputFolder != null ? outputFolder : new File(".");
         }
 
         @Override

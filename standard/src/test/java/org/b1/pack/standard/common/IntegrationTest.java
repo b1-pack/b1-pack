@@ -33,7 +33,7 @@ import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Logger.getLogger;
-import static org.b1.pack.api.common.PackService.B1;
+import static org.b1.pack.api.common.PackFormat.B1;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -90,13 +90,16 @@ public class IntegrationTest {
         // START SNIPPET: explorer
         ExplorerVolume explorerVolume = createPxVolume(volumeName, volumeContent);
         ExplorerProvider explorerProvider = createPxProvider(explorerVolume);
-        ExplorerPack explorerPack = PxFactory.newInstance(B1).createPackExplorer(explorerProvider);
         List<ExplorerFolder> folders = newArrayList();
         List<ExplorerFile> files = newArrayList();
-        ExplorerVisitor explorerVisitor = createPxVisitor(folders, files);
-        explorerPack.listObjects(explorerVisitor);
+        final ExplorerVisitor explorerVisitor = createPxVisitor(folders, files);
+        PackExplorer.getInstance(B1).explore(explorerProvider, new ExplorerCommand() {
+            @Override
+            public void execute(ExplorerPack pack) throws IOException {
+                pack.listObjects(explorerVisitor);
+            }
+        });
         // END SNIPPET: explorer
-
         ExplorerFolder folder = getOnlyElement(folders);
         assertEquals(singletonList(folderName), folder.getPath());
         ExplorerFile file = getOnlyElement(files);

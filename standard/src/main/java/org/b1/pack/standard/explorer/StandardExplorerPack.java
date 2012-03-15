@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.explorer.ExplorerPack;
 import org.b1.pack.api.explorer.ExplorerObject;
+import org.b1.pack.api.explorer.ExplorerPack;
 import org.b1.pack.api.explorer.ExplorerVisitor;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
@@ -33,7 +33,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-public class StandardExplorerPack implements ExplorerPack {
+public class StandardExplorerPack extends ExplorerPack {
 
     private final VolumeManager volumeManager;
     private final PackNavigator navigator;
@@ -86,7 +86,6 @@ public class StandardExplorerPack implements ExplorerPack {
         return objects;
     }
 
-    @Override
     public void close() throws IOException {
         navigator.close();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 b1.org
+ * Copyright 2011 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.standard.explorer;
 
-import org.b1.pack.api.writer.PackWriter;
-import org.b1.pack.api.writer.WriterCommand;
-import org.b1.pack.api.writer.WriterProvider;
+import org.b1.pack.api.explorer.ExplorerCommand;
+import org.b1.pack.api.explorer.ExplorerProvider;
+import org.b1.pack.api.explorer.PackExplorer;
 
 import java.io.IOException;
 
 import static org.b1.pack.api.common.PackFormat.B1;
 
-@SuppressWarnings("UnusedDeclaration")
-public class StandardPackWriter extends PackWriter {
+public class StandardPackExplorer extends PackExplorer {
 
     @Override
-    public void write(WriterProvider provider, WriterCommand command) throws IOException {
-        boolean pending = true;
-        StandardWriterPack pack = new StandardWriterPack(provider);
+    public void explore(ExplorerProvider provider, ExplorerCommand command) throws IOException {
+        StandardExplorerPack pack = new StandardExplorerPack(new VolumeManager(provider));
         try {
             command.execute(pack);
-            pack.close();
-            pending = false;
         } finally {
-            if (pending) pack.cleanup();
+            pack.close();
         }
     }
 

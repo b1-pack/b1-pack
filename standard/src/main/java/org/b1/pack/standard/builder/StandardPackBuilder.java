@@ -16,10 +16,14 @@
 
 package org.b1.pack.standard.builder;
 
-import org.b1.pack.api.builder.*;
-import org.b1.pack.api.common.PackService;
+import org.b1.pack.api.builder.BuilderCommand;
+import org.b1.pack.api.builder.BuilderProvider;
+import org.b1.pack.api.builder.BuilderVolume;
+import org.b1.pack.api.builder.PackBuilder;
 
 import java.util.List;
+
+import static org.b1.pack.api.common.PackFormat.B1;
 
 public class StandardPackBuilder extends PackBuilder {
 
@@ -32,6 +36,6 @@ public class StandardPackBuilder extends PackBuilder {
 
     @Override
     protected boolean isFormatSupported(String format) {
-        return PackService.B1.equals(format);
+        return B1.equals(format);
     }
 }

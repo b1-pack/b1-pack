@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.explorer;
+package org.b1.pack.api.explorer;
 
-import org.b1.pack.api.explorer.ExplorerPack;
-import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.api.explorer.ExplorerProvider;
+import java.io.IOException;
 
-public class StandardPxFactory extends PxFactory {
+public interface ExplorerCommand {
 
-    @Override
-    public ExplorerPack createPackExplorer(ExplorerProvider provider) {
-        return new StandardExplorerPack(new VolumeManager(provider));
-    }
+    void execute(ExplorerPack pack) throws IOException;
+
 }

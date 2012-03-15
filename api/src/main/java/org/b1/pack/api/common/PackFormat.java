@@ -16,14 +16,8 @@
 
 package org.b1.pack.api.common;
 
-import org.b1.pack.api.explorer.PxFactory;
-
-public abstract class PackService {
+public abstract class PackFormat {
 
     public static final String B1 = "B1";
-
-    public PxFactory getPxFactory(String format) {
-        return null;
-    }
 
 }

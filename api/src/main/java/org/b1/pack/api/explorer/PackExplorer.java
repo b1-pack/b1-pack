@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.common;
+package org.b1.pack.api.explorer;
 
-import org.b1.pack.api.common.PackService;
-import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.standard.explorer.StandardPxFactory;
+import java.io.IOException;
+import java.util.ServiceLoader;
 
-public class StandardPackService extends PackService {
+public abstract class PackExplorer {
 
-    @Override
-    public PxFactory getPxFactory(String format) {
-        if (format.equals(B1)) {
-            return new StandardPxFactory();
+    public abstract void explore(ExplorerProvider provider, ExplorerCommand command) throws IOException;
+
+    protected abstract boolean isFormatSupported(String format);
+
+    public static PackExplorer getInstance(String format) {
+        for (PackExplorer explorer : ServiceLoader.load(PackExplorer.class)) {
+            if (explorer.isFormatSupported(format)) return explorer;
         }
-        return super.getPxFactory(format);
+        throw new IllegalArgumentException("Unsupported format: " + format);
     }
 }

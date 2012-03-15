@@ -16,11 +16,10 @@
 
 package org.b1.pack.api.explorer;
 
-import java.io.Closeable;
 import java.io.IOException;
 
-public interface ExplorerPack extends Closeable {
+public abstract class ExplorerPack {
 
-    void listObjects(ExplorerVisitor visitor) throws IOException;
+    public abstract void listObjects(ExplorerVisitor visitor) throws IOException;
 
 }

@@ -22,11 +22,11 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VolumeManagerFactory {
+public class ExplorerProviderFactory {
 
     private static final Pattern PATTERN = Pattern.compile("(?i)(.*\\.part)(\\d+)(.b1)");
 
-    public static ExplorerProvider createVolumeManager(File packFile) {
+    public static ExplorerProvider createExplorerProvider(File packFile) {
         Matcher matcher = PATTERN.matcher(packFile.getName());
         if (!matcher.matches()) {
             return new BasicExplorerProvider(packFile);
@@ -36,5 +36,4 @@ public class VolumeManagerFactory {
         String suffix = matcher.group(3);
         return new MultipartExplorerProvider(prefix, suffix, number.length(), Integer.parseInt(number));
     }
-
 }

@@ -21,13 +21,14 @@ import com.google.common.collect.ImmutableMap;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.b1.pack.api.common.PackService;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.b1.pack.api.common.PackFormat.B1;
 
 public class ArgSet {
 
@@ -41,7 +42,7 @@ public class ArgSet {
     private List<String> fileNames;
     private boolean split;
     private long volumeSize = Long.MAX_VALUE;
-    private String typeFormat = PackService.B1;
+    private String typeFormat = B1;
     private String typeFlag;
     private String outputDirectory;
     private String compressionMethod;
