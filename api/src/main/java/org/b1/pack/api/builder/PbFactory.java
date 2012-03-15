@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,6 @@ public abstract class PbFactory {
         throw new IllegalArgumentException("Unsupported format: " + format);
     }
 
-    public abstract PackBuilder createPackBuilder(PbProvider provider);
+    public abstract BuilderPack createBuilderPack(PbProvider provider);
 
 }

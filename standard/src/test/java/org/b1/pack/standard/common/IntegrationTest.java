@@ -48,10 +48,10 @@ public class IntegrationTest {
         final String packName = "builderTest";
         String volumeName = packName + ".b1";
         // START SNIPPET: builder
-        PackBuilder builder = PbFactory.newInstance(B1).createPackBuilder(new PbProvider());
+        BuilderPack builderPack = PbFactory.newInstance(B1).createBuilderPack(new PbProvider());
         PbFile pbFile = createPbFile(folderName, fileName, fileTime, fileContent);
-        builder.addFile(pbFile);
-        PbVolume pbVolume = getOnlyElement(builder.getVolumes());
+        builderPack.addFile(pbFile);
+        PbVolume pbVolume = getOnlyElement(builderPack.getVolumes());
         byte[] volumeContent = getPbVolumeContent(pbVolume);
         // END SNIPPET: builder
         assertEquals(1, pbVolume.getNumber());

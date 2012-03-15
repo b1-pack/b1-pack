@@ -27,7 +27,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
-public class StandardPackBuilder implements PackBuilder {
+public class StandardBuilderPack implements BuilderPack {
 
     private final Map<ObjectKey, Long> objectIdMap = Maps.newHashMap();
     private final List<PbRecord> catalogRecords = Lists.newArrayList();
@@ -38,7 +38,7 @@ public class StandardPackBuilder implements PackBuilder {
     private final PbRecordPointer catalogPointer;
     private long objectCount;
 
-    public StandardPackBuilder(PbProvider provider) {
+    public StandardBuilderPack(PbProvider provider) {
         maxVolumeSize = provider.getMaxVolumeSize();
         blockOffsetSize = Numbers.getSerializedSize(maxVolumeSize - 1);
         catalogPointer = createPointer();

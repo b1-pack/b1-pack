@@ -17,7 +17,7 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.builder.PackBuilder;
+import org.b1.pack.api.builder.BuilderPack;
 import org.b1.pack.api.builder.PbFactory;
 import org.b1.pack.api.builder.PbProvider;
 import org.b1.pack.api.builder.PbVolume;
@@ -34,7 +34,7 @@ public class BuildCommand implements PackCommand {
         System.out.println("Starting");
         File outputFolder = FileTools.getOutputFolder(argSet);
         Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
-        PackBuilder builder = PbFactory.newInstance(argSet.getTypeFormat()).createPackBuilder(new PbProvider() {
+        BuilderPack builderPack = PbFactory.newInstance(argSet.getTypeFormat()).createBuilderPack(new PbProvider() {
             @Override
             public long getMaxVolumeSize() {
                 return argSet.getVolumeSize();
@@ -43,14 +43,14 @@ public class BuildCommand implements PackCommand {
         for (FsObject fsObject : fsObjects) {
             File file = fsObject.getFile();
             if (file.isFile()) {
-                builder.addFile(new FsPbFile(fsObject));
+                builderPack.addFile(new FsPbFile(fsObject));
             } else if (file.isDirectory()) {
-                builder.addFolder(new FsPbFolder(fsObject));
+                builderPack.addFolder(new FsPbFolder(fsObject));
             } else {
                 throw new IllegalArgumentException("Not found: " + file);
             }
         }
-        List<PbVolume> volumes = builder.getVolumes();
+        List<PbVolume> volumes = builderPack.getVolumes();
         VolumeNameExpert expert = new VolumeNameExpert(outputFolder, argSet.getPackName(), argSet.isSplit() ? volumes.size() : 0);
         for (int i = 0, volumesSize = volumes.size(); i < volumesSize; i++) {
             buildVolume(expert.getVolumeFile(i + 1), volumes.get(i));

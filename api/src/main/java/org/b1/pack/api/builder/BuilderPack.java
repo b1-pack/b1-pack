@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.b1.pack.api.builder;
 
 import java.util.List;
 
-public interface PackBuilder {
+public interface BuilderPack {
 
     void addFolder(PbFolder folder);
 

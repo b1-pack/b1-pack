@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package org.b1.pack.standard.builder;
 
-import org.b1.pack.api.builder.PackBuilder;
+import org.b1.pack.api.builder.BuilderPack;
 import org.b1.pack.api.builder.PbFactory;
 import org.b1.pack.api.builder.PbProvider;
 
 public class StandardPbFactory extends PbFactory {
 
     @Override
-    public PackBuilder createPackBuilder(PbProvider provider) {
-        return new StandardPackBuilder(provider);
+    public BuilderPack createBuilderPack(PbProvider provider) {
+        return new StandardBuilderPack(provider);
     }
 }
