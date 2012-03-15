@@ -16,21 +16,11 @@
 
 package org.b1.pack.standard.common;
 
-import org.b1.pack.api.builder.PackBuilder;
 import org.b1.pack.api.common.PackService;
 import org.b1.pack.api.explorer.PxFactory;
-import org.b1.pack.standard.builder.StandardPackBuilder;
 import org.b1.pack.standard.explorer.StandardPxFactory;
 
 public class StandardPackService extends PackService {
-
-    @Override
-    public PackBuilder getPbFactory(String format) {
-        if (format.equals(B1)) {
-            return new StandardPackBuilder();
-        }
-        return super.getPbFactory(format);
-    }
 
     @Override
     public PxFactory getPxFactory(String format) {

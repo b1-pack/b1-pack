@@ -16,16 +16,11 @@
 
 package org.b1.pack.api.common;
 
-import org.b1.pack.api.builder.PackBuilder;
 import org.b1.pack.api.explorer.PxFactory;
 
 public abstract class PackService {
 
     public static final String B1 = "B1";
-
-    public PackBuilder getPbFactory(String format) {
-        return null;
-    }
 
     public PxFactory getPxFactory(String format) {
         return null;

@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.builder;
+package org.b1.pack.cli;
 
-import java.util.List;
-import java.util.ServiceLoader;
+import org.b1.pack.api.builder.BuilderProvider;
 
-public abstract class PackBuilder {
+public class FsBuilderProvider extends BuilderProvider {
 
-    public abstract List<BuilderVolume> build(BuilderProvider provider, BuilderCommand command);
+    private final long maxVolumeSize;
 
-    protected abstract boolean isFormatSupported(String format);
+    public FsBuilderProvider(long maxVolumeSize) {
+        this.maxVolumeSize = maxVolumeSize;
+    }
 
-    public static PackBuilder getInstance(String format) {
-        for (PackBuilder builder : ServiceLoader.load(PackBuilder.class)) {
-            if (builder.isFormatSupported(format)) return builder;
-        }
-        throw new IllegalArgumentException("Unsupported format: " + format);
+    @Override
+    public long getMaxVolumeSize() {
+        return maxVolumeSize;
     }
 }

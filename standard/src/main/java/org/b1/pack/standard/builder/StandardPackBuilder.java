@@ -16,14 +16,22 @@
 
 package org.b1.pack.standard.builder;
 
-import org.b1.pack.api.builder.BuilderPack;
-import org.b1.pack.api.builder.PackBuilder;
-import org.b1.pack.api.builder.BuilderProvider;
+import org.b1.pack.api.builder.*;
+import org.b1.pack.api.common.PackService;
+
+import java.util.List;
 
 public class StandardPackBuilder extends PackBuilder {
 
     @Override
-    public BuilderPack createBuilderPack(BuilderProvider provider) {
-        return new StandardBuilderPack(provider);
+    public List<BuilderVolume> build(BuilderProvider provider, BuilderCommand command) {
+        StandardBuilderPack pack = new StandardBuilderPack(provider);
+        command.execute(pack);
+        return pack.getVolumes();
+    }
+
+    @Override
+    protected boolean isFormatSupported(String format) {
+        return PackService.B1.equals(format);
     }
 }

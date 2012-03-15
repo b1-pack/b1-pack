@@ -27,7 +27,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
-public class StandardBuilderPack implements BuilderPack {
+public class StandardBuilderPack extends BuilderPack {
 
     private final Map<ObjectKey, Long> objectIdMap = Maps.newHashMap();
     private final List<PbRecord> catalogRecords = Lists.newArrayList();
@@ -59,7 +59,6 @@ public class StandardBuilderPack implements BuilderPack {
                 new PbRecord(new PbCompleteFile(header, file)));
     }
 
-    @Override
     public List<BuilderVolume> getVolumes() {
         VolumeBuilder builder = new VolumeBuilder(maxVolumeSize, pointerMap, objectCount);
         builder.addContent(createCatalog());

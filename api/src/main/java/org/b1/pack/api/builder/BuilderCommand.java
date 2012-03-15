@@ -16,19 +16,8 @@
 
 package org.b1.pack.api.builder;
 
-import java.util.List;
-import java.util.ServiceLoader;
+public interface BuilderCommand {
 
-public abstract class PackBuilder {
+    void execute(BuilderPack pack);
 
-    public abstract List<BuilderVolume> build(BuilderProvider provider, BuilderCommand command);
-
-    protected abstract boolean isFormatSupported(String format);
-
-    public static PackBuilder getInstance(String format) {
-        for (PackBuilder builder : ServiceLoader.load(PackBuilder.class)) {
-            if (builder.isFormatSupported(format)) return builder;
-        }
-        throw new IllegalArgumentException("Unsupported format: " + format);
-    }
 }

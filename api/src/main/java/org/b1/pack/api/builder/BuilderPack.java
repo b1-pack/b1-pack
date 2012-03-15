@@ -16,14 +16,10 @@
 
 package org.b1.pack.api.builder;
 
-import java.util.List;
+public abstract class BuilderPack {
 
-public interface BuilderPack {
+    public abstract void addFolder(BuilderFolder folder);
 
-    void addFolder(BuilderFolder folder);
-
-    void addFile(BuilderFile file);
-
-    List<BuilderVolume> getVolumes();
+    public abstract void addFile(BuilderFile file);
 
 }

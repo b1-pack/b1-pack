@@ -41,18 +41,22 @@ public class IntegrationTest {
 
     @Test
     public void testBuilder() throws IOException {
-        String folderName = "builderFolder";
-        String fileName = "builderFile.txt";
-        long fileTime = System.currentTimeMillis();
-        byte[] fileContent = "Hello, World!".getBytes(UTF_8);
+        final String folderName = "builderFolder";
+        final String fileName = "builderFile.txt";
+        final long fileTime = System.currentTimeMillis();
+        final byte[] fileContent = "Hello, World!".getBytes(UTF_8);
         final String packName = "builderTest";
         String volumeName = packName + ".b1";
         // START SNIPPET: builder
-        BuilderPack builderPack = PackBuilder.newInstance(B1).createBuilderPack(new BuilderProvider());
-        BuilderFile pbFile = createPbFile(folderName, fileName, fileTime, fileContent);
-        builderPack.addFile(pbFile);
-        BuilderVolume builderVolume = getOnlyElement(builderPack.getVolumes());
-        byte[] volumeContent = getPbVolumeContent(builderVolume);
+        final BuilderFile builderFile = createBuilderFile(folderName, fileName, fileTime, fileContent);
+        List<BuilderVolume> volumes = PackBuilder.getInstance(B1).build(new BuilderProvider(), new BuilderCommand() {
+            @Override
+            public void execute(BuilderPack pack) {
+                pack.addFile(builderFile);
+            }
+        });
+        BuilderVolume builderVolume = getOnlyElement(volumes);
+        byte[] volumeContent = getBuilderVolumeContent(builderVolume);
         // END SNIPPET: builder
         assertEquals(1, builderVolume.getNumber());
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
@@ -102,8 +106,8 @@ public class IntegrationTest {
         assertArrayEquals(fileContent, getPxFileContent(file));
     }
 
-    private static BuilderFile createPbFile(final String folderName, final String fileName,
-                                       final long lastModifiedTime, final byte[] content) {
+    private static BuilderFile createBuilderFile(final String folderName, final String fileName,
+                                                 final long lastModifiedTime, final byte[] content) {
         return new BuilderFile() {
             public List<String> getPath() {
                 return asList(folderName, fileName);
@@ -127,7 +131,7 @@ public class IntegrationTest {
         };
     }
 
-    private static byte[] getPbVolumeContent(BuilderVolume builderVolume) throws IOException {
+    private static byte[] getBuilderVolumeContent(BuilderVolume builderVolume) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         builderVolume.writeTo(stream, 0, Ints.checkedCast(builderVolume.getSize()));
         return stream.toByteArray();

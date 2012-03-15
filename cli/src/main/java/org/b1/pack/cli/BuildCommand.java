@@ -17,10 +17,7 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.builder.BuilderPack;
-import org.b1.pack.api.builder.PackBuilder;
-import org.b1.pack.api.builder.BuilderProvider;
-import org.b1.pack.api.builder.BuilderVolume;
+import org.b1.pack.api.builder.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,24 +30,24 @@ public class BuildCommand implements PackCommand {
     public void execute(final ArgSet argSet) throws IOException {
         System.out.println("Starting");
         File outputFolder = FileTools.getOutputFolder(argSet);
-        Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
-        BuilderPack builderPack = PackBuilder.newInstance(argSet.getTypeFormat()).createBuilderPack(new BuilderProvider() {
+        final Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
+        PackBuilder builder = PackBuilder.getInstance(argSet.getTypeFormat());
+        FsBuilderProvider provider = new FsBuilderProvider(argSet.getVolumeSize());
+        List<BuilderVolume> volumes = builder.build(provider, new BuilderCommand() {
             @Override
-            public long getMaxVolumeSize() {
-                return argSet.getVolumeSize();
+            public void execute(BuilderPack pack) {
+                for (FsObject fsObject : fsObjects) {
+                    File file = fsObject.getFile();
+                    if (file.isFile()) {
+                        pack.addFile(new FsBuilderFile(fsObject));
+                    } else if (file.isDirectory()) {
+                        pack.addFolder(new FsBuilderFolder(fsObject));
+                    } else {
+                        throw new IllegalArgumentException("Not found: " + file);
+                    }
+                }
             }
         });
-        for (FsObject fsObject : fsObjects) {
-            File file = fsObject.getFile();
-            if (file.isFile()) {
-                builderPack.addFile(new FsBuilderFile(fsObject));
-            } else if (file.isDirectory()) {
-                builderPack.addFolder(new FsBuilderFolder(fsObject));
-            } else {
-                throw new IllegalArgumentException("Not found: " + file);
-            }
-        }
-        List<BuilderVolume> volumes = builderPack.getVolumes();
         VolumeNameExpert expert = new VolumeNameExpert(outputFolder, argSet.getPackName(), argSet.isSplit() ? volumes.size() : 0);
         for (int i = 0, volumesSize = volumes.size(); i < volumesSize; i++) {
             buildVolume(expert.getVolumeFile(i + 1), volumes.get(i));
