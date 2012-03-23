@@ -56,7 +56,13 @@
   },
   "Block": {
     "type": "union",
-    "types": ["reserved", "PlainBlock", "LzmaBlock", "AesBlock"]
+    "types": ["AesBlock", "PlainBlock", "FirstLzmaBlock", "NextLzmaBlock"]
+  },
+  "AesBlock": {
+    "type": "record",
+    "fields": {
+      "encryptedBlock": "binary"
+    }
   },
   "PlainBlock": {
     "type": "record",
@@ -65,17 +71,18 @@
       "checksumOfChunk": "Adler32Checksum"
     }
   },
-  "LzmaBlock": {
+  "FirstLzmaBlock": {
     "type": "record",
     "fields": {
-      "partOfCompressedChunk": "binary",
+      "firstPartOfCompressedChunk": "binary",
       "checksumOfPart": "Adler32Checksum"
     }
   },
-  "AesBlock": {
+  "NextLzmaBlock": {
     "type": "record",
     "fields": {
-      "encryptedBlock": "binary"
+      "nextPartOfCompressedChunk": "binary",
+      "checksumOfPart": "Adler32Checksum"
     }
   },
   "Adler32Checksum": {

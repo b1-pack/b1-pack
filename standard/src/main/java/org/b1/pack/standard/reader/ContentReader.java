@@ -41,7 +41,7 @@ class ContentReader {
         this.visitor = visitor;
     }
 
-    public void read(RecordInputStream stream) throws IOException {
+    public void read(PackInputStream stream) throws IOException {
         stream.seek(pointer);
         Preconditions.checkArgument(Numbers.readLong(stream) == Constants.COMPLETE_FILE);
         RecordHeader header = RecordHeader.readRecordHeader(stream);// ignore for now

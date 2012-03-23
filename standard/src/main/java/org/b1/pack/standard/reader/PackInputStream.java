@@ -16,31 +16,49 @@
 
 package org.b1.pack.standard.reader;
 
-import org.b1.pack.api.reader.ReaderProvider;
 import org.b1.pack.standard.common.RecordPointer;
-import org.b1.pack.standard.explorer.HeaderSet;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-class RecordInputStream extends InputStream {
+class PackInputStream extends InputStream {
 
-    private final ReaderProvider provider;
+    private final ChunkCursor chunkCursor;
 
-    public RecordInputStream(ReaderProvider provider) {
-        this.provider = provider;
-    }
-
-    public HeaderSet getHeaderSet() throws IOException {
-        return null; //todo
+    public PackInputStream(ChunkCursor chunkCursor) {
+        this.chunkCursor = chunkCursor;
     }
 
     public void seek(RecordPointer pointer) throws IOException {
-        //todo
+        chunkCursor.seek(pointer);
     }
 
     @Override
     public int read() throws IOException {
-        return 0;  //todo
+        do {
+            InputStream stream = chunkCursor.getInputStream();
+            if (stream != null) {
+                int result = stream.read();
+                if (result != -1) return result;
+            }
+        } while (chunkCursor.next());
+        return -1;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        do {
+            InputStream stream = chunkCursor.getInputStream();
+            if (stream != null) {
+                int result = stream.read(b, off, len);
+                if (result != -1) return result;
+            }
+        } while (chunkCursor.next());
+        return -1;
+    }
+
+    @Override
+    public void close() throws IOException {
+        chunkCursor.close();
     }
 }

@@ -26,7 +26,6 @@ import org.b1.pack.api.reader.PackVisitor;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
-import org.b1.pack.standard.explorer.HeaderSet;
 import org.b1.pack.standard.explorer.RecordHeader;
 
 import java.io.IOException;
@@ -45,10 +44,8 @@ class RecordReader {
         visitorMap.put(null, rootVisitor);
     }
     
-    public void read(RecordInputStream stream) throws IOException {
-        HeaderSet headerSet = stream.getHeaderSet();
-        stream.seek(headerSet.getCatalogPointer());
-        readCatalog(stream, headerSet.getObjectTotal());
+    public void read(PackInputStream stream, Long objectTotal) throws IOException {
+        readCatalog(stream, objectTotal);
         for (ContentReader contentReader : contentReaders) {
             contentReader.read(stream);
         }
@@ -57,7 +54,7 @@ class RecordReader {
         }
     }
 
-    private void readCatalog(RecordInputStream stream, Long totalCount) throws IOException {
+    private void readCatalog(PackInputStream stream, Long totalCount) throws IOException {
         Long recordType;
         long currentCount = 0;
         while ((totalCount == null || currentCount < totalCount) && (recordType = Numbers.readLong(stream)) != null) {
@@ -79,7 +76,7 @@ class RecordReader {
         }
     }
 
-    private void readCatalogFile(RecordInputStream stream) throws IOException {
+    private void readCatalogFile(PackInputStream stream) throws IOException {
         RecordPointer pointer = readPointer(stream);
         RecordHeader header = RecordHeader.readRecordHeader(stream);
         Long size = Numbers.readLong(stream);
@@ -93,7 +90,7 @@ class RecordReader {
         }
     }
 
-    private void readCatalogFolder(RecordInputStream stream) throws IOException {
+    private void readCatalogFolder(PackInputStream stream) throws IOException {
         readPointer(stream); // ignore for now
         RecordHeader header = RecordHeader.readRecordHeader(stream);
         PackVisitor packVisitor = visitorMap.get(header.parentId);

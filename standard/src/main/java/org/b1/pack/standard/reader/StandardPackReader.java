@@ -28,7 +28,12 @@ public class StandardPackReader extends PackReader {
 
     @Override
     public void read(ReaderProvider provider, ReaderCommand command) throws IOException {
-        command.execute(new StandardReaderPack(provider));
+        VolumeCursor volumeCursor = new VolumeCursor(provider);
+        try {
+            command.execute(new StandardReaderPack(volumeCursor));
+        } finally {
+            volumeCursor.close();
+        }
     }
 
     @Override

@@ -29,14 +29,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-class LzmaInputStream extends InputStream implements Callable<Void> {
+class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
 
     private final PipedInputStream pipedInputStream = new PipedInputStream();
     private final PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
     private final InputStream inputStream;
     private final Future<Void> future;
 
-    public LzmaInputStream(InputStream inputStream, ExecutorService executorService) throws IOException {
+    public LzmaDecodingInputStream(InputStream inputStream, ExecutorService executorService) throws IOException {
         this.inputStream = inputStream;
         this.future = executorService.submit(this);
     }

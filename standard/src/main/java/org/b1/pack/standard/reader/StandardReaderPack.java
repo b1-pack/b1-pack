@@ -18,23 +18,23 @@ package org.b1.pack.standard.reader;
 
 import org.b1.pack.api.reader.PackVisitor;
 import org.b1.pack.api.reader.ReaderPack;
-import org.b1.pack.api.reader.ReaderProvider;
 
 import java.io.IOException;
 
 class StandardReaderPack extends ReaderPack {
 
-    private final ReaderProvider provider;
+    private final VolumeCursor volumeCursor;
 
-    public StandardReaderPack(ReaderProvider provider) {
-        this.provider = provider;
+    public StandardReaderPack(VolumeCursor volumeCursor) {
+        this.volumeCursor = volumeCursor;
     }
 
     @Override
     public void accept(PackVisitor visitor) throws IOException {
-        RecordInputStream stream = new RecordInputStream(provider);
+        PackInputStream stream = new PackInputStream(new ChunkCursor(new BlockCursor(volumeCursor)));
         try {
-            new RecordReader(visitor).read(stream);
+            stream.seek(volumeCursor.getCatalogPointer());
+            new RecordReader(visitor).read(stream, volumeCursor.getObjectTotal());
         } finally {
             stream.close();
         }

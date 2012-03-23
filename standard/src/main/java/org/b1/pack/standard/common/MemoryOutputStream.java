@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.reader;
+package org.b1.pack.standard.common;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.io.ByteArrayOutputStream;
 
-public abstract class ReaderProvider {
+public class MemoryOutputStream extends ByteArrayOutputStream {
 
-    public abstract ReaderVolume getVolume(long number);
+    public byte[] getBuf() {
+        return buf;
+    }
 
-    public abstract long getVolumeCount();
-
-    public ExecutorService getExecutorService() {
-        return Executors.newCachedThreadPool();
+    public int getCount() {
+        return count;
     }
 }

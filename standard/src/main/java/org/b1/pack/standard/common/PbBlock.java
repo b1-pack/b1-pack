@@ -28,7 +28,7 @@ public class PbBlock extends CompositeWritable {
         return new PbBlock(Constants.PLAIN_BLOCK, block);
     }
 
-    public static PbBlock wrapLzmaBlock(PbPlainBlock block) {
-        return new PbBlock(Constants.LZMA_BLOCK, block);
+    public static PbBlock wrapLzmaBlock(boolean first, PbPlainBlock block) {
+        return new PbBlock(first ? Constants.FIRST_LZMA_BLOCK : Constants.NEXT_LZMA_BLOCK, block);
     }
 }

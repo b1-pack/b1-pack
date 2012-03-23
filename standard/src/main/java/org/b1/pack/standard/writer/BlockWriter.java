@@ -39,6 +39,7 @@ class BlockWriter extends ChunkWriter {
     private Long objectCount;
     private long maxContentSize;
     private boolean compressed;
+    private boolean firstBlockInChunk;
 
     public BlockWriter(WriterProvider provider) {
         this.provider = provider;
@@ -57,6 +58,7 @@ class BlockWriter extends ChunkWriter {
     public void setCompressed(boolean compressed) throws IOException {
         flushContent();
         this.compressed = compressed;
+        firstBlockInChunk = true;
     }
 
     public RecordPointer saveCatalogPointer() throws IOException {
@@ -191,10 +193,11 @@ class BlockWriter extends ChunkWriter {
             volumeWriter.writeBlock(createBlock(new ByteArrayWritable(readyContent.toByteArray())));
             readyContent.reset();
         }
+        firstBlockInChunk = false;
     }
 
     private PbBlock createBlock(Writable content) {
         PbPlainBlock block = new PbPlainBlock(content);
-        return compressed ? PbBlock.wrapLzmaBlock(block) : PbBlock.wrapPlainBlock(block);
+        return compressed ? PbBlock.wrapLzmaBlock(firstBlockInChunk, block) : PbBlock.wrapPlainBlock(block);
     }
 }
