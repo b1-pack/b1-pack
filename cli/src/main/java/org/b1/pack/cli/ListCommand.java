@@ -16,14 +16,12 @@
 
 package org.b1.pack.cli;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.explorer.*;
+import org.b1.pack.api.reader.*;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class ListCommand implements PackCommand {
 
@@ -36,11 +34,11 @@ public class ListCommand implements PackCommand {
         System.out.println("Name");
         System.out.println("Type             Size     Date       Time");
         printLine();
-        PackExplorer explorer = PackExplorer.getInstance(argSet.getTypeFormat());
-        explorer.explore(ExplorerProviderFactory.createExplorerProvider(file), new ExplorerCommand() {
+        PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
+        reader.read(ReaderProviderFactory.createReaderProvider(file), new ReaderCommand() {
             @Override
-            public void execute(ExplorerPack pack) throws IOException {
-                pack.listObjects(new ListVisitor());
+            public void execute(ReaderPack pack) throws IOException {
+                pack.accept(new ListFolderVisitor(""));
             }
         });
         printLine();
@@ -55,8 +53,8 @@ public class ListCommand implements PackCommand {
         System.out.println();
     }
 
-    private static void printInfo(List<String> path, char type, @Nullable Long size, Long time) {
-        System.out.println(Joiner.on(File.separator).join(path));
+    private static void printInfo(String path, char type, @Nullable Long size, Long time) {
+        System.out.println(path);
         System.out.print(type);
         if (size != null) {
             System.out.format("%20d", size);
@@ -69,15 +67,25 @@ public class ListCommand implements PackCommand {
         System.out.println();
     }
 
-    private static class ListVisitor implements ExplorerVisitor {
-        @Override
-        public void visit(ExplorerFolder folder) {
-            printInfo(folder.getPath(), 'D', null, folder.getLastModifiedTime());
+    private static class ListFolderVisitor extends ReaderFolderVisitor {
+
+        private final String namePrefix;
+
+        private ListFolderVisitor(String namePrefix) {
+            this.namePrefix = namePrefix;
         }
 
         @Override
-        public void visit(ExplorerFile file) {
-            printInfo(file.getPath(), 'F', file.getSize(), file.getLastModifiedTime());
+        public ReaderFileVisitor visitFile(ReaderEntry entry, long size) throws IOException {
+            printInfo(namePrefix + entry.getName(), 'F', size, entry.getLastModifiedTime());
+            return null;
+        }
+
+        @Override
+        public ReaderFolderVisitor visitFolder(ReaderEntry entry) throws IOException {
+            String path = namePrefix + entry.getName();
+            printInfo(path, 'D', null, entry.getLastModifiedTime());
+            return new ListFolderVisitor(path + File.separator);
         }
     }
 }

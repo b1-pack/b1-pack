@@ -16,22 +16,22 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.explorer.ExplorerProvider;
-import org.b1.pack.api.explorer.ExplorerVolume;
+import org.b1.pack.api.reader.ReaderProvider;
+import org.b1.pack.api.reader.ReaderVolume;
 
 import java.io.File;
 
-public class BasicExplorerProvider extends ExplorerProvider {
+public class BasicReaderProvider extends ReaderProvider {
 
     private final File packFile;
 
-    public BasicExplorerProvider(File packFile) {
+    public BasicReaderProvider(File packFile) {
         this.packFile = packFile;
     }
 
     @Override
-    public ExplorerVolume getVolume(long number) {
-        return number == 1 ? new FsExplorerVolume(packFile) : null;
+    public ReaderVolume getVolume(long number) {
+        return number == 1 ? new FsReaderVolume(packFile) : null;
     }
 
     @Override

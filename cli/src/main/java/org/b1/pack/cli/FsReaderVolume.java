@@ -16,18 +16,18 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.explorer.ExplorerVolume;
+import org.b1.pack.api.reader.ReaderVolume;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FsExplorerVolume extends ExplorerVolume {
+public class FsReaderVolume extends ReaderVolume {
 
     private final File file;
 
-    public FsExplorerVolume(File file) {
+    public FsReaderVolume(File file) {
         this.file = file;
     }
 
@@ -37,7 +37,7 @@ public class FsExplorerVolume extends ExplorerVolume {
     }
 
     @Override
-    public long getSize() {
+    public Long getSize() {
         return file.length();
     }
 

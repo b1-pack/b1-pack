@@ -16,12 +16,14 @@
 
 package org.b1.pack.api.reader;
 
+import java.io.IOException;
+
 public abstract class ReaderFolderVisitor {
 
-    public abstract ReaderFileVisitor visitFile(ReaderEntry entry, long size);
+    public abstract ReaderFileVisitor visitFile(ReaderEntry entry, long size) throws IOException;
 
-    public abstract ReaderFolderVisitor visitFolder(ReaderEntry entry);
+    public abstract ReaderFolderVisitor visitFolder(ReaderEntry entry) throws IOException;
 
-    public void visitEnd() {
+    public void visitEnd() throws IOException {
     }
 }

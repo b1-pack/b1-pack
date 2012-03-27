@@ -16,24 +16,24 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.explorer.ExplorerProvider;
+import org.b1.pack.api.reader.ReaderProvider;
 
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ExplorerProviderFactory {
+public class ReaderProviderFactory {
 
     private static final Pattern PATTERN = Pattern.compile("(?i)(.*\\.part)(\\d+)(.b1)");
 
-    public static ExplorerProvider createExplorerProvider(File packFile) {
+    public static ReaderProvider createReaderProvider(File packFile) {
         Matcher matcher = PATTERN.matcher(packFile.getName());
         if (!matcher.matches()) {
-            return new BasicExplorerProvider(packFile);
+            return new BasicReaderProvider(packFile);
         }
         String prefix = matcher.group(1);
         String number = matcher.group(2);
         String suffix = matcher.group(3);
-        return new MultipartExplorerProvider(prefix, suffix, number.length(), Integer.parseInt(number));
+        return new MultipartReaderProvider(prefix, suffix, number.length(), Integer.parseInt(number));
     }
 }
