@@ -16,10 +16,10 @@
 
 package org.b1.pack.api.reader;
 
-public abstract class PackVisitor {
+public abstract class ReaderPackVisitor {
 
-    public abstract FileVisitor visitFile(ReaderEntry entry, long size);
+    public abstract ReaderFileVisitor visitFile(ReaderEntry entry, long size);
 
-    public abstract FolderVisitor visitFolder(ReaderEntry entry);
+    public abstract ReaderFolderVisitor visitFolder(ReaderEntry entry);
 
 }

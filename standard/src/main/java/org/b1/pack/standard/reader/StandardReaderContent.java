@@ -19,7 +19,8 @@ package org.b1.pack.standard.reader;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
-import org.b1.pack.api.reader.FileVisitor;
+import org.b1.pack.api.reader.ReaderFileVisitor;
+import org.b1.pack.api.reader.ReaderContent;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
@@ -29,32 +30,31 @@ import org.b1.pack.standard.explorer.RecordHeader;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class ContentReader {
+class StandardReaderContent extends ReaderContent {
     
     private final Long id;
     private final RecordPointer pointer;
-    private final FileVisitor visitor;
+    private final PackInputStream inputStream;
+    private final ReaderFileVisitor visitor;
 
-    public ContentReader(Long id, RecordPointer pointer, FileVisitor visitor) {
+    public StandardReaderContent(Long id, RecordPointer pointer, PackInputStream inputStream, ReaderFileVisitor visitor) {
         this.id = id;
         this.pointer = pointer;
+        this.inputStream = inputStream;
         this.visitor = visitor;
     }
 
-    public void read(PackInputStream stream) throws IOException {
-        stream.seek(pointer);
-        Preconditions.checkArgument(Numbers.readLong(stream) == Constants.COMPLETE_FILE);
-        RecordHeader header = RecordHeader.readRecordHeader(stream);// ignore for now
-        Preconditions.checkState(Objects.equal(header.id, id));
-        OutputStream outputStream = visitor.visitContent();
-        if (outputStream != null) {
-            try {
-                ByteStreams.copy(new ChunkedInputStream(stream), outputStream);
-            } finally {
-                outputStream.close();
-            }
-        }
+    public void acceptVisitor() throws IOException {
+        visitor.visitContent(this);
         visitor.visitEnd();
     }
-}
 
+    @Override
+    public void writeTo(OutputStream stream) throws IOException {
+        inputStream.seek(pointer);
+        Preconditions.checkArgument(Numbers.readLong(inputStream) == Constants.COMPLETE_FILE);
+        RecordHeader header = RecordHeader.readRecordHeader(inputStream);// ignore for now
+        Preconditions.checkState(Objects.equal(header.id, id));
+        ByteStreams.copy(new ChunkedInputStream(inputStream), stream);
+    }
+}

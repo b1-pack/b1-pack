@@ -20,9 +20,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.reader.FileVisitor;
-import org.b1.pack.api.reader.FolderVisitor;
-import org.b1.pack.api.reader.PackVisitor;
+import org.b1.pack.api.reader.ReaderFileVisitor;
+import org.b1.pack.api.reader.ReaderFolderVisitor;
+import org.b1.pack.api.reader.ReaderPackVisitor;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
@@ -36,20 +36,20 @@ import java.util.Map;
 
 class RecordReader {
 
-    private final Map<Long, PackVisitor> visitorMap = Maps.newHashMap();
-    private final List<ContentReader> contentReaders = Lists.newArrayList();
-    private final LinkedList<FolderVisitor> folderVisitors = Lists.newLinkedList();
+    private final Map<Long, ReaderPackVisitor> visitorMap = Maps.newHashMap();
+    private final List<StandardReaderContent> readerContents = Lists.newArrayList();
+    private final LinkedList<ReaderFolderVisitor> folderVisitors = Lists.newLinkedList();
 
-    public RecordReader(PackVisitor rootVisitor) {
+    public RecordReader(ReaderPackVisitor rootVisitor) {
         visitorMap.put(null, rootVisitor);
     }
     
     public void read(PackInputStream stream, Long objectTotal) throws IOException {
         readCatalog(stream, objectTotal);
-        for (ContentReader contentReader : contentReaders) {
-            contentReader.read(stream);
+        for (StandardReaderContent readerContent : readerContents) {
+            readerContent.acceptVisitor();
         }
-        for (FolderVisitor folderVisitor : folderVisitors) {
+        for (ReaderFolderVisitor folderVisitor : folderVisitors) {
             folderVisitor.visitEnd();
         }
     }
@@ -80,29 +80,29 @@ class RecordReader {
         RecordPointer pointer = readPointer(stream);
         RecordHeader header = RecordHeader.readRecordHeader(stream);
         Long size = Numbers.readLong(stream);
-        PackVisitor packVisitor = visitorMap.get(header.parentId);
+        ReaderPackVisitor packVisitor = visitorMap.get(header.parentId);
         if (packVisitor == null) {
             return;
         }
-        FileVisitor fileVisitor = packVisitor.visitFile(createEntry(header), size);
+        ReaderFileVisitor fileVisitor = packVisitor.visitFile(createEntry(header), size);
         if (fileVisitor != null) {
-            contentReaders.add(new ContentReader(header.id, pointer, fileVisitor));
+            readerContents.add(new StandardReaderContent(header.id, pointer, stream, fileVisitor));
         }
     }
 
     private void readCatalogFolder(PackInputStream stream) throws IOException {
         readPointer(stream); // ignore for now
         RecordHeader header = RecordHeader.readRecordHeader(stream);
-        PackVisitor packVisitor = visitorMap.get(header.parentId);
+        ReaderPackVisitor packVisitor = visitorMap.get(header.parentId);
         if (packVisitor == null) {
             return;
         }
-        FolderVisitor folderVisitor = packVisitor.visitFolder(createEntry(header));
+        ReaderFolderVisitor folderVisitor = packVisitor.visitFolder(createEntry(header));
         if (folderVisitor == null) {
             return;
         }
         folderVisitors.addFirst(folderVisitor);
-        PackVisitor childrenVisitor = folderVisitor.visitChildren();
+        ReaderPackVisitor childrenVisitor = folderVisitor.visitChildren();
         if (childrenVisitor != null) {
             Preconditions.checkState(visitorMap.put(header.id, childrenVisitor) == null);
         }

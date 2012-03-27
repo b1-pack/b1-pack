@@ -16,12 +16,9 @@
 
 package org.b1.pack.api.reader;
 
-import java.io.OutputStream;
+public abstract class ReaderFolderVisitor {
 
-public abstract class FileVisitor {
-
-    public abstract OutputStream visitContent();
+    public abstract ReaderPackVisitor visitChildren();
 
     public abstract void visitEnd();
-
 }

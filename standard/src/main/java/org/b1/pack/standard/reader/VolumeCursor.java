@@ -148,7 +148,7 @@ class VolumeCursor implements Closeable {
     }
 
     private HeaderSet readTail() throws IOException {
-        long available = volume.getSize() - inputStream.getCount();
+        long available = Preconditions.checkNotNull(volume.getSize(), "Volume size unknown") - inputStream.getCount();
         int capacity = Ints.checkedCast(Math.min(available, MAX_TAIL_SIZE));
         MemoryBuffer buffer = new MemoryBuffer(capacity);
         ByteStreams.skipFully(inputStream, available - capacity);

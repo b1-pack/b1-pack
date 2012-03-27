@@ -16,7 +16,7 @@
 
 package org.b1.pack.standard.reader;
 
-import org.b1.pack.api.reader.PackVisitor;
+import org.b1.pack.api.reader.ReaderPackVisitor;
 import org.b1.pack.api.reader.ReaderPack;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ class StandardReaderPack extends ReaderPack {
     }
 
     @Override
-    public void accept(PackVisitor visitor) throws IOException {
+    public void accept(ReaderPackVisitor visitor) throws IOException {
         PackInputStream stream = new PackInputStream(new ChunkCursor(new BlockCursor(volumeCursor)));
         try {
             stream.seek(volumeCursor.getCatalogPointer());

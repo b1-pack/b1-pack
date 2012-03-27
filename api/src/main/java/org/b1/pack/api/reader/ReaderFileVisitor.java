@@ -16,9 +16,12 @@
 
 package org.b1.pack.api.reader;
 
-public abstract class FolderVisitor {
+import java.io.IOException;
 
-    public abstract PackVisitor visitChildren();
+public abstract class ReaderFileVisitor {
+
+    public abstract void visitContent(ReaderContent content) throws IOException;
 
     public abstract void visitEnd();
+
 }

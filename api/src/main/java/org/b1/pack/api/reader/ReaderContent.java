@@ -17,9 +17,10 @@
 package org.b1.pack.api.reader;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
-public abstract class ReaderPack {
+public abstract class ReaderContent {
 
-    public abstract void accept(ReaderPackVisitor visitor) throws IOException;
+    public abstract void writeTo(OutputStream stream) throws IOException;
 
 }

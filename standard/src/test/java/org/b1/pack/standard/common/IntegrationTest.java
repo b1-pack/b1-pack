@@ -19,6 +19,7 @@ package org.b1.pack.standard.common;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.*;
 import org.b1.pack.api.explorer.*;
+import org.b1.pack.api.reader.*;
 import org.b1.pack.api.writer.*;
 import org.junit.Test;
 
@@ -83,16 +84,17 @@ public class IntegrationTest {
         });
         byte[] volumeContent = buffer.toByteArray();
         verifyVolume(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
+        verifyVolume2(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
 
     private void verifyVolume(String folderName, String fileName, long fileTime, byte[] fileContent,
                               String volumeName, byte[] volumeContent) throws IOException {
         // START SNIPPET: explorer
-        ExplorerVolume explorerVolume = createPxVolume(volumeName, volumeContent);
-        ExplorerProvider explorerProvider = createPxProvider(explorerVolume);
+        ExplorerVolume explorerVolume = createExplorerVolume(volumeName, volumeContent);
+        ExplorerProvider explorerProvider = createExplorerProvider(explorerVolume);
         List<ExplorerFolder> folders = newArrayList();
         List<ExplorerFile> files = newArrayList();
-        final ExplorerVisitor explorerVisitor = createPxVisitor(folders, files);
+        final ExplorerVisitor explorerVisitor = createExplorerVisitor(folders, files);
         PackExplorer.getInstance(B1).explore(explorerProvider, new ExplorerCommand() {
             @Override
             public void execute(ExplorerPack pack) throws IOException {
@@ -106,7 +108,81 @@ public class IntegrationTest {
         assertEquals(asList(folderName, fileName), file.getPath());
         assertEquals(fileTime, file.getLastModifiedTime().longValue());
         assertEquals(fileContent.length, file.getSize());
-        assertArrayEquals(fileContent, getPxFileContent(file));
+        assertArrayEquals(fileContent, getExplorerFileContent(file));
+    }
+
+    private void verifyVolume2(String folderName, String fileName, long fileTime, byte[] fileContent,
+                              String volumeName, byte[] volumeContent) throws IOException {
+        // START SNIPPET: reader
+        ReaderVolume readerVolume = createReaderVolume(volumeName, volumeContent); 
+        ReaderProvider readerProvider = createReaderProvider(readerVolume);
+        PackReader.getInstance(B1).read(readerProvider, new ReaderCommand() {
+            @Override
+            public void execute(ReaderPack pack) throws IOException {
+                pack.accept(new ReaderPackVisitor() {
+                    @Override
+                    public ReaderFileVisitor visitFile(ReaderEntry entry, long size) {
+                        throw new IllegalStateException();
+                    }
+
+                    @Override
+                    public ReaderFolderVisitor visitFolder(ReaderEntry entry) {
+                        System.out.println("IntegrationTest.visitFolder");
+                        System.out.println("entry.getName() = " + entry.getName());
+                        System.out.println("entry.getLastModifiedTime() = " + entry.getLastModifiedTime());
+                        return new ReaderFolderVisitor() {
+                            @Override
+                            public ReaderPackVisitor visitChildren() {
+                                System.out.println("IntegrationTest.visitChildren");
+                                return new ReaderPackVisitor() {
+                                    @Override
+                                    public ReaderFileVisitor visitFile(ReaderEntry entry, long size) {
+                                        System.out.println("IntegrationTest.visitFile");
+                                        System.out.println("entry.getName() = " + entry.getName());
+                                        System.out.println("entry.getLastModifiedTime() = " + entry.getLastModifiedTime());
+                                        System.out.println("size = " + size);
+                                        return new ReaderFileVisitor() {
+                                            @Override
+                                            public void visitContent(ReaderContent content) throws IOException {
+                                                System.out.println("IntegrationTest.visitContent");
+                                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                                content.writeTo(stream);
+                                                System.out.println("stream.toString() = " + stream.toString());
+                                            }
+
+                                            @Override
+                                            public void visitEnd() {
+                                                System.out.println("IntegrationTest.visitEnd file");
+                                            }
+                                        };
+                                    }
+
+                                    @Override
+                                    public ReaderFolderVisitor visitFolder(ReaderEntry entry) {
+                                        throw new IllegalStateException();
+                                    }
+                                };
+                            }
+
+                            @Override
+                            public void visitEnd() {
+                                System.out.println("IntegrationTest.visitEnd - folder");
+                            }
+                        };
+                    }
+                });
+            }
+        });
+        // END SNIPPET: reader
+/*
+        ExplorerFolder folder = getOnlyElement(folders);
+        assertEquals(singletonList(folderName), folder.getPath());
+        ExplorerFile file = getOnlyElement(files);
+        assertEquals(asList(folderName, fileName), file.getPath());
+        assertEquals(fileTime, file.getLastModifiedTime().longValue());
+        assertEquals(fileContent.length, file.getSize());
+        assertArrayEquals(fileContent, getExplorerFileContent(file));
+*/
     }
 
     private static BuilderFile createBuilderFile(final String folderName, final String fileName,
@@ -198,7 +274,7 @@ public class IntegrationTest {
         };
     }
 
-    private static ExplorerVolume createPxVolume(final String name, final byte[] packContent) {
+    private static ExplorerVolume createExplorerVolume(final String name, final byte[] packContent) {
         return new ExplorerVolume() {
             @Override
             public String getName() {
@@ -217,7 +293,26 @@ public class IntegrationTest {
         };
     }
 
-    private static ExplorerProvider createPxProvider(final ExplorerVolume explorerVolume) {
+    private static ReaderVolume createReaderVolume(final String name, final byte[] packContent) {
+        return new ReaderVolume() {
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public Long getSize() {
+                return (long) packContent.length;
+            }
+
+            @Override
+            public InputStream getInputStream() throws IOException {
+                return new ByteArrayInputStream(packContent);
+            }
+        };
+    }
+
+    private static ExplorerProvider createExplorerProvider(final ExplorerVolume explorerVolume) {
         return new ExplorerProvider() {
             @Override
             public ExplorerVolume getVolume(long number) {
@@ -237,7 +332,22 @@ public class IntegrationTest {
         };
     }
 
-    private static ExplorerVisitor createPxVisitor(final List<ExplorerFolder> folders, final List<ExplorerFile> files) {
+    private static ReaderProvider createReaderProvider(final ReaderVolume readerVolume) {
+        return new ReaderProvider() {
+            @Override
+            public ReaderVolume getVolume(long number) {
+                checkArgument(number == 1);
+                return readerVolume;
+            }
+
+            @Override
+            public long getVolumeCount() {
+                return 1;
+            }
+        };
+    }
+
+    private static ExplorerVisitor createExplorerVisitor(final List<ExplorerFolder> folders, final List<ExplorerFile> files) {
         return new ExplorerVisitor() {
             @Override
             public void visit(ExplorerFolder folder) throws IOException {
@@ -251,7 +361,7 @@ public class IntegrationTest {
         };
     }
 
-    private static byte[] getPxFileContent(ExplorerFile file) throws IOException {
+    private static byte[] getExplorerFileContent(ExplorerFile file) throws IOException {
         InputStream inputStream = file.getInputStream();
         try {
             return toByteArray(inputStream);
