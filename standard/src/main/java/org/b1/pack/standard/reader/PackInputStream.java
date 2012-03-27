@@ -35,26 +35,20 @@ class PackInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        do {
-            InputStream stream = chunkCursor.getInputStream();
-            if (stream != null) {
-                int result = stream.read();
-                if (result != -1) return result;
-            }
-        } while (chunkCursor.next());
-        return -1;
+        while (true) {
+            int result = chunkCursor.getInputStream().read();
+            if (result != -1) return result;
+            chunkCursor.next();
+        }
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        do {
-            InputStream stream = chunkCursor.getInputStream();
-            if (stream != null) {
-                int result = stream.read(b, off, len);
-                if (result != -1) return result;
-            }
-        } while (chunkCursor.next());
-        return -1;
+        while (true) {
+            int result = chunkCursor.getInputStream().read(b, off, len);
+            if (result != -1) return result;
+            chunkCursor.next();
+        }
     }
 
     @Override

@@ -30,6 +30,7 @@ public class StandardPackReader extends PackReader {
     public void read(ReaderProvider provider, ReaderCommand command) throws IOException {
         VolumeCursor volumeCursor = new VolumeCursor(provider);
         try {
+            volumeCursor.initialize();
             command.execute(new StandardReaderPack(volumeCursor));
         } finally {
             volumeCursor.close();

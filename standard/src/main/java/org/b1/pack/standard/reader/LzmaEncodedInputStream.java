@@ -33,23 +33,24 @@ class LzmaEncodedInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        do {
+        while (true) {
             int result = blockCursor.getInputStream().read();
             if (result != -1) return result;
-        } while (readNextBlock());
-        return -1;
+            moveToNextBlock();
+        }
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        do {
+        while (true) {
             int result = blockCursor.getInputStream().read(b, off, len);
             if (result != -1) return result;
-        } while (readNextBlock());
-        return -1;
+            moveToNextBlock();
+        }
     }
 
-    private boolean readNextBlock() throws IOException {
-        return blockCursor.next() && blockCursor.getBlockType() == Constants.NEXT_LZMA_BLOCK;
+    private void moveToNextBlock() throws IOException {
+        blockCursor.next();
+        Preconditions.checkState(blockCursor.getBlockType() == Constants.NEXT_LZMA_BLOCK);
     }
 }

@@ -16,18 +16,30 @@
 
 package org.b1.pack.standard.reader;
 
+import com.google.common.base.Preconditions;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CountingInputStream;
+import com.google.common.primitives.Ints;
+import org.b1.pack.standard.common.BlockPointer;
+import org.b1.pack.standard.common.MemoryOutputStream;
+import org.b1.pack.standard.common.Numbers;
+import org.b1.pack.standard.explorer.ChunkedInputStream;
+
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
+import java.util.zip.Adler32;
+import java.util.zip.CheckedOutputStream;
 
 class BlockCursor implements Closeable {
 
+    private final MemoryOutputStream outputStream = new MemoryOutputStream();
     private final VolumeCursor volumeCursor;
-    private long volumeNumber;
-    private long blockOffset;
-    private long blockType;
-    private InputStream inputStream;
+    private BlockPointer blockPointer;
+    private Long blockType;
+    private CountingInputStream inputStream;
 
     public BlockCursor(VolumeCursor volumeCursor) {
         this.volumeCursor = volumeCursor;
@@ -37,33 +49,60 @@ class BlockCursor implements Closeable {
         return volumeCursor.getExecutorService();
     }
 
-    public long getVolumeNumber() {
-        return volumeNumber;
-    }
-
-    public long getBlockOffset() {
-        return blockOffset;
+    public BlockPointer getBlockPointer() {
+        return checkInitialized(blockPointer);
     }
 
     public long getBlockType() {
-        return blockType;
+        return checkInitialized(blockType);
     }
 
     public InputStream getInputStream() {
-        return inputStream;
+        return checkInitialized(inputStream);
     }
 
-    public boolean seek(long volumeNumber, long blockOffset) throws IOException {
-
-        return false;
+    public void seek(BlockPointer pointer) throws IOException {
+        if (pointer.equals(blockPointer)) {
+            if (inputStream.getCount() > 0) createInputStream();
+            return;
+        }
+        volumeCursor.seek(pointer);
+        next();
     }
-    
-    public boolean next() throws IOException {
-        return false;
+
+    public void next() throws IOException {
+        readBlockType();
+        outputStream.reset();
+        Adler32 adler32 = new Adler32();
+        ByteStreams.copy(new ChunkedInputStream(volumeCursor.getInputStream()), new CheckedOutputStream(outputStream, adler32));
+        Preconditions.checkArgument(outputStream.size() > 0, "Empty block");
+        byte[] buffer = new byte[4];
+        ByteStreams.readFully(volumeCursor.getInputStream(), buffer);
+        Preconditions.checkArgument(Ints.fromByteArray(buffer) == (int) adler32.getValue(), "Invalid checksum");
+        createInputStream();
     }
 
     @Override
     public void close() throws IOException {
         volumeCursor.close();
+    }
+
+    private void createInputStream() {
+        inputStream = new CountingInputStream(new ByteArrayInputStream(outputStream.getBuf(), 0, outputStream.getCount()));
+    }
+
+    private void readBlockType() throws IOException {
+        while (true) {
+            blockPointer = volumeCursor.getBlockPointer();
+            blockType = Numbers.readLong(volumeCursor.getInputStream());
+            if (blockType != null) {
+                return;
+            }
+            volumeCursor.next();
+        }
+    }
+
+    private static <T> T checkInitialized(T reference) {
+        return Preconditions.checkNotNull(reference, "Block not initialized");
     }
 }
