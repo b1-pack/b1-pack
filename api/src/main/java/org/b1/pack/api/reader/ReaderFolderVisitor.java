@@ -18,7 +18,10 @@ package org.b1.pack.api.reader;
 
 public abstract class ReaderFolderVisitor {
 
-    public abstract ReaderPackVisitor visitChildren();
+    public abstract ReaderFileVisitor visitFile(ReaderEntry entry, long size);
 
-    public abstract void visitEnd();
+    public abstract ReaderFolderVisitor visitFolder(ReaderEntry entry);
+
+    public void visitEnd() {
+    }
 }

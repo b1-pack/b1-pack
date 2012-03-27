@@ -22,6 +22,6 @@ public abstract class ReaderFileVisitor {
 
     public abstract void visitContent(ReaderContent content) throws IOException;
 
-    public abstract void visitEnd();
-
+    public void visitEnd() {
+    }
 }

@@ -20,6 +20,6 @@ import java.io.IOException;
 
 public abstract class ReaderPack {
 
-    public abstract void accept(ReaderPackVisitor visitor) throws IOException;
+    public abstract void accept(ReaderFolderVisitor visitor) throws IOException;
 
 }
