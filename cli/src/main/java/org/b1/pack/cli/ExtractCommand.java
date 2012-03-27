@@ -16,7 +16,6 @@
 
 package org.b1.pack.cli;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import org.b1.pack.api.reader.*;
@@ -32,7 +31,7 @@ public class ExtractCommand implements PackCommand {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         final File outputFolder = FileTools.getOutputFolder(argSet);
-        System.out.println("Extracting from \"" + file + "\" to \"" + Objects.firstNonNull(outputFolder.getPath(), ".") + "\".");
+        System.out.println("Extracting from \"" + file + "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
         System.out.println();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
         reader.read(ReaderProviderFactory.createReaderProvider(file), new ReaderCommand() {
