@@ -20,11 +20,14 @@ import java.io.ByteArrayOutputStream;
 
 public class MemoryOutputStream extends ByteArrayOutputStream {
 
-    public byte[] getBuf() {
-        return buf;
+    public MemoryOutputStream() {
     }
 
-    public int getCount() {
-        return count;
+    public MemoryOutputStream(int capacity) {
+        super(capacity);
+    }
+
+    public byte[] getBuf() {
+        return buf;
     }
 }

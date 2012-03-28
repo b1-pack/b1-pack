@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.explorer;
+package org.b1.pack.standard.reader;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.standard.common.RecordPointer;

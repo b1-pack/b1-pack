@@ -23,7 +23,6 @@ import com.google.common.primitives.Ints;
 import org.b1.pack.standard.common.BlockPointer;
 import org.b1.pack.standard.common.MemoryOutputStream;
 import org.b1.pack.standard.common.Numbers;
-import org.b1.pack.standard.explorer.ChunkedInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -88,7 +87,7 @@ class BlockCursor implements Closeable {
     }
 
     private void createInputStream() {
-        inputStream = new CountingInputStream(new ByteArrayInputStream(outputStream.getBuf(), 0, outputStream.getCount()));
+        inputStream = new CountingInputStream(new ByteArrayInputStream(outputStream.getBuf(), 0, outputStream.size()));
     }
 
     private void readBlockType() throws IOException {

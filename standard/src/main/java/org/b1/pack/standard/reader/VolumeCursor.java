@@ -20,14 +20,14 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
+import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.reader.ReaderProvider;
 import org.b1.pack.api.reader.ReaderVolume;
 import org.b1.pack.standard.common.BlockPointer;
-import org.b1.pack.standard.common.MemoryBuffer;
+import org.b1.pack.standard.common.MemoryOutputStream;
 import org.b1.pack.standard.common.RecordPointer;
 import org.b1.pack.standard.common.Volumes;
-import org.b1.pack.standard.explorer.HeaderSet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -150,12 +150,13 @@ class VolumeCursor implements Closeable {
     private HeaderSet readTail() throws IOException {
         long available = Preconditions.checkNotNull(volume.getSize(), "Volume size unknown") - inputStream.getCount();
         int capacity = Ints.checkedCast(Math.min(available, MAX_TAIL_SIZE));
-        MemoryBuffer buffer = new MemoryBuffer(capacity);
         ByteStreams.skipFully(inputStream, available - capacity);
-        ByteStreams.copy(inputStream, buffer);
-        int index = buffer.lastIndexOf(Volumes.SEPARATOR_BYTE) + 1;
+        MemoryOutputStream outputStream = new MemoryOutputStream(capacity);
+        ByteStreams.copy(inputStream, outputStream);
+        Preconditions.checkState(outputStream.size() == capacity);
+        int index = Bytes.lastIndexOf(outputStream.getBuf(), Volumes.SEPARATOR_BYTE) + 1;
         checkVolume(index > 0);
-        String result = buffer.getString(index, capacity - index, Charsets.UTF_8);
+        String result = new String(outputStream.getBuf(), index, capacity - index, Charsets.UTF_8);
         checkVolume(result.endsWith(Volumes.B1_AE) || result.endsWith(Volumes.B1_VE));
         return new HeaderSet(result);
     }

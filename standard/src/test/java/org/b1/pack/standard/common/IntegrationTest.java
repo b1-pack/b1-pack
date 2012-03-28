@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.*;
-import org.b1.pack.api.explorer.*;
 import org.b1.pack.api.reader.*;
 import org.b1.pack.api.writer.*;
 import org.junit.Test;
@@ -33,10 +32,7 @@ import java.util.Map;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.logging.Logger.getLogger;
 import static org.b1.pack.api.common.PackFormat.B1;
 import static org.junit.Assert.assertArrayEquals;
@@ -66,7 +62,6 @@ public class IntegrationTest {
         byte[] volumeContent = getBuilderVolumeContent(builderVolume);
         // END SNIPPET: builder
         assertEquals(1, builderVolume.getNumber());
-        verifyVolumeWithExplorer(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
         verifyVolumeWithReader(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
     }
 
@@ -79,6 +74,7 @@ public class IntegrationTest {
         String packName = "writerTest";
         String volumeName = packName + ".b1";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        // START SNIPPET: writer
         WriterProvider provider = createWriterProvider(buffer);
         final WriterEntry folder = createWriterEntry(null, folderName, fileTime);
         final WriterEntry file = createWriterEntry(folder, fileName, fileTime);
@@ -89,33 +85,9 @@ public class IntegrationTest {
                 pack.addFile(file, createWriterContent(fileContent));
             }
         });
+        // END SNIPPET: writer
         byte[] volumeContent = buffer.toByteArray();
-        verifyVolumeWithExplorer(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
         verifyVolumeWithReader(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
-    }
-
-    private void verifyVolumeWithExplorer(String folderName, String fileName, long fileTime, byte[] fileContent,
-                                          String volumeName, byte[] volumeContent) throws IOException {
-        // START SNIPPET: explorer
-        ExplorerVolume explorerVolume = createExplorerVolume(volumeName, volumeContent);
-        ExplorerProvider explorerProvider = createExplorerProvider(explorerVolume);
-        List<ExplorerFolder> folders = newArrayList();
-        List<ExplorerFile> files = newArrayList();
-        final ExplorerVisitor explorerVisitor = createExplorerVisitor(folders, files);
-        PackExplorer.getInstance(B1).explore(explorerProvider, new ExplorerCommand() {
-            @Override
-            public void execute(ExplorerPack pack) throws IOException {
-                pack.listObjects(explorerVisitor);
-            }
-        });
-        // END SNIPPET: explorer
-        ExplorerFolder folder = getOnlyElement(folders);
-        assertEquals(singletonList(folderName), folder.getPath());
-        ExplorerFile file = getOnlyElement(files);
-        assertEquals(asList(folderName, fileName), file.getPath());
-        assertEquals(fileTime, file.getLastModifiedTime().longValue());
-        assertEquals(fileContent.length, file.getSize());
-        assertArrayEquals(fileContent, getExplorerFileContent(file));
     }
 
     private void verifyVolumeWithReader(String folderName, String fileName, long fileTime, byte[] fileContent,
@@ -238,25 +210,6 @@ public class IntegrationTest {
         };
     }
 
-    private static ExplorerVolume createExplorerVolume(final String name, final byte[] packContent) {
-        return new ExplorerVolume() {
-            @Override
-            public String getName() {
-                return name;
-            }
-
-            @Override
-            public long getSize() {
-                return packContent.length;
-            }
-
-            @Override
-            public InputStream getInputStream() throws IOException {
-                return new ByteArrayInputStream(packContent);
-            }
-        };
-    }
-
     private static ReaderVolume createReaderVolume(final String name, final byte[] packContent) {
         return new ReaderVolume() {
             @Override
@@ -276,26 +229,6 @@ public class IntegrationTest {
         };
     }
 
-    private static ExplorerProvider createExplorerProvider(final ExplorerVolume explorerVolume) {
-        return new ExplorerProvider() {
-            @Override
-            public ExplorerVolume getVolume(long number) {
-                checkArgument(number == 1);
-                return explorerVolume;
-            }
-
-            @Override
-            public long getVolumeCount() {
-                return 1;
-            }
-
-            @Override
-            public void close() throws IOException {
-                // no-op
-            }
-        };
-    }
-
     private static ReaderProvider createReaderProvider(final ReaderVolume readerVolume) {
         return new ReaderProvider() {
             @Override
@@ -307,20 +240,6 @@ public class IntegrationTest {
             @Override
             public long getVolumeCount() {
                 return 1;
-            }
-        };
-    }
-
-    private static ExplorerVisitor createExplorerVisitor(final List<ExplorerFolder> folders, final List<ExplorerFile> files) {
-        return new ExplorerVisitor() {
-            @Override
-            public void visit(ExplorerFolder folder) throws IOException {
-                folders.add(folder);
-            }
-
-            @Override
-            public void visit(ExplorerFile file) throws IOException {
-                files.add(file);
             }
         };
     }
@@ -349,13 +268,5 @@ public class IntegrationTest {
             }
         };
     }
-    
-    private static byte[] getExplorerFileContent(ExplorerFile file) throws IOException {
-        InputStream inputStream = file.getInputStream();
-        try {
-            return toByteArray(inputStream);
-        } finally {
-            inputStream.close();
-        }
-    }
+
 }

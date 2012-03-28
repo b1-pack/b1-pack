@@ -16,11 +16,11 @@ Code Examples
 
  An archive can be created with a code like the following.
 
-%{include|snippet=#builder|file=../standard/src/test/java/org/b1/pack/standard/common/IntegrationTest.java}
+%{include|snippet=#writer|file=../standard/src/test/java/org/b1/pack/standard/common/IntegrationTest.java}
 
  The code snippet below illustrates opening an existing archive.
 
-%{include|snippet=#explorer|file=../standard/src/test/java/org/b1/pack/standard/common/IntegrationTest.java}
+%{include|snippet=#reader|file=../standard/src/test/java/org/b1/pack/standard/common/IntegrationTest.java}
 
  Read the {{{./xref-test/org/b1/pack/standard/common/IntegrationTest.html}complete example}} for more details.
 
