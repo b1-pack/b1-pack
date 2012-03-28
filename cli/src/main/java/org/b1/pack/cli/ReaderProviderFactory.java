@@ -27,7 +27,7 @@ public class ReaderProviderFactory {
     private static final Pattern PATTERN = Pattern.compile("(?i)(.*\\.part)(\\d+)(.b1)");
 
     public static ReaderProvider createReaderProvider(File packFile) {
-        Matcher matcher = PATTERN.matcher(packFile.getName());
+        Matcher matcher = PATTERN.matcher(packFile.getPath());
         if (!matcher.matches()) {
             return new BasicReaderProvider(packFile);
         }

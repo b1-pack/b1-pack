@@ -35,12 +35,7 @@ public class ListCommand implements PackCommand {
         System.out.println("Type             Size     Date       Time");
         printLine();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(ReaderProviderFactory.createReaderProvider(file), new ReaderCommand() {
-            @Override
-            public void execute(ReaderPack pack) throws IOException {
-                pack.accept(new ListFolderVisitor(""));
-            }
-        });
+        reader.read(ReaderProviderFactory.createReaderProvider(file), new ListFolderVisitor(""));
         printLine();
         System.out.println();
         System.out.println("Done");

@@ -17,7 +17,7 @@
 package org.b1.pack.standard.reader;
 
 import org.b1.pack.api.reader.PackReader;
-import org.b1.pack.api.reader.ReaderCommand;
+import org.b1.pack.api.reader.ReaderFolderVisitor;
 import org.b1.pack.api.reader.ReaderProvider;
 
 import java.io.IOException;
@@ -27,11 +27,11 @@ import static org.b1.pack.api.common.PackFormat.B1;
 public class StandardPackReader extends PackReader {
 
     @Override
-    public void read(ReaderProvider provider, ReaderCommand command) throws IOException {
+    public void read(ReaderProvider provider, ReaderFolderVisitor visitor) throws IOException {
         VolumeCursor volumeCursor = new VolumeCursor(provider);
         try {
             volumeCursor.initialize();
-            command.execute(new StandardReaderPack(volumeCursor));
+            read(volumeCursor, visitor);
         } finally {
             volumeCursor.close();
         }
@@ -40,5 +40,15 @@ public class StandardPackReader extends PackReader {
     @Override
     protected boolean isFormatSupported(String format) {
         return B1.equals(format);
+    }
+
+    private static void read(VolumeCursor volumeCursor, ReaderFolderVisitor visitor) throws IOException {
+        PackInputStream stream = new PackInputStream(new ChunkCursor(new BlockCursor(volumeCursor)));
+        try {
+            stream.seek(volumeCursor.getCatalogPointer());
+            new RecordReader(visitor).read(stream, volumeCursor.getObjectTotal());
+        } finally {
+            stream.close();
+        }
     }
 }

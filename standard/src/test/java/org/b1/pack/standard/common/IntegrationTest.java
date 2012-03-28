@@ -126,12 +126,7 @@ public class IntegrationTest {
         List<String> folderList = Lists.newArrayList();
         Map<String, byte[]> fileMap = Maps.newHashMap();
         final ReaderFolderVisitor visitor = createReaderVisitor("", fileTime, folderList, fileMap);
-        PackReader.getInstance(B1).read(readerProvider, new ReaderCommand() {
-            @Override
-            public void execute(ReaderPack pack) throws IOException {
-                pack.accept(visitor);
-            }
-        });
+        PackReader.getInstance(B1).read(readerProvider, visitor);
         // END SNIPPET: reader
         assertEquals(folderName, getOnlyElement(folderList));
         Map.Entry<String, byte[]> fileEntry = getOnlyElement(fileMap.entrySet());

@@ -34,12 +34,7 @@ public class ExtractCommand implements PackCommand {
         System.out.println("Extracting from \"" + file + "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
         System.out.println();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(ReaderProviderFactory.createReaderProvider(file), new ReaderCommand() {
-            @Override
-            public void execute(ReaderPack pack) throws IOException {
-                pack.accept(new ExtractFolderVisitor(outputFolder, null));
-            }
-        });
+        reader.read(ReaderProviderFactory.createReaderProvider(file), new ExtractFolderVisitor(outputFolder, null));
         System.out.println();
         System.out.println("Done");
     }

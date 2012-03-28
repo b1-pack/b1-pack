@@ -21,7 +21,7 @@ import java.util.ServiceLoader;
 
 public abstract class PackReader {
 
-    public abstract void read(ReaderProvider provider, ReaderCommand command) throws IOException;
+    public abstract void read(ReaderProvider provider, ReaderFolderVisitor visitor) throws IOException;
 
     protected abstract boolean isFormatSupported(String format);
 
