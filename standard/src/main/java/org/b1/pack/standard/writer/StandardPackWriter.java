@@ -17,26 +17,25 @@
 package org.b1.pack.standard.writer;
 
 import org.b1.pack.api.writer.PackWriter;
-import org.b1.pack.api.writer.WriterCommand;
+import org.b1.pack.api.writer.WriterFolderContent;
 import org.b1.pack.api.writer.WriterProvider;
 
 import java.io.IOException;
 
 import static org.b1.pack.api.common.PackFormat.B1;
 
-@SuppressWarnings("UnusedDeclaration")
 public class StandardPackWriter extends PackWriter {
 
     @Override
-    public void write(WriterProvider provider, WriterCommand command) throws IOException {
+    public void write(WriterProvider provider, WriterFolderContent content) throws IOException {
         boolean pending = true;
-        StandardWriterPack pack = new StandardWriterPack(provider);
+        RecordWriter recordWriter = new RecordWriter(provider);
         try {
-            command.execute(pack);
-            pack.close();
+            content.writeTo(recordWriter);
+            recordWriter.close();
             pending = false;
         } finally {
-            if (pending) pack.cleanup();
+            if (pending) recordWriter.cleanup();
         }
     }
 

@@ -21,7 +21,7 @@ import java.util.ServiceLoader;
 
 public abstract class PackWriter {
 
-    public abstract void write(WriterProvider provider, WriterCommand command) throws IOException;
+    public abstract void write(WriterProvider provider, WriterFolderContent content) throws IOException;
 
     protected abstract boolean isFormatSupported(String format);
 

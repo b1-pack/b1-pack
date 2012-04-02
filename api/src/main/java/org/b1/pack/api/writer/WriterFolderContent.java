@@ -18,8 +18,8 @@ package org.b1.pack.api.writer;
 
 import java.io.IOException;
 
-public interface WriterCommand {
+public abstract class WriterFolderContent {
 
-    void execute(WriterPack pack) throws IOException;
+    public abstract void writeTo(WriterFolderBuilder builder) throws IOException;
 
 }

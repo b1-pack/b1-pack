@@ -62,6 +62,7 @@ public class ExtractCommand implements PackCommand {
         @Override
         public ReaderFolderVisitor visitFolder(ReaderEntry entry) {
             File nativeFile = getNativeFile(entry.getName());
+            System.out.println("Extracting " + nativeFile);
             Preconditions.checkState(nativeFile.mkdir(), "Cannot create folder: %s", nativeFile);
             return new ExtractFolderVisitor(nativeFile, entry.getLastModifiedTime());
         }
@@ -89,7 +90,7 @@ public class ExtractCommand implements PackCommand {
         @Override
         public void visitContent(ReaderContent content) throws IOException {
             Preconditions.checkState(!targetFile.exists(), "File already exists: %s", targetFile);
-            System.out.println("Extracting " + targetFile.getPath());
+            System.out.println("Extracting " + targetFile);
             File tempFile = FileTools.createTempFile(targetFile);
             FileOutputStream stream = new FileOutputStream(tempFile);
             try {

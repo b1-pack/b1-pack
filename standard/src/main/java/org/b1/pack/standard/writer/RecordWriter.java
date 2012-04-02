@@ -16,9 +16,10 @@
 
 package org.b1.pack.standard.writer;
 
-import com.google.common.base.Objects;
-import org.b1.pack.api.builder.Writable;
-import org.b1.pack.api.compression.LzmaCompressionMethod;
+import com.google.common.collect.Lists;
+import org.b1.pack.api.writer.WriterEntry;
+import org.b1.pack.api.writer.WriterFileBuilder;
+import org.b1.pack.api.writer.WriterFolderBuilder;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
@@ -26,115 +27,111 @@ import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.concurrent.ExecutorService;
+import java.util.List;
 
-class RecordWriter extends OutputStream {
+class RecordWriter implements WriterFolderBuilder {
 
-    private final WriterProvider provider;
-    private final BlockWriter blockWriter;
-    private final LzmaCompressionMethod compressionMethod;
-    private final ExecutorService executorService;
-    private final int volumeNumberSize;
-    private final int blockOffsetSize;
-    private final int recordOffsetSize;
-    private LzmaWriter lzmaWriter;
+    private final List<StandardObjectBuilder> builderList = Lists.newArrayList();
+    private final PackOutputStream packOutputStream;
+    private long objectCount;
+    private boolean catalogMode;
+    private PbRecordPointer nextCatalogPointer;
 
     public RecordWriter(WriterProvider provider) {
-        this.provider = provider;
-        blockWriter = new BlockWriter(provider);
-        compressionMethod = (LzmaCompressionMethod) provider.getCompressionMethod();
-        executorService = compressionMethod == null ? null : provider.getExecutorService();
-        volumeNumberSize = Numbers.getSerializedSize(provider.getMaxVolumeSize() == Long.MAX_VALUE ? 1 : provider.getMaxVolumeCount());
-        blockOffsetSize = Numbers.getSerializedSize(provider.getMaxVolumeSize());
-        recordOffsetSize = Numbers.getSerializedSize(compressionMethod == null ? Constants.MAX_CHUNK_SIZE : compressionMethod.getSolidBlockSize());
-    }
-
-    public boolean isSeekable() {
-        return provider.isSeekable();
-    }
-
-    public PbRecordPointer createEmptyPointer() {
-        return new PbRecordPointer(volumeNumberSize, blockOffsetSize, recordOffsetSize);
-    }
-
-    public void setObjectCount(Long objectCount) {
-        blockWriter.setObjectCount(objectCount);
-    }
-
-    public RecordPointer saveCatalogPointer() throws IOException {
-        return blockWriter.saveCatalogPointer();
-    }
-
-    public void setCompressible(boolean compressible) throws IOException {
-        if (compressible && compressionMethod != null) {
-            if (lzmaWriter != null && lzmaWriter.getCount() >= compressionMethod.getSolidBlockSize()) {
-                disableCompression();
-            }
-            enableCompression();
-        } else {
-            disableCompression();
-        }
-    }
-
-    public RecordPointer getCurrentPointer() throws IOException {
-        return getChunkWriter().getCurrentPointer();
+        packOutputStream = new PackOutputStream(provider);
     }
 
     @Override
-    public void write(int b) throws IOException {
-        getChunkWriter().write(b);
+    public WriterFileBuilder addFile(WriterEntry entry, Long size) throws IOException {
+        return createFileBuilder(null, entry, size);
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
-        getChunkWriter().write(b, off, len);
-    }
-
-    public void write(Writable value) throws IOException {
-        getChunkWriter().write(value);
-    }
-
-    public void save() throws IOException {
-        disableCompression();
-        blockWriter.save();
+    public WriterFolderBuilder addFolder(WriterEntry entry) throws IOException {
+        return createFolderBuilder(null, entry);
     }
 
     @Override
+    public void flush() throws IOException {
+        save(true);
+    }
+
+    public PackOutputStream getPackOutputStream() {
+        return packOutputStream;
+    }
+
+    public StandardFileBuilder createFileBuilder(StandardFolderBuilder parent, WriterEntry entry, Long size) throws IOException {
+        StandardFileBuilder builder = new StandardFileBuilder(++objectCount, this, parent, entry, size);
+        builderList.add(builder);
+        return builder;
+    }
+
+    public WriterFolderBuilder createFolderBuilder(StandardFolderBuilder parent, WriterEntry entry) throws IOException {
+        StandardFolderBuilder builder = new StandardFolderBuilder(++objectCount, this, parent, entry);
+        builderList.add(builder);
+        return builder;
+    }
+
     public void close() throws IOException {
-        disableCompression();
-        blockWriter.close();
-        shutdownExecutor();
+        packOutputStream.setObjectCount(objectCount);
+        save(false);
+        Numbers.writeLong(null, packOutputStream);
+        packOutputStream.close();
     }
 
     public void cleanup() {
-        if (lzmaWriter != null) {
-            lzmaWriter.cleanup();
+        packOutputStream.cleanup();
+    }
+
+    private void save(boolean intermediate) throws IOException {
+        if (intermediate && builderList.isEmpty()) {
+            return;
         }
-        blockWriter.cleanup();
-        shutdownExecutor();
+        if (packOutputStream.isSeekable()) {
+            packOutputStream.setCompressible(false);
+            saveCatalogRecords();
+            saveCompleteRecords();
+        } else {
+            saveCompleteRecords();
+            if (intermediate) return;
+            packOutputStream.setCompressible(true);
+            saveCatalogRecords();
+        }
+        packOutputStream.setCompressible(false);
+        setCatalogMode();
+        builderList.clear();
+        packOutputStream.save();
     }
 
-    private void shutdownExecutor() {
-        if (executorService != null) {
-            executorService.shutdown();
+    private void saveCatalogRecords() throws IOException {
+        setCatalogMode();
+        for (StandardObjectBuilder builder : builderList) {
+            builder.saveCatalogRecord();
         }
     }
 
-    private ChunkWriter getChunkWriter() {
-        return Objects.firstNonNull(lzmaWriter, blockWriter);
+    private void saveCompleteRecords() throws IOException {
+        setContentMode();
+        for (StandardObjectBuilder builder : builderList) {
+            builder.saveCompleteRecord();
+        }
     }
 
-    private void enableCompression() throws IOException {
-        if (lzmaWriter != null) return;
-        blockWriter.setCompressed(true);
-        lzmaWriter = new LzmaWriter(compressionMethod, blockWriter, executorService);
+    private void setCatalogMode() throws IOException {
+        RecordPointer pointer = packOutputStream.saveCatalogPointer();
+        if (nextCatalogPointer != null) {
+            nextCatalogPointer.init(pointer);
+            nextCatalogPointer = null;
+        }
+        catalogMode = true;
     }
 
-    private void disableCompression() throws IOException {
-        if (lzmaWriter == null) return;
-        lzmaWriter.close();
-        blockWriter.setCompressed(false);
-        lzmaWriter = null;
+    public void setContentMode() throws IOException {
+        if (catalogMode && nextCatalogPointer == null) {
+            nextCatalogPointer = packOutputStream.createEmptyPointer();
+            Numbers.writeLong(Constants.RECORD_POINTER, packOutputStream);
+            packOutputStream.write(nextCatalogPointer);
+        }
+        catalogMode = false;
     }
 }

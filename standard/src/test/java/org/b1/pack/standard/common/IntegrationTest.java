@@ -76,13 +76,12 @@ public class IntegrationTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         // START SNIPPET: writer
         WriterProvider provider = createWriterProvider(buffer);
-        final WriterEntry folder = createWriterEntry(null, folderName, fileTime);
-        final WriterEntry file = createWriterEntry(folder, fileName, fileTime);
-        PackWriter.getInstance(B1).write(provider, new WriterCommand() {
+        final WriterEntry folder = createWriterEntry(folderName, fileTime);
+        final WriterEntry file = createWriterEntry(fileName, fileTime);
+        PackWriter.getInstance(B1).write(provider, new WriterFolderContent() {
             @Override
-            public void execute(WriterPack pack) throws IOException {
-                pack.addFolder(folder);
-                pack.addFile(file, createWriterContent(fileContent));
+            public void writeTo(WriterFolderBuilder builder) throws IOException {
+                builder.addFolder(folder).addFile(file, (long) fileContent.length).setContent(createWriterFileContent(fileContent));
             }
         });
         // END SNIPPET: writer
@@ -177,13 +176,8 @@ public class IntegrationTest {
         };
     }
 
-    private static WriterEntry createWriterEntry(final WriterEntry parent, final String fileName, final long fileTime) {
+    private static WriterEntry createWriterEntry(final String fileName, final long fileTime) {
         return new WriterEntry() {
-            @Override
-            public WriterEntry getParent() {
-                return parent;
-            }
-
             @Override
             public String getName() {
                 return fileName;
@@ -196,13 +190,8 @@ public class IntegrationTest {
         };
     }
 
-    private WriterContent createWriterContent(final byte[] fileContent) {
-        return new WriterContent() {
-            @Override
-            public Long getSize() throws IOException {
-                return (long) fileContent.length;
-            }
-
+    private WriterFileContent createWriterFileContent(final byte[] fileContent) {
+        return new WriterFileContent() {
             @Override
             public void writeTo(OutputStream stream) throws IOException {
                 stream.write(fileContent);

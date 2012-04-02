@@ -18,21 +18,8 @@ package org.b1.pack.api.writer;
 
 public abstract class WriterEntry {
 
-    public abstract WriterEntry getParent();
-
     public abstract String getName();
 
     public abstract Long getLastModifiedTime();
 
-    public boolean isImmediate() {
-        return false;
-    }
-    
-    public boolean isCompressible() {
-        return true;
-    }
-
-    public void beforeAdd() {
-        //no-op
-    }
 }

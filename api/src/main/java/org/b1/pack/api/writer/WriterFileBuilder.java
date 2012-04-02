@@ -18,13 +18,9 @@ package org.b1.pack.api.writer;
 
 import java.io.IOException;
 
-public abstract class WriterPack {
+public interface WriterFileBuilder {
 
-    public abstract void addFolder(WriterEntry entry) throws IOException;
+    void setContent(WriterFileContent content) throws IOException;
 
-    public abstract void addFile(WriterEntry entry, WriterContent content) throws IOException;
-
-    public void flush() throws IOException {
-        //no-op
-    }
+    void flush() throws IOException;
 }

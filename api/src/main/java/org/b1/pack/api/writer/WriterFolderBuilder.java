@@ -14,30 +14,15 @@
  * limitations under the License.
  */
 
-package org.b1.pack.cli;
+package org.b1.pack.api.writer;
 
-import com.google.common.io.Files;
-import org.b1.pack.api.writer.WriterContent;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 
-public class FsWriterContent extends WriterContent {
+public interface WriterFolderBuilder {
 
-    private final File file;
+    WriterFileBuilder addFile(WriterEntry entry, Long size) throws IOException;
 
-    public FsWriterContent(File file) {
-        this.file = file;
-    }
+    WriterFolderBuilder addFolder(WriterEntry entry) throws IOException;
 
-    @Override
-    public Long getSize() throws IOException {
-        return file.length();
-    }
-
-    @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        Files.copy(file, stream);
-    }
+    void flush() throws IOException;
 }

@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import org.b1.pack.api.compression.CompressionMethod;
 import org.b1.pack.api.compression.LzmaCompressionMethod;
 import org.b1.pack.api.writer.PackWriter;
+import org.b1.pack.api.writer.WriterFolderContent;
 import org.b1.pack.api.writer.WriterProvider;
 
 import java.io.File;
@@ -28,7 +29,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class WriteCommand implements PackCommand {
 
@@ -40,7 +40,7 @@ public class WriteCommand implements PackCommand {
                 isSeekable(argSet.getTypeFlag()),
                 getCompressionMethod(argSet.getCompressionMethod()));
         System.out.println("Starting");
-        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, new FsWriterCommand(getBaseFileMap(argSet.getFileNames())));
+        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, getFolderContent(argSet.getFileNames()));
         System.out.println();
         System.out.println("Done");
     }
@@ -57,14 +57,14 @@ public class WriteCommand implements PackCommand {
         return true;
     }
 
-    private Map<List<String>, File> getBaseFileMap(List<String> names) {
-        LinkedHashMap<List<String>, File> result = Maps.newLinkedHashMap();
+    private WriterFolderContent getFolderContent(List<String> names) {
+        LinkedHashMap<List<String>, File> fileMap = Maps.newLinkedHashMap();
         for (String name : names.isEmpty() ? Collections.singleton(".") : names) {
             File file = new File(name);
             Preconditions.checkArgument(file.exists(), "File not found: %s", file);
             List<String> path = FileTools.getPath(file);
-            Preconditions.checkArgument(result.put(path, file) == null, "Duplicate path: %s", path);
+            Preconditions.checkArgument(fileMap.put(path, file) == null, "Duplicate path: %s", path);
         }
-        return result;
+        return new FsFolderContent(fileMap);
     }
 }

@@ -37,10 +37,14 @@ public abstract class WriterProvider {
         return Integer.MAX_VALUE;
     }
 
+    public boolean isCompressible(WriterEntry entry) {
+        return true;
+    }
+
     public CompressionMethod getCompressionMethod() {
         return null;
     }
-    
+
     public EncryptionMethod getEncryptionMethod() {
         return null;
     }

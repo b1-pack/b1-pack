@@ -19,9 +19,7 @@ package org.b1.pack.api.writer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public abstract class WriterContent {
-
-    public abstract Long getSize() throws IOException;
+public abstract class WriterFileContent {
 
     public abstract void writeTo(OutputStream stream) throws IOException;
 }

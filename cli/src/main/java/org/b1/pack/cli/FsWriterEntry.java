@@ -20,19 +20,12 @@ import org.b1.pack.api.writer.WriterEntry;
 
 public class FsWriterEntry extends WriterEntry {
 
-    private final WriterEntry parent;
     private final String name;
     private final Long lastModifiedTime;
 
-    public FsWriterEntry(WriterEntry parent, String name, Long lastModifiedTime) {
-        this.parent = parent;
+    public FsWriterEntry(String name, Long lastModifiedTime) {
         this.name = name;
         this.lastModifiedTime = lastModifiedTime;
-    }
-
-    @Override
-    public WriterEntry getParent() {
-        return parent;
     }
 
     @Override
@@ -43,21 +36,5 @@ public class FsWriterEntry extends WriterEntry {
     @Override
     public Long getLastModifiedTime() {
         return lastModifiedTime;
-    }
-
-    @Override
-    public void beforeAdd() {
-        System.out.print("Adding ");
-        printName(this);
-        System.out.println();
-    }
-
-    private static void printName(WriterEntry entry) {
-        WriterEntry parent = entry.getParent();
-        if (parent != null) {
-            printName(parent);
-            System.out.print('/');
-        }
-        System.out.print(entry.getName());
     }
 }

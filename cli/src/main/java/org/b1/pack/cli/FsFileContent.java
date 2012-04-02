@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.writer;
+package org.b1.pack.cli;
 
-import org.b1.pack.api.writer.WriterEntry;
-import org.b1.pack.standard.common.Constants;
+import com.google.common.io.Files;
+import org.b1.pack.api.writer.WriterFileContent;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
-class WriterFolder extends WriterObject {
+public class FsFileContent extends WriterFileContent {
 
-    public WriterFolder(long id, WriterFolder parent, WriterEntry entry) {
-        super(id, parent, entry);
+    private final File file;
+
+    public FsFileContent(File file) {
+        this.file = file;
     }
 
     @Override
-    public void saveCatalogRecord(RecordWriter recordWriter) throws IOException {
-        writeBasicCatalogRecord(Constants.CATALOG_FOLDER, recordWriter);
-    }
-
-    @Override
-    public void saveCompleteRecord(RecordWriter recordWriter) throws IOException {
-        writeBasicCompleteRecord(Constants.COMPLETE_FOLDER, recordWriter);
+    public void writeTo(OutputStream stream) throws IOException {
+        System.out.println("Adding " + file);
+        Files.copy(file, stream);
     }
 }
