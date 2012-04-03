@@ -16,6 +16,7 @@
 
 package org.b1.pack.api.writer;
 
+import org.b1.pack.api.common.PackEntry;
 import org.b1.pack.api.compression.CompressionMethod;
 import org.b1.pack.api.encryption.EncryptionMethod;
 
@@ -37,7 +38,7 @@ public abstract class WriterProvider {
         return Integer.MAX_VALUE;
     }
 
-    public boolean isCompressible(WriterEntry entry) {
+    public boolean isCompressible(PackEntry entry) {
         return true;
     }
 

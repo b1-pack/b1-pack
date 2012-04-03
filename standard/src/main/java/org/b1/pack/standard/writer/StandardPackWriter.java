@@ -16,8 +16,8 @@
 
 package org.b1.pack.standard.writer;
 
+import org.b1.pack.api.common.FolderContent;
 import org.b1.pack.api.writer.PackWriter;
-import org.b1.pack.api.writer.WriterFolderContent;
 import org.b1.pack.api.writer.WriterProvider;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ import static org.b1.pack.api.common.PackFormat.B1;
 public class StandardPackWriter extends PackWriter {
 
     @Override
-    public void write(WriterProvider provider, WriterFolderContent content) throws IOException {
+    public void write(WriterProvider provider, FolderContent content) throws IOException {
         boolean pending = true;
         RecordWriter recordWriter = new RecordWriter(provider);
         try {

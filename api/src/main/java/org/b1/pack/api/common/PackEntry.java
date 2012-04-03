@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.writer;
+package org.b1.pack.api.common;
 
-import java.io.IOException;
+public abstract class PackEntry {
 
-public interface WriterFileBuilder {
+    public abstract String getName();
 
-    void setContent(WriterFileContent content) throws IOException;
+    public abstract Long getLastModifiedTime();
 
-    void flush() throws IOException;
 }

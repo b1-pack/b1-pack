@@ -16,12 +16,14 @@
 
 package org.b1.pack.api.writer;
 
+import org.b1.pack.api.common.FolderContent;
+
 import java.io.IOException;
 import java.util.ServiceLoader;
 
 public abstract class PackWriter {
 
-    public abstract void write(WriterProvider provider, WriterFolderContent content) throws IOException;
+    public abstract void write(WriterProvider provider, FolderContent content) throws IOException;
 
     protected abstract boolean isFormatSupported(String format);
 

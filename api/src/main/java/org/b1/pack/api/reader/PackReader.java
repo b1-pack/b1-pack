@@ -16,12 +16,14 @@
 
 package org.b1.pack.api.reader;
 
+import org.b1.pack.api.common.FolderBuilder;
+
 import java.io.IOException;
 import java.util.ServiceLoader;
 
 public abstract class PackReader {
 
-    public abstract void read(ReaderProvider provider, ReaderFolderVisitor visitor) throws IOException;
+    public abstract void read(ReaderProvider provider, FolderBuilder builder) throws IOException;
 
     protected abstract boolean isFormatSupported(String format);
 

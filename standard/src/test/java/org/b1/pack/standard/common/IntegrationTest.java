@@ -21,8 +21,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.*;
-import org.b1.pack.api.reader.*;
-import org.b1.pack.api.writer.*;
+import org.b1.pack.api.common.*;
+import org.b1.pack.api.reader.PackReader;
+import org.b1.pack.api.reader.ReaderProvider;
+import org.b1.pack.api.reader.ReaderVolume;
+import org.b1.pack.api.writer.PackWriter;
+import org.b1.pack.api.writer.WriterProvider;
+import org.b1.pack.api.writer.WriterVolume;
 import org.junit.Test;
 
 import java.io.*;
@@ -76,12 +81,12 @@ public class IntegrationTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         // START SNIPPET: writer
         WriterProvider provider = createWriterProvider(buffer);
-        final WriterEntry folder = createWriterEntry(folderName, fileTime);
-        final WriterEntry file = createWriterEntry(fileName, fileTime);
-        PackWriter.getInstance(B1).write(provider, new WriterFolderContent() {
+        final org.b1.pack.api.common.PackEntry folder = createPackEntry(folderName, fileTime);
+        final org.b1.pack.api.common.PackEntry file = createPackEntry(fileName, fileTime);
+        PackWriter.getInstance(B1).write(provider, new FolderContent() {
             @Override
-            public void writeTo(WriterFolderBuilder builder) throws IOException {
-                builder.addFolder(folder).addFile(file, (long) fileContent.length).setContent(createWriterFileContent(fileContent));
+            public void writeTo(org.b1.pack.api.common.FolderBuilder builder) throws IOException {
+                builder.addFolder(folder).addFile(file, (long) fileContent.length).setContent(createFileContent(fileContent));
             }
         });
         // END SNIPPET: writer
@@ -96,8 +101,8 @@ public class IntegrationTest {
         ReaderProvider readerProvider = createReaderProvider(readerVolume);
         List<String> folderList = Lists.newArrayList();
         Map<String, byte[]> fileMap = Maps.newHashMap();
-        final ReaderFolderVisitor visitor = createReaderVisitor("", fileTime, folderList, fileMap);
-        PackReader.getInstance(B1).read(readerProvider, visitor);
+        final FolderBuilder builder = createFolderBuilder("", fileTime, folderList, fileMap);
+        PackReader.getInstance(B1).read(readerProvider, builder);
         // END SNIPPET: reader
         assertEquals(folderName, getOnlyElement(folderList));
         Map.Entry<String, byte[]> fileEntry = getOnlyElement(fileMap.entrySet());
@@ -176,8 +181,8 @@ public class IntegrationTest {
         };
     }
 
-    private static WriterEntry createWriterEntry(final String fileName, final long fileTime) {
-        return new WriterEntry() {
+    private static org.b1.pack.api.common.PackEntry createPackEntry(final String fileName, final long fileTime) {
+        return new org.b1.pack.api.common.PackEntry() {
             @Override
             public String getName() {
                 return fileName;
@@ -190,8 +195,8 @@ public class IntegrationTest {
         };
     }
 
-    private WriterFileContent createWriterFileContent(final byte[] fileContent) {
-        return new WriterFileContent() {
+    private org.b1.pack.api.common.FileContent createFileContent(final byte[] fileContent) {
+        return new org.b1.pack.api.common.FileContent() {
             @Override
             public void writeTo(OutputStream stream) throws IOException {
                 stream.write(fileContent);
@@ -233,27 +238,37 @@ public class IntegrationTest {
         };
     }
 
-    private static ReaderFolderVisitor createReaderVisitor(final String prefix, final long fileTime, final List<String> folderList, final Map<String, byte[]> fileMap) {
-        return new ReaderFolderVisitor() {
+    private static FolderBuilder createFolderBuilder(final String prefix, final long fileTime, final List<String> folderList, final Map<String, byte[]> fileMap) {
+        return new FolderBuilder() {
             @Override
-            public ReaderFileVisitor visitFile(final ReaderEntry entry, final long size) {
+            public FileBuilder addFile(final PackEntry entry, final Long size) {
                 Preconditions.checkState(entry.getLastModifiedTime() == fileTime);
-                return new ReaderFileVisitor() {
+                return new FileBuilder() {
                     @Override
-                    public void visitContent(ReaderContent content) throws IOException {
+                    public void setContent(FileContent content) throws IOException {
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
                         content.writeTo(stream);
                         Preconditions.checkState(stream.size() == size);
                         fileMap.put(prefix + entry.getName(), stream.toByteArray());
                     }
+
+                    @Override
+                    public void flush() throws IOException {
+                        //no-op
+                    }
                 };
             }
 
             @Override
-            public ReaderFolderVisitor visitFolder(ReaderEntry entry) {
+            public FolderBuilder addFolder(PackEntry entry) {
                 Preconditions.checkState(entry.getLastModifiedTime() == fileTime);
                 folderList.add(prefix + entry.getName());
-                return createReaderVisitor(prefix + entry.getName()+ "/", fileTime, folderList, fileMap);
+                return createFolderBuilder(prefix + entry.getName() + "/", fileTime, folderList, fileMap);
+            }
+
+            @Override
+            public void flush() throws IOException {
+                //no-op
             }
         };
     }

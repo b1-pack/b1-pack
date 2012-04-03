@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.writer;
+package org.b1.pack.api.common;
 
 import java.io.IOException;
 
-public interface WriterFolderBuilder {
+public interface FolderContent {
 
-    WriterFileBuilder addFile(WriterEntry entry, Long size) throws IOException;
+    void writeTo(FolderBuilder builder) throws IOException;
 
-    WriterFolderBuilder addFolder(WriterEntry entry) throws IOException;
-
-    void flush() throws IOException;
 }

@@ -18,8 +18,8 @@ package org.b1.pack.standard.writer;
 
 import com.google.common.base.Objects;
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.api.common.PackEntry;
 import org.b1.pack.api.compression.LzmaCompressionMethod;
-import org.b1.pack.api.writer.WriterEntry;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
@@ -67,7 +67,7 @@ class PackOutputStream extends OutputStream {
         return blockWriter.saveCatalogPointer();
     }
 
-    public void switchCompression(WriterEntry entry) throws IOException {
+    public void switchCompression(PackEntry entry) throws IOException {
         setCompressible(provider.isCompressible(entry));
     }
 

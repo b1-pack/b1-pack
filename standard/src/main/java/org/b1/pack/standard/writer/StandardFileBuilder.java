@@ -17,9 +17,9 @@
 package org.b1.pack.standard.writer;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.writer.WriterFileBuilder;
-import org.b1.pack.api.writer.WriterFileContent;
-import org.b1.pack.api.writer.WriterEntry;
+import org.b1.pack.api.common.FileBuilder;
+import org.b1.pack.api.common.FileContent;
+import org.b1.pack.api.common.PackEntry;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PbMutableInt;
@@ -27,19 +27,19 @@ import org.b1.pack.standard.common.PbMutableInt;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class StandardFileBuilder extends StandardObjectBuilder implements WriterFileBuilder {
+class StandardFileBuilder extends StandardObjectBuilder implements FileBuilder {
 
     private Long size;
-    private WriterFileContent content;
+    private FileContent content;
     private PbMutableInt futureSize;
 
-    public StandardFileBuilder(long id, RecordWriter recordWriter, StandardFolderBuilder parent, WriterEntry entry, Long size) throws IOException {
+    public StandardFileBuilder(long id, RecordWriter recordWriter, StandardFolderBuilder parent, PackEntry entry, Long size) throws IOException {
         super(id, recordWriter, parent, entry);
         this.size = size;
     }
 
     @Override
-    public void setContent(WriterFileContent content) {
+    public void setContent(FileContent content) {
         this.content = content;
     }
 

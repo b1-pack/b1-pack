@@ -18,7 +18,11 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
-import org.b1.pack.api.reader.*;
+import org.b1.pack.api.common.FileBuilder;
+import org.b1.pack.api.common.FileContent;
+import org.b1.pack.api.common.FolderBuilder;
+import org.b1.pack.api.common.PackEntry;
+import org.b1.pack.api.reader.PackReader;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +38,7 @@ public class ExtractCommand implements PackCommand {
         System.out.println("Extracting from \"" + file + "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
         System.out.println();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(ReaderProviderFactory.createReaderProvider(file), new ExtractFolderVisitor(outputFolder, null));
+        reader.read(ReaderProviderFactory.createReaderProvider(file), new ExtractFolderBuilder(outputFolder, null));
         System.out.println();
         System.out.println("Done");
     }
@@ -43,32 +47,32 @@ public class ExtractCommand implements PackCommand {
         Preconditions.checkState(time == null || file.setLastModified(time), "Cannot set time: %s", file);
     }
 
-    private static class ExtractFolderVisitor extends ReaderFolderVisitor {
+    private static class ExtractFolderBuilder implements FolderBuilder {
 
         private final File targetFolder;
         private final Long lastModifiedTime;
 
-        private ExtractFolderVisitor(File targetFolder, Long lastModifiedTime) {
+        private ExtractFolderBuilder(File targetFolder, Long lastModifiedTime) {
             this.targetFolder = targetFolder;
             this.lastModifiedTime = lastModifiedTime;
         }
 
         @Override
-        public ReaderFileVisitor visitFile(ReaderEntry entry, long size) {
+        public FileBuilder addFile(PackEntry entry, Long size) {
             File nativeFile = getNativeFile(entry.getName());
-            return new ExtractFileVisitor(nativeFile, entry.getLastModifiedTime());
+            return new ExtractFileBuilder(nativeFile, entry.getLastModifiedTime());
         }
 
         @Override
-        public ReaderFolderVisitor visitFolder(ReaderEntry entry) {
+        public FolderBuilder addFolder(PackEntry entry) {
             File nativeFile = getNativeFile(entry.getName());
             System.out.println("Extracting " + nativeFile);
             Preconditions.checkState(nativeFile.mkdir(), "Cannot create folder: %s", nativeFile);
-            return new ExtractFolderVisitor(nativeFile, entry.getLastModifiedTime());
+            return new ExtractFolderBuilder(nativeFile, entry.getLastModifiedTime());
         }
 
         @Override
-        public void visitEnd() {
+        public void flush() {
             setLastModified(targetFolder, lastModifiedTime);
         }
 
@@ -77,18 +81,18 @@ public class ExtractCommand implements PackCommand {
         }
     }
 
-    private static class ExtractFileVisitor extends ReaderFileVisitor {
+    private static class ExtractFileBuilder implements FileBuilder {
 
         private final File targetFile;
         private final Long lastModifiedTime;
 
-        public ExtractFileVisitor(File targetFile, Long lastModifiedTime) {
+        public ExtractFileBuilder(File targetFile, Long lastModifiedTime) {
             this.targetFile = targetFile;
             this.lastModifiedTime = lastModifiedTime;
         }
 
         @Override
-        public void visitContent(ReaderContent content) throws IOException {
+        public void setContent(FileContent content) throws IOException {
             Preconditions.checkState(!targetFile.exists(), "File already exists: %s", targetFile);
             System.out.println("Extracting " + targetFile);
             File tempFile = FileTools.createTempFile(targetFile);
@@ -102,7 +106,7 @@ public class ExtractCommand implements PackCommand {
         }
 
         @Override
-        public void visitEnd() {
+        public void flush() {
             setLastModified(targetFile, lastModifiedTime);
         }
     }

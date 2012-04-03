@@ -16,14 +16,14 @@
 
 package org.b1.pack.standard.reader;
 
-import org.b1.pack.api.reader.ReaderEntry;
+import org.b1.pack.api.common.PackEntry;
 
-class StandardReaderEntry extends ReaderEntry {
+class StandardPackEntry extends PackEntry {
 
     private final String name;
     private final Long lastModifiedTime;
 
-    public StandardReaderEntry(String name, Long lastModifiedTime) {
+    public StandardPackEntry(String name, Long lastModifiedTime) {
         this.name = name;
         this.lastModifiedTime = lastModifiedTime;
     }

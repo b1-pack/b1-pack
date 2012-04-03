@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
-import org.b1.pack.api.reader.ReaderFileVisitor;
-import org.b1.pack.api.reader.ReaderFolderVisitor;
+import org.b1.pack.api.common.FileBuilder;
+import org.b1.pack.api.common.FolderBuilder;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
@@ -33,20 +33,20 @@ import java.util.Map;
 
 class RecordReader {
 
-    private final Map<Long, ReaderFolderVisitor> visitorMap = Maps.newLinkedHashMap();
-    private final List<StandardReaderContent> contentList = Lists.newArrayList();
+    private final Map<Long, FolderBuilder> visitorMap = Maps.newLinkedHashMap();
+    private final List<StandardFileContent> contentList = Lists.newArrayList();
 
-    public RecordReader(ReaderFolderVisitor rootVisitor) {
-        visitorMap.put(null, rootVisitor);
+    public RecordReader(FolderBuilder rootBuilder) {
+        visitorMap.put(null, rootBuilder);
     }
     
     public void read(PackInputStream stream, Long objectTotal) throws IOException {
         readCatalog(stream, objectTotal);
-        for (StandardReaderContent content : contentList) {
+        for (StandardFileContent content : contentList) {
             content.acceptVisitor();
         }
-        for (ReaderFolderVisitor visitor : Lists.reverse(Lists.newArrayList(visitorMap.values()))) {
-            visitor.visitEnd();
+        for (FolderBuilder builder : Lists.reverse(Lists.newArrayList(visitorMap.values()))) {
+            builder.flush();
         }
     }
 
@@ -76,11 +76,11 @@ class RecordReader {
         RecordPointer pointer = readPointer(stream);
         RecordHeader header = RecordHeader.readRecordHeader(stream);
         Long size = Numbers.readLong(stream);
-        ReaderFolderVisitor parentVisitor = visitorMap.get(header.parentId);
-        if (parentVisitor != null) {
-            ReaderFileVisitor fileVisitor = parentVisitor.visitFile(createEntry(header), size);
-            if (fileVisitor != null) {
-                contentList.add(new StandardReaderContent(header.id, pointer, stream, fileVisitor));
+        FolderBuilder parentBuilder = visitorMap.get(header.parentId);
+        if (parentBuilder != null) {
+            FileBuilder fileBuilder = parentBuilder.addFile(createEntry(header), size);
+            if (fileBuilder != null) {
+                contentList.add(new StandardFileContent(header.id, pointer, stream, fileBuilder));
             }
         }
     }
@@ -88,17 +88,17 @@ class RecordReader {
     private void readCatalogFolder(PackInputStream stream) throws IOException {
         readPointer(stream); // ignore for now
         RecordHeader header = RecordHeader.readRecordHeader(stream);
-        ReaderFolderVisitor parentVisitor = visitorMap.get(header.parentId);
-        if (parentVisitor != null) {
-            ReaderFolderVisitor folderVisitor = parentVisitor.visitFolder(createEntry(header));
-            if (folderVisitor != null) {
-                Preconditions.checkState(visitorMap.put(header.id, folderVisitor) == null);
+        FolderBuilder parentBuilder = visitorMap.get(header.parentId);
+        if (parentBuilder != null) {
+            FolderBuilder folderBuilder = parentBuilder.addFolder(createEntry(header));
+            if (folderBuilder != null) {
+                Preconditions.checkState(visitorMap.put(header.id, folderBuilder) == null);
             }
         }
     }
 
-    private static StandardReaderEntry createEntry(RecordHeader header) {
-        return new StandardReaderEntry(header.name, header.lastModifiedTime);
+    private static StandardPackEntry createEntry(RecordHeader header) {
+        return new StandardPackEntry(header.name, header.lastModifiedTime);
     }
 
     private static RecordPointer readPointer(InputStream stream) throws IOException {

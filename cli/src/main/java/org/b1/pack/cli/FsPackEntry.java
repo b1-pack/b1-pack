@@ -16,14 +16,14 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.writer.WriterEntry;
+import org.b1.pack.api.common.PackEntry;
 
-public class FsWriterEntry extends WriterEntry {
+public class FsPackEntry extends PackEntry {
 
     private final String name;
     private final Long lastModifiedTime;
 
-    public FsWriterEntry(String name, Long lastModifiedTime) {
+    public FsPackEntry(String name, Long lastModifiedTime) {
         this.name = name;
         this.lastModifiedTime = lastModifiedTime;
     }

@@ -20,4 +20,6 @@ public abstract class PackFormat {
 
     public static final String B1 = "B1";
 
+    private PackFormat() {
+    }
 }

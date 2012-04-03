@@ -16,26 +16,26 @@
 
 package org.b1.pack.standard.writer;
 
-import org.b1.pack.api.writer.WriterEntry;
-import org.b1.pack.api.writer.WriterFileBuilder;
-import org.b1.pack.api.writer.WriterFolderBuilder;
+import org.b1.pack.api.common.FileBuilder;
+import org.b1.pack.api.common.FolderBuilder;
+import org.b1.pack.api.common.PackEntry;
 import org.b1.pack.standard.common.Constants;
 
 import java.io.IOException;
 
-class StandardFolderBuilder extends StandardObjectBuilder implements WriterFolderBuilder {
+class StandardFolderBuilder extends StandardObjectBuilder implements FolderBuilder {
 
-    public StandardFolderBuilder(long id, RecordWriter recordWriter, StandardFolderBuilder parent, WriterEntry entry) {
+    public StandardFolderBuilder(long id, RecordWriter recordWriter, StandardFolderBuilder parent, PackEntry entry) {
         super(id, recordWriter, parent, entry);
     }
 
     @Override
-    public WriterFileBuilder addFile(WriterEntry entry, Long size) throws IOException {
+    public FileBuilder addFile(PackEntry entry, Long size) throws IOException {
         return recordWriter.createFileBuilder(this, entry, size);
     }
 
     @Override
-    public WriterFolderBuilder addFolder(WriterEntry entry) throws IOException {
+    public FolderBuilder addFolder(PackEntry entry) throws IOException {
         return recordWriter.createFolderBuilder(this, entry);
     }
 

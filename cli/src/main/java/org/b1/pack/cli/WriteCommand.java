@@ -18,10 +18,10 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.b1.pack.api.common.FolderContent;
 import org.b1.pack.api.compression.CompressionMethod;
 import org.b1.pack.api.compression.LzmaCompressionMethod;
 import org.b1.pack.api.writer.PackWriter;
-import org.b1.pack.api.writer.WriterFolderContent;
 import org.b1.pack.api.writer.WriterProvider;
 
 import java.io.File;
@@ -57,7 +57,7 @@ public class WriteCommand implements PackCommand {
         return true;
     }
 
-    private WriterFolderContent getFolderContent(List<String> names) {
+    private FolderContent getFolderContent(List<String> names) {
         LinkedHashMap<List<String>, File> fileMap = Maps.newLinkedHashMap();
         for (String name : names.isEmpty() ? Collections.singleton(".") : names) {
             File file = new File(name);

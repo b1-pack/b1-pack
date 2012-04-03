@@ -17,13 +17,13 @@
 package org.b1.pack.cli;
 
 import com.google.common.io.Files;
-import org.b1.pack.api.writer.WriterFileContent;
+import org.b1.pack.api.common.FileContent;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class FsFileContent extends WriterFileContent {
+public class FsFileContent implements FileContent {
 
     private final File file;
 

@@ -19,8 +19,8 @@ package org.b1.pack.standard.reader;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
-import org.b1.pack.api.reader.ReaderFileVisitor;
-import org.b1.pack.api.reader.ReaderContent;
+import org.b1.pack.api.common.FileBuilder;
+import org.b1.pack.api.common.FileContent;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.RecordPointer;
@@ -28,23 +28,23 @@ import org.b1.pack.standard.common.RecordPointer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class StandardReaderContent extends ReaderContent {
+class StandardFileContent implements FileContent {
     
     private final Long id;
     private final RecordPointer pointer;
     private final PackInputStream inputStream;
-    private final ReaderFileVisitor visitor;
+    private final FileBuilder builder;
 
-    public StandardReaderContent(Long id, RecordPointer pointer, PackInputStream inputStream, ReaderFileVisitor visitor) {
+    public StandardFileContent(Long id, RecordPointer pointer, PackInputStream inputStream, FileBuilder builder) {
         this.id = id;
         this.pointer = pointer;
         this.inputStream = inputStream;
-        this.visitor = visitor;
+        this.builder = builder;
     }
 
     public void acceptVisitor() throws IOException {
-        visitor.visitContent(this);
-        visitor.visitEnd();
+        builder.setContent(this);
+        builder.flush();
     }
 
     @Override

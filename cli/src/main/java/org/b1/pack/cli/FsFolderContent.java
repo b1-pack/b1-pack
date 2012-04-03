@@ -19,9 +19,9 @@ package org.b1.pack.cli;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.b1.pack.api.writer.WriterEntry;
-import org.b1.pack.api.writer.WriterFolderBuilder;
-import org.b1.pack.api.writer.WriterFolderContent;
+import org.b1.pack.api.common.FolderBuilder;
+import org.b1.pack.api.common.FolderContent;
+import org.b1.pack.api.common.PackEntry;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,9 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class FsFolderContent extends WriterFolderContent {
+public class FsFolderContent implements FolderContent {
 
-    private final Map<List<String>, WriterFolderBuilder> builderMap = Maps.newHashMap();
+    private final Map<List<String>, FolderBuilder> builderMap = Maps.newHashMap();
     private final Map<List<String>, File> fileMap;
 
     public FsFolderContent(Map<List<String>, File> fileMap) {
@@ -39,7 +39,7 @@ public class FsFolderContent extends WriterFolderContent {
     }
 
     @Override
-    public void writeTo(WriterFolderBuilder builder) throws IOException {
+    public void writeTo(FolderBuilder builder) throws IOException {
         Preconditions.checkState(builderMap.put(Collections.<String>emptyList(), builder) == null);
         for (Map.Entry<List<String>, File> entry : fileMap.entrySet()) {
             addFile(entry.getKey(), entry.getValue());
@@ -47,7 +47,7 @@ public class FsFolderContent extends WriterFolderContent {
     }
 
     private void addFile(List<String> path, File file) throws IOException {
-        WriterEntry entry = new FsWriterEntry(Iterables.getLast(path), file.lastModified());
+        PackEntry entry = new FsPackEntry(Iterables.getLast(path), file.lastModified());
         if (file.isFile()) {
             getParentBuilder(path).addFile(entry, file.length()).setContent(new FsFileContent(file));
         } else {
@@ -55,20 +55,20 @@ public class FsFolderContent extends WriterFolderContent {
         }
     }
 
-    private WriterFolderBuilder getParentBuilder(List<String> path) throws IOException {
+    private FolderBuilder getParentBuilder(List<String> path) throws IOException {
         List<String> key = path.subList(0, path.size() - 1);
-        WriterFolderBuilder builder = builderMap.get(key);
+        FolderBuilder builder = builderMap.get(key);
         if (builder == null) {
-            builder = getParentBuilder(key).addFolder(new FsWriterEntry(Iterables.getLast(path), null));
+            builder = getParentBuilder(key).addFolder(new FsPackEntry(Iterables.getLast(path), null));
             builderMap.put(key, builder);
         }
         return builder;
     }
 
-    private static void addChildren(WriterFolderBuilder builder, File folder) throws IOException {
+    private static void addChildren(FolderBuilder builder, File folder) throws IOException {
         System.out.println("Adding " + folder);
         for (File file : Preconditions.checkNotNull(folder.listFiles(), "Cannot list %s", folder)) {
-            WriterEntry entry = new FsWriterEntry(file.getName(), file.lastModified());
+            PackEntry entry = new FsPackEntry(file.getName(), file.lastModified());
             if (file.isFile()) {
                 builder.addFile(entry, file.length()).setContent(new FsFileContent(file));
             } else {

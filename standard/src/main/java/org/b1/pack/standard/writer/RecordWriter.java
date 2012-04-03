@@ -17,9 +17,9 @@
 package org.b1.pack.standard.writer;
 
 import com.google.common.collect.Lists;
-import org.b1.pack.api.writer.WriterEntry;
-import org.b1.pack.api.writer.WriterFileBuilder;
-import org.b1.pack.api.writer.WriterFolderBuilder;
+import org.b1.pack.api.common.FileBuilder;
+import org.b1.pack.api.common.FolderBuilder;
+import org.b1.pack.api.common.PackEntry;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
@@ -29,7 +29,7 @@ import org.b1.pack.standard.common.RecordPointer;
 import java.io.IOException;
 import java.util.List;
 
-class RecordWriter implements WriterFolderBuilder {
+class RecordWriter implements FolderBuilder {
 
     private final List<StandardObjectBuilder> builderList = Lists.newArrayList();
     private final PackOutputStream packOutputStream;
@@ -42,12 +42,12 @@ class RecordWriter implements WriterFolderBuilder {
     }
 
     @Override
-    public WriterFileBuilder addFile(WriterEntry entry, Long size) throws IOException {
+    public FileBuilder addFile(PackEntry entry, Long size) throws IOException {
         return createFileBuilder(null, entry, size);
     }
 
     @Override
-    public WriterFolderBuilder addFolder(WriterEntry entry) throws IOException {
+    public FolderBuilder addFolder(PackEntry entry) throws IOException {
         return createFolderBuilder(null, entry);
     }
 
@@ -60,13 +60,13 @@ class RecordWriter implements WriterFolderBuilder {
         return packOutputStream;
     }
 
-    public StandardFileBuilder createFileBuilder(StandardFolderBuilder parent, WriterEntry entry, Long size) throws IOException {
+    public StandardFileBuilder createFileBuilder(StandardFolderBuilder parent, PackEntry entry, Long size) throws IOException {
         StandardFileBuilder builder = new StandardFileBuilder(++objectCount, this, parent, entry, size);
         builderList.add(builder);
         return builder;
     }
 
-    public WriterFolderBuilder createFolderBuilder(StandardFolderBuilder parent, WriterEntry entry) throws IOException {
+    public FolderBuilder createFolderBuilder(StandardFolderBuilder parent, PackEntry entry) throws IOException {
         StandardFolderBuilder builder = new StandardFolderBuilder(++objectCount, this, parent, entry);
         builderList.add(builder);
         return builder;

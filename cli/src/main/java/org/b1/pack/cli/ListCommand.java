@@ -17,7 +17,10 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.reader.*;
+import org.b1.pack.api.common.FileBuilder;
+import org.b1.pack.api.common.FolderBuilder;
+import org.b1.pack.api.common.PackEntry;
+import org.b1.pack.api.reader.PackReader;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -35,7 +38,7 @@ public class ListCommand implements PackCommand {
         System.out.println("Type             Size     Date       Time");
         printLine();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(ReaderProviderFactory.createReaderProvider(file), new ListFolderVisitor(""));
+        reader.read(ReaderProviderFactory.createReaderProvider(file), new ListFolderBuilder(""));
         printLine();
         System.out.println();
         System.out.println("Done");
@@ -62,25 +65,30 @@ public class ListCommand implements PackCommand {
         System.out.println();
     }
 
-    private static class ListFolderVisitor extends ReaderFolderVisitor {
+    private static class ListFolderBuilder implements FolderBuilder {
 
         private final String namePrefix;
 
-        private ListFolderVisitor(String namePrefix) {
+        private ListFolderBuilder(String namePrefix) {
             this.namePrefix = namePrefix;
         }
 
         @Override
-        public ReaderFileVisitor visitFile(ReaderEntry entry, long size) throws IOException {
+        public FileBuilder addFile(PackEntry entry, Long size) throws IOException {
             printInfo(namePrefix + entry.getName(), 'F', size, entry.getLastModifiedTime());
             return null;
         }
 
         @Override
-        public ReaderFolderVisitor visitFolder(ReaderEntry entry) throws IOException {
+        public FolderBuilder addFolder(PackEntry entry) throws IOException {
             String path = namePrefix + entry.getName();
             printInfo(path, 'D', null, entry.getLastModifiedTime());
-            return new ListFolderVisitor(path + File.separator);
+            return new ListFolderBuilder(path + File.separator);
+        }
+
+        @Override
+        public void flush() throws IOException {
+            // no-op
         }
     }
 }

@@ -17,7 +17,7 @@
 package org.b1.pack.standard.writer;
 
 import com.google.common.base.Charsets;
-import org.b1.pack.api.writer.WriterEntry;
+import org.b1.pack.api.common.PackEntry;
 import org.b1.pack.standard.common.Numbers;
 import org.b1.pack.standard.common.PbRecordPointer;
 import org.b1.pack.standard.common.RecordPointer;
@@ -30,12 +30,12 @@ abstract class StandardObjectBuilder {
     protected final RecordWriter recordWriter;
     protected final PackOutputStream stream;
     private final StandardFolderBuilder parent;
-    private final WriterEntry entry;
+    private final PackEntry entry;
     protected boolean completeRecordSaved;
     private RecordPointer pointer;
     private PbRecordPointer futurePointer;
 
-    protected StandardObjectBuilder(long id, RecordWriter recordWriter, StandardFolderBuilder parent, WriterEntry entry) {
+    protected StandardObjectBuilder(long id, RecordWriter recordWriter, StandardFolderBuilder parent, PackEntry entry) {
         this.id = id;
         this.recordWriter = recordWriter;
         this.parent = parent;

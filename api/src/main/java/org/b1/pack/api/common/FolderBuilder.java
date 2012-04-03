@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.reader;
+package org.b1.pack.api.common;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
-public abstract class ReaderContent {
+public interface FolderBuilder {
 
-    public abstract void writeTo(OutputStream stream) throws IOException;
+    FileBuilder addFile(PackEntry entry, Long size) throws IOException;
+
+    FolderBuilder addFolder(PackEntry entry) throws IOException;
+
+    void flush() throws IOException;
 
 }

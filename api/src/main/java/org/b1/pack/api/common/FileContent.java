@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.writer;
+package org.b1.pack.api.common;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-public abstract class WriterFileContent {
+public interface FileContent {
 
-    public abstract void writeTo(OutputStream stream) throws IOException;
+    void writeTo(OutputStream stream) throws IOException;
+
 }
