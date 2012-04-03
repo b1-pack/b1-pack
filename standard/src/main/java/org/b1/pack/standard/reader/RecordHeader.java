@@ -25,7 +25,7 @@ import org.b1.pack.standard.common.Numbers;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class RecordHeader {
+class RecordHeader {
 
     public final Long id;
     public final Long parentId;

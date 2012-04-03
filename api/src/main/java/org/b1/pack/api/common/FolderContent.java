@@ -18,8 +18,8 @@ package org.b1.pack.api.common;
 
 import java.io.IOException;
 
-public interface FolderContent {
+public abstract class FolderContent {
 
-    void writeTo(FolderBuilder builder) throws IOException;
+    public abstract void writeTo(FolderBuilder builder) throws IOException;
 
 }

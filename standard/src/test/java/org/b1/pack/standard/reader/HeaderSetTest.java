@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.explorer;
+package org.b1.pack.standard.reader;
 
 import org.b1.pack.standard.common.RecordPointer;
-import org.b1.pack.standard.reader.HeaderSet;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

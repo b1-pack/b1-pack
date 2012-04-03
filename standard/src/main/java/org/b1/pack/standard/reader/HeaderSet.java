@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import org.b1.pack.standard.common.RecordPointer;
 import org.b1.pack.standard.common.Volumes;
 
-public class HeaderSet {
+class HeaderSet {
 
     private String headerType;
     private Double schemaVersion;
@@ -62,10 +62,6 @@ public class HeaderSet {
 
     public RecordPointer getCatalogPointer() {
         return catalogPointer;
-    }
-
-    public void setCatalogPointer(RecordPointer catalogPointer) {
-        this.catalogPointer = catalogPointer;
     }
 
     private void init(String key, String value) {

@@ -33,19 +33,19 @@ import java.util.Map;
 
 class RecordReader {
 
-    private final Map<Long, FolderBuilder> visitorMap = Maps.newLinkedHashMap();
+    private final Map<Long, FolderBuilder> builderMap = Maps.newLinkedHashMap();
     private final List<StandardFileContent> contentList = Lists.newArrayList();
 
     public RecordReader(FolderBuilder rootBuilder) {
-        visitorMap.put(null, rootBuilder);
+        builderMap.put(null, rootBuilder);
     }
     
     public void read(PackInputStream stream, Long objectTotal) throws IOException {
         readCatalog(stream, objectTotal);
         for (StandardFileContent content : contentList) {
-            content.acceptVisitor();
+            content.save();
         }
-        for (FolderBuilder builder : Lists.reverse(Lists.newArrayList(visitorMap.values()))) {
+        for (FolderBuilder builder : Lists.reverse(Lists.newArrayList(builderMap.values()))) {
             builder.flush();
         }
     }
@@ -76,7 +76,7 @@ class RecordReader {
         RecordPointer pointer = readPointer(stream);
         RecordHeader header = RecordHeader.readRecordHeader(stream);
         Long size = Numbers.readLong(stream);
-        FolderBuilder parentBuilder = visitorMap.get(header.parentId);
+        FolderBuilder parentBuilder = builderMap.get(header.parentId);
         if (parentBuilder != null) {
             FileBuilder fileBuilder = parentBuilder.addFile(createEntry(header), size);
             if (fileBuilder != null) {
@@ -88,11 +88,11 @@ class RecordReader {
     private void readCatalogFolder(PackInputStream stream) throws IOException {
         readPointer(stream); // ignore for now
         RecordHeader header = RecordHeader.readRecordHeader(stream);
-        FolderBuilder parentBuilder = visitorMap.get(header.parentId);
+        FolderBuilder parentBuilder = builderMap.get(header.parentId);
         if (parentBuilder != null) {
             FolderBuilder folderBuilder = parentBuilder.addFolder(createEntry(header));
             if (folderBuilder != null) {
-                Preconditions.checkState(visitorMap.put(header.id, folderBuilder) == null);
+                Preconditions.checkState(builderMap.put(header.id, folderBuilder) == null);
             }
         }
     }

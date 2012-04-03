@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
-public class HeaderParser {
+class HeaderParser {
 
     private static final char SPACE = ' ';
     private static final char SINGLE_QUOTE = '\'';

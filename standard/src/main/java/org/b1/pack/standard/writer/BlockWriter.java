@@ -23,7 +23,6 @@ import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,7 +30,7 @@ class BlockWriter extends ChunkWriter {
 
     private final String archiveId = Volumes.createArchiveId();
     private final List<VolumeWriter> suspendedWriters = Lists.newArrayList();
-    private final ByteArrayOutputStream readyContent = new ByteArrayOutputStream();
+    private final MemoryOutputStream readyContent = new MemoryOutputStream();
     private final WriterProvider provider;
     private CompositeWritable suspendedContent = new CompositeWritable();
     private VolumeWriter volumeWriter;
@@ -189,8 +188,7 @@ class BlockWriter extends ChunkWriter {
             volumeWriter.suspendBlock(createBlock(suspendedContent));
             suspendedContent = new CompositeWritable();
         } else if (readyContent.size() > 0) {
-            //todo avoid array coping
-            volumeWriter.writeBlock(createBlock(new ByteArrayWritable(readyContent.toByteArray())));
+            volumeWriter.writeBlock(createBlock(new ByteArrayWritable(readyContent.getBuf(), readyContent.size())));
             readyContent.reset();
         }
         firstBlockInChunk = false;

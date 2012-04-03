@@ -16,5 +16,11 @@
 
 package org.b1.pack.api.compression;
 
+import org.b1.pack.api.common.PackEntry;
+
 public abstract class CompressionMethod {
+
+    public boolean isCompressible(PackEntry entry) {
+        return true;
+    }
 }

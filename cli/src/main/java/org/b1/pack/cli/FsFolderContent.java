@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class FsFolderContent implements FolderContent {
+public class FsFolderContent extends FolderContent {
 
     private final Map<List<String>, FolderBuilder> builderMap = Maps.newHashMap();
     private final Map<List<String>, File> fileMap;

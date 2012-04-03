@@ -19,8 +19,8 @@ package org.b1.pack.api.common;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public interface FileContent {
+public abstract class FileContent {
 
-    void writeTo(OutputStream stream) throws IOException;
+    public abstract void writeTo(OutputStream stream) throws IOException;
 
 }

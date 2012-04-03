@@ -41,11 +41,10 @@ public class PbPlainBlock implements Writable {
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
         int size = Ints.checkedCast(content.getSize());
-        //todo optimize performance
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(size);
+        MemoryOutputStream outputStream = new MemoryOutputStream(size);
         Adler32 adler32 = new Adler32();
         content.writeTo(new CheckedOutputStream(outputStream, adler32), 0, size);
-        Writable block = createPlainBlock(new ByteArrayWritable(outputStream.toByteArray()), (int) adler32.getValue());
+        Writable block = createPlainBlock(new ByteArrayWritable(outputStream.getBuf()), (int) adler32.getValue());
         block.writeTo(stream, start, end);
     }
 

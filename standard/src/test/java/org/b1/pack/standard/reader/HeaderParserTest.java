@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.b1.pack.standard.explorer;
+package org.b1.pack.standard.reader;
 
 import junit.framework.Assert;
-import org.b1.pack.standard.reader.HeaderParser;
 import org.junit.Test;
 
 import java.util.Arrays;

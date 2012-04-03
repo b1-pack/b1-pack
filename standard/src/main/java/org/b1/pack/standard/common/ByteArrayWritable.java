@@ -16,6 +16,7 @@
 
 package org.b1.pack.standard.common;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.Writable;
 
@@ -25,18 +26,25 @@ import java.io.OutputStream;
 public class ByteArrayWritable implements Writable {
 
     private final byte[] bytes;
+    private final int size;
+
+    public ByteArrayWritable(byte[] bytes, int size) {
+        this.bytes = bytes;
+        this.size = size;
+    }
 
     public ByteArrayWritable(byte[] bytes) {
-        this.bytes = bytes;
+        this(bytes, bytes.length);
     }
 
     @Override
     public long getSize() {
-        return bytes.length;
+        return size;
     }
 
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
+        Preconditions.checkPositionIndex(Ints.checkedCast(end), size);
         stream.write(bytes, Ints.checkedCast(start), Ints.checkedCast(end - start));
     }
 }

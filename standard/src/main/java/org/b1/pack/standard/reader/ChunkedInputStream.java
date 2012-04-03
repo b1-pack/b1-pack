@@ -24,7 +24,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ChunkedInputStream extends InputStream {
+class ChunkedInputStream extends InputStream {
 
     private final InputStream stream;
     private long count;

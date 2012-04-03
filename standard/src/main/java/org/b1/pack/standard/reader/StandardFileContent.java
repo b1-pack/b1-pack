@@ -28,7 +28,7 @@ import org.b1.pack.standard.common.RecordPointer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class StandardFileContent implements FileContent {
+class StandardFileContent extends FileContent {
     
     private final Long id;
     private final RecordPointer pointer;
@@ -42,7 +42,7 @@ class StandardFileContent implements FileContent {
         this.builder = builder;
     }
 
-    public void acceptVisitor() throws IOException {
+    public void save() throws IOException {
         builder.setContent(this);
         builder.flush();
     }

@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class FsFileContent implements FileContent {
+public class FsFileContent extends FileContent {
 
     private final File file;
 

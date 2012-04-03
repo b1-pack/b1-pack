@@ -81,11 +81,11 @@ public class IntegrationTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         // START SNIPPET: writer
         WriterProvider provider = createWriterProvider(buffer);
-        final org.b1.pack.api.common.PackEntry folder = createPackEntry(folderName, fileTime);
-        final org.b1.pack.api.common.PackEntry file = createPackEntry(fileName, fileTime);
+        final PackEntry folder = createPackEntry(folderName, fileTime);
+        final PackEntry file = createPackEntry(fileName, fileTime);
         PackWriter.getInstance(B1).write(provider, new FolderContent() {
             @Override
-            public void writeTo(org.b1.pack.api.common.FolderBuilder builder) throws IOException {
+            public void writeTo(FolderBuilder builder) throws IOException {
                 builder.addFolder(folder).addFile(file, (long) fileContent.length).setContent(createFileContent(fileContent));
             }
         });
@@ -181,8 +181,8 @@ public class IntegrationTest {
         };
     }
 
-    private static org.b1.pack.api.common.PackEntry createPackEntry(final String fileName, final long fileTime) {
-        return new org.b1.pack.api.common.PackEntry() {
+    private static PackEntry createPackEntry(final String fileName, final long fileTime) {
+        return new PackEntry() {
             @Override
             public String getName() {
                 return fileName;
@@ -195,8 +195,8 @@ public class IntegrationTest {
         };
     }
 
-    private org.b1.pack.api.common.FileContent createFileContent(final byte[] fileContent) {
-        return new org.b1.pack.api.common.FileContent() {
+    private FileContent createFileContent(final byte[] fileContent) {
+        return new FileContent() {
             @Override
             public void writeTo(OutputStream stream) throws IOException {
                 stream.write(fileContent);

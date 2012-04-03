@@ -68,7 +68,9 @@ class PackOutputStream extends OutputStream {
     }
 
     public void switchCompression(PackEntry entry) throws IOException {
-        setCompressible(provider.isCompressible(entry));
+        if (compressionMethod != null) {
+            setCompressible(compressionMethod.isCompressible(entry));
+        }
     }
 
     public void setCompressible(boolean compressible) throws IOException {
