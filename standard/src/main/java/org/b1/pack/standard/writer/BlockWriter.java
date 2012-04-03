@@ -201,10 +201,15 @@ class BlockWriter extends ChunkWriter {
             suspendReadyContent();
             volumeWriter.suspendBlock(createBlock(suspendedContent));
             suspendedContent = new CompositeWritable();
+            afterFlush();
         } else if (readyContent.size() > 0) {
             volumeWriter.writeBlock(createBlock(new ByteArrayWritable(readyContent.getBuf(), readyContent.size())));
             readyContent.reset();
+            afterFlush();
         }
+    }
+
+    private void afterFlush() {
         maxContentSize = 0;
         firstBlockInChunk = false;
     }
