@@ -87,7 +87,7 @@ public class ListCommand implements PackCommand {
         }
 
         @Override
-        public void flush() throws IOException {
+        public void save() throws IOException {
             // no-op
         }
     }

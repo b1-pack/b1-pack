@@ -54,7 +54,7 @@ class VolumeWriter {
         streamAtEnd = true;
         setLimits();
         boolean pending = true;
-        outputStream = this.volume.getOutputStream();
+        outputStream = volume.getOutputStream();
         try {
             outputStream.write(volumeHead);
             pending = false;
@@ -81,7 +81,9 @@ class VolumeWriter {
 
     public void setCatalogPointer(RecordPointer catalogPointer) throws IOException {
         this.catalogPointer = catalogPointer;
-        setLimits();
+        if (catalogPointer != null) {
+            setLimits();
+        }
     }
 
     public void suspendBlock(PbBlock block) throws IOException {
@@ -110,9 +112,9 @@ class VolumeWriter {
         flush();
         seekToEnd();
         writeToStream(PbInt.NULL);
-        outputStream.write(Volumes.createVolumeTail(lastVolume, catalogPointer, lastVolume ? 0 : sizeLimit - streamEnd));
+        outputStream.write(Volumes.createVolumeTail(lastVolume, catalogPointer, lastVolume ? 0 : sizeLimit - streamEnd - PbInt.NULL.getSize()));
         outputStream.close();
-        volume.afterSave();
+        volume.save();
     }
 
     public void cleanup() {

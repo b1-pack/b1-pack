@@ -22,6 +22,6 @@ public interface FileBuilder {
 
     void setContent(FileContent content) throws IOException;
 
-    void flush() throws IOException;
+    void save() throws IOException;
 
 }

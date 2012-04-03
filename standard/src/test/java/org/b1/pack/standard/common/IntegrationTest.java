@@ -50,12 +50,12 @@ public class IntegrationTest {
         final String folderName = "builderFolder";
         final String fileName = "builderFile.txt";
         final long fileTime = System.currentTimeMillis();
-        final byte[] fileContent = "Hello, World!".getBytes(UTF_8);
+        final byte[] fileContentBytes = "Hello, World!".getBytes(UTF_8);
         final String packName = "builderTest";
         String volumeName = packName + ".b1";
         // START SNIPPET: builder
         final BuilderFolder builderFolder = createBuilderFolder(folderName, fileTime);
-        final BuilderFile builderFile = createBuilderFile(folderName, fileName, fileTime, fileContent);
+        final BuilderFile builderFile = createBuilderFile(folderName, fileName, fileTime, fileContentBytes);
         List<BuilderVolume> volumes = PackBuilder.getInstance(B1).build(new BuilderProvider(), new BuilderCommand() {
             @Override
             public void execute(BuilderPack pack) {
@@ -67,7 +67,7 @@ public class IntegrationTest {
         byte[] volumeContent = getBuilderVolumeContent(builderVolume);
         // END SNIPPET: builder
         assertEquals(1, builderVolume.getNumber());
-        verifyVolumeWithReader(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
+        verifyVolumeWithReader(folderName, fileName, fileTime, fileContentBytes, volumeName, volumeContent);
     }
 
     @Test
@@ -75,39 +75,42 @@ public class IntegrationTest {
         String folderName = "writerFolder";
         String fileName = "writerFile.txt";
         long fileTime = System.currentTimeMillis();
-        final byte[] fileContent = "Hello, test!".getBytes(UTF_8);
+        byte[] fileContentBytes = "Hello, test!".getBytes(UTF_8);
         String packName = "writerTest";
         String volumeName = packName + ".b1";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         // START SNIPPET: writer
-        WriterProvider provider = createWriterProvider(buffer);
-        final PackEntry folder = createPackEntry(folderName, fileTime);
-        final PackEntry file = createPackEntry(fileName, fileTime);
+        WriterVolume writerVolume = createWriterVolume(buffer);
+        WriterProvider provider = createWriterProvider(writerVolume);
+        final PackEntry folderEntry = createPackEntry(folderName, fileTime);
+        final PackEntry fileEntry = createPackEntry(fileName, fileTime);
+        final long fileSize = fileContentBytes.length;
+        final FileContent fileContent = createFileContent(fileContentBytes);
         PackWriter.getInstance(B1).write(provider, new FolderContent() {
             @Override
             public void writeTo(FolderBuilder builder) throws IOException {
-                builder.addFolder(folder).addFile(file, (long) fileContent.length).setContent(createFileContent(fileContent));
+                builder.addFolder(folderEntry).addFile(fileEntry, fileSize).setContent(fileContent);
             }
         });
         // END SNIPPET: writer
         byte[] volumeContent = buffer.toByteArray();
-        verifyVolumeWithReader(folderName, fileName, fileTime, fileContent, volumeName, volumeContent);
+        verifyVolumeWithReader(folderName, fileName, fileTime, fileContentBytes, volumeName, volumeContent);
     }
 
-    private void verifyVolumeWithReader(String folderName, String fileName, long fileTime, byte[] fileContent,
-                                        String volumeName, byte[] volumeContent) throws IOException {
+    private void verifyVolumeWithReader(String folderName, String fileName, long fileTime, byte[] fileContentBytes,
+                                        String volumeName, byte[] volumeContentBytes) throws IOException {
         // START SNIPPET: reader
-        ReaderVolume readerVolume = createReaderVolume(volumeName, volumeContent);
+        ReaderVolume readerVolume = createReaderVolume(volumeName, volumeContentBytes);
         ReaderProvider readerProvider = createReaderProvider(readerVolume);
         List<String> folderList = Lists.newArrayList();
         Map<String, byte[]> fileMap = Maps.newHashMap();
         final FolderBuilder builder = createFolderBuilder("", fileTime, folderList, fileMap);
         PackReader.getInstance(B1).read(readerProvider, builder);
-        // END SNIPPET: reader
         assertEquals(folderName, getOnlyElement(folderList));
         Map.Entry<String, byte[]> fileEntry = getOnlyElement(fileMap.entrySet());
         assertEquals(folderName + "/" + fileName, fileEntry.getKey());
-        assertArrayEquals(fileContent, fileEntry.getValue());
+        assertArrayEquals(fileContentBytes, fileEntry.getValue());
+        // END SNIPPET: reader
     }
 
     private static BuilderFolder createBuilderFolder(final String folderName, final long lastModifiedTime) {
@@ -156,7 +159,16 @@ public class IntegrationTest {
         return stream.toByteArray();
     }
 
-    private static WriterProvider createWriterProvider(final ByteArrayOutputStream buffer) {
+    private static WriterVolume createWriterVolume(final ByteArrayOutputStream buffer) {
+        return new WriterVolume() {
+            @Override
+            public OutputStream getOutputStream() throws IOException {
+                return buffer;
+            }
+        };
+    }
+
+    private static WriterProvider createWriterProvider(final WriterVolume writerVolume) {
         return new WriterProvider() {
             @Override
             public boolean isSeekable() {
@@ -166,17 +178,7 @@ public class IntegrationTest {
             @Override
             public WriterVolume getVolume(long number) throws IOException {
                 assertEquals(1, number);
-                return createWriterVolume(buffer);
-            }
-        };
-    }
-
-    private static WriterVolume createWriterVolume(final ByteArrayOutputStream buffer) {
-        return new WriterVolume() {
-            @Override
-            public OutputStream getOutputStream() throws IOException {
-                buffer.reset();
-                return buffer;
+                return writerVolume;
             }
         };
     }
@@ -195,7 +197,7 @@ public class IntegrationTest {
         };
     }
 
-    private FileContent createFileContent(final byte[] fileContent) {
+    private static FileContent createFileContent(final byte[] fileContent) {
         return new FileContent() {
             @Override
             public void writeTo(OutputStream stream) throws IOException {
@@ -243,20 +245,7 @@ public class IntegrationTest {
             @Override
             public FileBuilder addFile(final PackEntry entry, final Long size) {
                 Preconditions.checkState(entry.getLastModifiedTime() == fileTime);
-                return new FileBuilder() {
-                    @Override
-                    public void setContent(FileContent content) throws IOException {
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        content.writeTo(stream);
-                        Preconditions.checkState(stream.size() == size);
-                        fileMap.put(prefix + entry.getName(), stream.toByteArray());
-                    }
-
-                    @Override
-                    public void flush() throws IOException {
-                        //no-op
-                    }
-                };
+                return createFileBuilder(prefix, entry, size, fileMap);
             }
 
             @Override
@@ -267,7 +256,24 @@ public class IntegrationTest {
             }
 
             @Override
-            public void flush() throws IOException {
+            public void save() throws IOException {
+                //no-op
+            }
+        };
+    }
+
+    private static FileBuilder createFileBuilder(final String prefix, final PackEntry entry, final Long size, final Map<String, byte[]> fileMap) {
+        return new FileBuilder() {
+            @Override
+            public void setContent(FileContent content) throws IOException {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                content.writeTo(stream);
+                Preconditions.checkState(stream.size() == size);
+                fileMap.put(prefix + entry.getName(), stream.toByteArray());
+            }
+
+            @Override
+            public void save() throws IOException {
                 //no-op
             }
         };

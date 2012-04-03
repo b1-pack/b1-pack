@@ -52,7 +52,7 @@ class RecordWriter implements FolderBuilder {
     }
 
     @Override
-    public void flush() throws IOException {
+    public void save() throws IOException {
         save(true);
     }
 

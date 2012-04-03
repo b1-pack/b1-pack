@@ -44,7 +44,7 @@ class StandardFileContent extends FileContent {
 
     public void save() throws IOException {
         builder.setContent(this);
-        builder.flush();
+        builder.save();
     }
 
     @Override

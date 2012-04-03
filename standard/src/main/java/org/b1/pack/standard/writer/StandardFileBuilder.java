@@ -44,7 +44,7 @@ class StandardFileBuilder extends StandardObjectBuilder implements FileBuilder {
     }
 
     @Override
-    public void flush() throws IOException {
+    public void save() throws IOException {
         if (!completeRecordSaved) {
             recordWriter.setContentMode();
             saveCompleteRecord();

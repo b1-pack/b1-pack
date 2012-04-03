@@ -18,6 +18,7 @@ package org.b1.pack.standard.common;
 
 public class Constants {
 
+    public static final int MIN_CHUNK_SIZE = 0xFF;
     public static final int MAX_CHUNK_SIZE = 0xFFFFF;
 
     public static final int RECORD_POINTER = 0;

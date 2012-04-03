@@ -24,6 +24,6 @@ public interface FolderBuilder {
 
     FolderBuilder addFolder(PackEntry entry) throws IOException;
 
-    void flush() throws IOException;
+    void save() throws IOException;
 
 }

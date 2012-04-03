@@ -24,6 +24,7 @@ import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.*;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 class BlockWriter extends ChunkWriter {
@@ -65,10 +66,15 @@ class BlockWriter extends ChunkWriter {
         if (catalogPointer != null) {
             return getCurrentPointer();
         }
-        //todo reserve more space
         catalogPointer = getCurrentPointer();
         if (volumeWriter != null) {
             volumeWriter.setCatalogPointer(catalogPointer);
+            maxContentSize = getMaxContentSize();
+            if (maxContentSize <= 0) {
+                volumeWriter.setCatalogPointer(null);
+                catalogPointer = getCurrentPointer();
+                volumeWriter.setCatalogPointer(catalogPointer);
+            }
         }
         return catalogPointer;
     }
@@ -104,7 +110,6 @@ class BlockWriter extends ChunkWriter {
 
     public void save() throws IOException {
         flushContent();
-        ensureFreeSpace();
         for (VolumeWriter writer : suspendedWriters) {
             writer.close(false);
         }
@@ -144,23 +149,22 @@ class BlockWriter extends ChunkWriter {
             return result;
         }
         if (volumeWriter == null) {
-            createVolumeWriter(1);
+            volumeWriter = createVolumeWriter(1);
         } else {
             flushContent();
         }
         long contentSize = getMaxContentSize();
         if (contentSize <= 0) {
             completeVolumeWriter();
-            createVolumeWriter(volumeWriter.getVolumeNumber() + 1);
+            volumeWriter = createVolumeWriter(volumeWriter.getVolumeNumber() + 1);
             contentSize = getMaxContentSize();
             Preconditions.checkArgument(contentSize > 0, "Volume size too small");
         }
         return maxContentSize = contentSize;
     }
 
-    private void createVolumeWriter(long volumeNumber) throws IOException {
-        volumeWriter = new VolumeWriter(archiveId, volumeNumber,
-                objectCount, provider.getMaxVolumeSize(), provider.getVolume(volumeNumber), catalogPointer);
+    private VolumeWriter createVolumeWriter(long volumeNumber) throws IOException {
+        return new VolumeWriter(archiveId, volumeNumber, objectCount, provider.getMaxVolumeSize(), provider.getVolume(volumeNumber), catalogPointer);
     }
 
     private void completeVolumeWriter() throws IOException {
@@ -174,12 +178,22 @@ class BlockWriter extends ChunkWriter {
     private long getMaxContentSize() {
         long space = volumeWriter.getFreeSpace();
         long size = Math.min(space, Constants.MAX_CHUNK_SIZE);
-        return size - Math.max(0, getBlockSize(size) - space);
+        long contentSize = size - Math.max(0, getBlockSize(size) - space);
+        return contentSize >= Constants.MIN_CHUNK_SIZE ? contentSize : 0;
     }
 
+    private long getBlockSize(final long chunkSize) {
+        return createBlock(new Writable() {
+            @Override
+            public long getSize() {
+                return chunkSize;
+            }
 
-    private long getBlockSize(long chunkSize) {
-        return Numbers.getSerializedSize(chunkSize) + chunkSize + PbInt.NULL.getSize() + Ints.BYTES;
+            @Override
+            public void writeTo(OutputStream stream, long start, long end) throws IOException {
+                throw new UnsupportedOperationException();
+            }
+        }).getSize();
     }
 
     private void flushContent() throws IOException {
@@ -191,6 +205,7 @@ class BlockWriter extends ChunkWriter {
             volumeWriter.writeBlock(createBlock(new ByteArrayWritable(readyContent.getBuf(), readyContent.size())));
             readyContent.reset();
         }
+        maxContentSize = 0;
         firstBlockInChunk = false;
     }
 

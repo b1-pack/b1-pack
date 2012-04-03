@@ -50,7 +50,7 @@ public class FsWriterVolume extends WriterVolume {
     }
 
     @Override
-    public void afterSave() throws IOException {
+    public void save() throws IOException {
         Preconditions.checkState(tempFile.renameTo(file));
     }
 }

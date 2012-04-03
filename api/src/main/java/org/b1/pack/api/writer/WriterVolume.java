@@ -31,7 +31,7 @@ public abstract class WriterVolume {
         return Long.MAX_VALUE;
     }
 
-    public void afterSave() throws IOException {
+    public void save() throws IOException {
         //no-op
     }
 }

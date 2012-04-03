@@ -72,7 +72,7 @@ public class ExtractCommand implements PackCommand {
         }
 
         @Override
-        public void flush() {
+        public void save() {
             setLastModified(targetFolder, lastModifiedTime);
         }
 
@@ -106,7 +106,7 @@ public class ExtractCommand implements PackCommand {
         }
 
         @Override
-        public void flush() {
+        public void save() {
             setLastModified(targetFile, lastModifiedTime);
         }
     }

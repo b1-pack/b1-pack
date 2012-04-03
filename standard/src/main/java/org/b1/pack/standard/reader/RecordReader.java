@@ -46,7 +46,7 @@ class RecordReader {
             content.save();
         }
         for (FolderBuilder builder : Lists.reverse(Lists.newArrayList(builderMap.values()))) {
-            builder.flush();
+            builder.save();
         }
     }
 
