@@ -80,7 +80,7 @@ class RecordReader {
         if (parentBuilder != null) {
             FileBuilder fileBuilder = parentBuilder.addFile(createEntry(header), size);
             if (fileBuilder != null) {
-                contentList.add(new StandardFileContent(header.id, pointer, stream, fileBuilder));
+                contentList.add(new StandardFileContent(header.id, pointer, stream, fileBuilder, size));
             }
         }
     }

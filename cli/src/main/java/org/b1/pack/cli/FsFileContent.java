@@ -16,14 +16,18 @@
 
 package org.b1.pack.cli;
 
+import com.google.common.base.Preconditions;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
 import org.b1.pack.api.common.FileContent;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
-public class FsFileContent extends FileContent {
+public class FsFileContent implements FileContent {
 
     private final File file;
 
@@ -32,8 +36,10 @@ public class FsFileContent extends FileContent {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
+    public void writeTo(OutputStream stream, long start, Long end) throws IOException {
         System.out.println("Adding " + file);
-        Files.copy(file, stream);
+        long length = (end != null ? end : file.length()) - start;
+        InputSupplier<InputStream> slice = ByteStreams.slice(Files.newInputStreamSupplier(file), start, length);
+        Preconditions.checkState(ByteStreams.copy(slice, stream) == length);
     }
 }

@@ -86,7 +86,6 @@ class ChunkedInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
-        stream.close();
         closed = true;
     }
 }

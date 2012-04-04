@@ -88,7 +88,7 @@ class StandardFileBuilder extends StandardObjectBuilder implements FileBuilder {
 
     private long writeContent(OutputStream s) throws IOException {
         ContentOutputStream stream = new ContentOutputStream(s);
-        Preconditions.checkNotNull(content, "No file content").writeTo(stream);
+        Preconditions.checkNotNull(content, "No file content").writeTo(stream, 0, null);
         return stream.getCount();
     }
 }

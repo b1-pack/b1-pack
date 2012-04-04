@@ -98,7 +98,7 @@ public class ExtractCommand implements PackCommand {
             File tempFile = FileTools.createTempFile(targetFile);
             FileOutputStream stream = new FileOutputStream(tempFile);
             try {
-                content.writeTo(stream);
+                content.writeTo(stream, 0, null);
             } finally {
                 stream.close();
             }

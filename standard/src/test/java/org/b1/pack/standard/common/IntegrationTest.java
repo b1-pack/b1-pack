@@ -200,8 +200,9 @@ public class IntegrationTest {
     private static FileContent createFileContent(final byte[] fileContent) {
         return new FileContent() {
             @Override
-            public void writeTo(OutputStream stream) throws IOException {
-                stream.write(fileContent);
+            public void writeTo(OutputStream stream, long start, Long end) throws IOException {
+                long length = (end != null ? end : fileContent.length) - start;
+                stream.write(fileContent, Ints.checkedCast(start), Ints.checkedCast(length));
             }
         };
     }
@@ -267,7 +268,7 @@ public class IntegrationTest {
             @Override
             public void setContent(FileContent content) throws IOException {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                content.writeTo(stream);
+                content.writeTo(stream, 0, null);
                 Preconditions.checkState(stream.size() == size);
                 fileMap.put(prefix + entry.getName(), stream.toByteArray());
             }

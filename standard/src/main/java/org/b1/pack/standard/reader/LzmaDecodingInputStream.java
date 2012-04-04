@@ -71,7 +71,6 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
             }
         } else {
             pipedInputStream.close();
-            future.cancel(false);
         }
     }
 }
