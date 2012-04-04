@@ -35,7 +35,7 @@ public class BuildCommand implements PackCommand {
         File outputFolder = FileTools.getOutputFolder(argSet);
         final Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
         PackBuilder builder = PackBuilder.getInstance(argSet.getTypeFormat());
-        FsBuilderProvider provider = new FsBuilderProvider(argSet.getVolumeSize());
+        FsBuilderProvider provider = new FsBuilderProvider(argSet.getMaxVolumeSize());
         List<BuilderVolume> volumes = builder.build(provider, new BuilderCommand() {
             @Override
             public void execute(BuilderPack pack) {
@@ -51,7 +51,7 @@ public class BuildCommand implements PackCommand {
                 }
             }
         });
-        VolumeNameExpert expert = new VolumeNameExpert(outputFolder, argSet.getPackName(), argSet.isSplit() ? volumes.size() : 0);
+        VolumeNameExpert expert = new VolumeNameExpert(outputFolder, argSet.getPackName(), argSet.getMaxVolumeSize() != null ? volumes.size() : 0);
         for (int i = 0, volumesSize = volumes.size(); i < volumesSize; i++) {
             buildVolume(expert.getVolumeFile(i + 1), volumes.get(i));
         }

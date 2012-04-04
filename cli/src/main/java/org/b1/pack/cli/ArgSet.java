@@ -40,8 +40,7 @@ public class ArgSet {
     private String command;
     private String packName;
     private List<String> fileNames;
-    private boolean split;
-    private long volumeSize = Long.MAX_VALUE;
+    private Long maxVolumeSize;
     private String typeFormat = B1;
     private String typeFlag;
     private String outputDirectory;
@@ -62,7 +61,7 @@ public class ArgSet {
         command = arguments.pollFirst();
         packName = arguments.pollFirst();
         fileNames = arguments;
-        initVolumes(optionSet.valueOf(volumeOption));
+        initMaxVolumeSize(optionSet.valueOf(volumeOption));
         initType(optionSet.valueOf(typeOption));
         outputDirectory = optionSet.valueOf(outputOption);
         compressionMethod = optionSet.valueOf(compressionOption);
@@ -70,12 +69,11 @@ public class ArgSet {
         password = optionSet.has(passwordOption);
     }
 
-    private void initVolumes(String size) {
+    private void initMaxVolumeSize(String size) {
         if (size == null) return;
         Matcher matcher = SIZE_PATTERN.matcher(size);
         Preconditions.checkArgument(matcher.matches(), "Invalid volume size: %s", size);
-        split = true;
-        volumeSize = Long.parseLong(matcher.group(1)) * SIZE_MULTIPLIERS.get(matcher.group(2));
+        maxVolumeSize = Long.parseLong(matcher.group(1)) * SIZE_MULTIPLIERS.get(matcher.group(2));
     }
 
     private void initType(String type) {
@@ -98,12 +96,8 @@ public class ArgSet {
         return fileNames;
     }
 
-    public boolean isSplit() {
-        return split;
-    }
-
-    public long getVolumeSize() {
-        return volumeSize;
+    public Long getMaxVolumeSize() {
+        return maxVolumeSize;
     }
 
     public String getTypeFormat() {

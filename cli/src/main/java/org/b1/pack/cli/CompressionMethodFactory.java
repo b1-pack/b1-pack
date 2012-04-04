@@ -16,19 +16,12 @@
 
 package org.b1.pack.cli;
 
-import com.google.common.base.Objects;
-import org.b1.pack.api.builder.BuilderProvider;
+import org.b1.pack.api.compression.CompressionMethod;
+import org.b1.pack.api.compression.LzmaCompressionMethod;
 
-public class FsBuilderProvider extends BuilderProvider {
+public class CompressionMethodFactory {
 
-    private final long maxVolumeSize;
-
-    public FsBuilderProvider(Long maxVolumeSize) {
-        this.maxVolumeSize = Objects.firstNonNull(maxVolumeSize, Long.MAX_VALUE);
-    }
-
-    @Override
-    public long getMaxVolumeSize() {
-        return maxVolumeSize;
+    public static CompressionMethod getCompressionMethod(String method) {
+        return method == null ? null : new LzmaCompressionMethod();
     }
 }

@@ -34,6 +34,10 @@ public class FsFolderContent implements FolderContent {
     private final Map<List<String>, FolderBuilder> builderMap = Maps.newHashMap();
     private final Map<List<String>, File> fileMap;
 
+    public FsFolderContent(List<String> names) {
+        this(getFileMap(names));
+    }
+
     public FsFolderContent(Map<List<String>, File> fileMap) {
         this.fileMap = fileMap;
     }
@@ -75,5 +79,16 @@ public class FsFolderContent implements FolderContent {
                 addChildren(builder.addFolder(entry), file);
             }
         }
+    }
+
+    private static Map<List<String>, File> getFileMap(List<String> names) {
+        Map<List<String>, File> fileMap = Maps.newLinkedHashMap();
+        for (String name : names) {
+            File file = new File(name);
+            Preconditions.checkArgument(file.exists(), "File not found: %s", file);
+            List<String> path = FileTools.getPath(file);
+            Preconditions.checkArgument(fileMap.put(path, file) == null, "Duplicate path: %s", path);
+        }
+        return fileMap;
     }
 }
