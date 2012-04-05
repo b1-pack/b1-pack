@@ -17,12 +17,8 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.common.FileBuilder;
-import org.b1.pack.api.common.FolderBuilder;
-import org.b1.pack.api.common.PackEntry;
 import org.b1.pack.api.reader.PackReader;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 
@@ -38,7 +34,7 @@ public class ListCommand implements PackCommand {
         System.out.println("Type             Size     Date       Time");
         printLine();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(ReaderProviderFactory.createReaderProvider(file), new ListFolderBuilder(""));
+        reader.read(ReaderProviderFactory.createReaderProvider(file), new ListBuilder(""));
         printLine();
         System.out.println();
         System.out.println("Done");
@@ -49,46 +45,5 @@ public class ListCommand implements PackCommand {
             System.out.print('-');
         }
         System.out.println();
-    }
-
-    private static void printInfo(String path, char type, @Nullable Long size, Long time) {
-        System.out.println(path);
-        System.out.print(type);
-        if (size != null) {
-            System.out.format("%20d", size);
-        } else {
-            System.out.format("%20c", ' ');
-        }
-        if (time != null) {
-            System.out.format("  %tF  %1$tT", time);
-        }
-        System.out.println();
-    }
-
-    private static class ListFolderBuilder implements FolderBuilder {
-
-        private final String namePrefix;
-
-        private ListFolderBuilder(String namePrefix) {
-            this.namePrefix = namePrefix;
-        }
-
-        @Override
-        public FileBuilder addFile(PackEntry entry, Long size) throws IOException {
-            printInfo(namePrefix + entry.getName(), 'F', size, entry.getLastModifiedTime());
-            return null;
-        }
-
-        @Override
-        public FolderBuilder addFolder(PackEntry entry) throws IOException {
-            String path = namePrefix + entry.getName();
-            printInfo(path, 'D', null, entry.getLastModifiedTime());
-            return new ListFolderBuilder(path + File.separator);
-        }
-
-        @Override
-        public void save() throws IOException {
-            // no-op
-        }
     }
 }

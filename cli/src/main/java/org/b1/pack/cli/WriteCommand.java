@@ -17,12 +17,9 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
-import org.b1.pack.api.common.FolderContent;
 import org.b1.pack.api.writer.PackWriter;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 public class WriteCommand implements PackCommand {
 
@@ -32,7 +29,7 @@ public class WriteCommand implements PackCommand {
         FsWriterProvider provider = new FsWriterProvider(FileTools.getOutputFolder(argSet), argSet.getPackName(), argSet.getMaxVolumeSize());
         provider.setSeekable(isSeekable(argSet.getTypeFlag()));
         provider.setCompressionMethod(CompressionMethodFactory.getCompressionMethod(argSet.getCompressionMethod()));
-        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, createFolderContent(argSet.getFileNames()));
+        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, FileTools.createFolderContent(argSet.getFileNames()));
         System.out.println();
         System.out.println("Done");
     }
@@ -41,9 +38,5 @@ public class WriteCommand implements PackCommand {
         if ("stream".equals(typeFlag)) return false;
         Preconditions.checkArgument(typeFlag == null, "Invalid type flag: %s", typeFlag);
         return true;
-    }
-
-    private static FolderContent createFolderContent(List<String> names) {
-        return new FsFolderContent(names.isEmpty() ? Collections.singletonList(".") : names);
     }
 }

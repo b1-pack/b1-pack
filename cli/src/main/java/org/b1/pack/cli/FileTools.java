@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.api.common.FolderContent;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -121,5 +122,13 @@ public class FileTools {
         File result = new File(outputDirectory);
         Preconditions.checkArgument(result.isDirectory(), "Output directory not found: %s", result);
         return result;
+    }
+
+    public static FolderContent createFolderContent(List<String> names) {
+        return new FsFolderContent(names.isEmpty() ? Collections.singletonList(".") : names);
+    }
+
+    public static void setLastModified(File file, Long time) {
+        Preconditions.checkState(time == null || file.setLastModified(time), "Cannot set time: %s", file);
     }
 }
