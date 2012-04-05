@@ -19,7 +19,6 @@ package org.b1.pack.standard.writer;
 import com.google.common.base.Objects;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.common.PackEntry;
-import org.b1.pack.api.compression.LzmaCompressionMethod;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
@@ -34,7 +33,7 @@ class PackOutputStream extends OutputStream {
 
     private final WriterProvider provider;
     private final BlockWriter blockWriter;
-    private final LzmaCompressionMethod compressionMethod;
+    private final LzmaMethod lzmaMethod;
     private final ExecutorService executorService;
     private final int volumeNumberSize;
     private final int blockOffsetSize;
@@ -44,11 +43,11 @@ class PackOutputStream extends OutputStream {
     public PackOutputStream(WriterProvider provider) {
         this.provider = provider;
         blockWriter = new BlockWriter(provider);
-        compressionMethod = (LzmaCompressionMethod) provider.getCompressionMethod();
-        executorService = compressionMethod == null ? null : provider.getExecutorService();
+        lzmaMethod = LzmaMethod.valueOf(provider.getCompressionMethod());
+        executorService = lzmaMethod == null ? null : provider.getExecutorService();
         volumeNumberSize = Numbers.getSerializedSize(provider.getMaxVolumeSize() == Long.MAX_VALUE ? 1 : provider.getMaxVolumeCount());
         blockOffsetSize = Numbers.getSerializedSize(provider.getMaxVolumeSize());
-        recordOffsetSize = Numbers.getSerializedSize(compressionMethod == null ? Constants.MAX_CHUNK_SIZE : compressionMethod.getSolidBlockSize());
+        recordOffsetSize = Numbers.getSerializedSize(lzmaMethod == null ? Constants.MAX_CHUNK_SIZE : lzmaMethod.getSolidBlockSize());
     }
 
     public boolean isSeekable() {
@@ -68,14 +67,14 @@ class PackOutputStream extends OutputStream {
     }
 
     public void switchCompression(PackEntry entry) throws IOException {
-        if (compressionMethod != null) {
-            setCompressible(compressionMethod.isCompressible(entry));
+        if (lzmaMethod != null) {
+            setCompressible(lzmaMethod.isCompressible(entry));
         }
     }
 
     public void setCompressible(boolean compressible) throws IOException {
-        if (compressible && compressionMethod != null) {
-            if (lzmaWriter != null && lzmaWriter.getCount() >= compressionMethod.getSolidBlockSize()) {
+        if (compressible && lzmaMethod != null) {
+            if (lzmaWriter != null && lzmaWriter.getCount() >= lzmaMethod.getSolidBlockSize()) {
                 disableCompression();
             }
             enableCompression();
@@ -135,7 +134,7 @@ class PackOutputStream extends OutputStream {
     private void enableCompression() throws IOException {
         if (lzmaWriter != null) return;
         blockWriter.setCompressed(true);
-        lzmaWriter = new LzmaWriter(compressionMethod, blockWriter, executorService);
+        lzmaWriter = new LzmaWriter(lzmaMethod, blockWriter, executorService);
     }
 
     private void disableCompression() throws IOException {

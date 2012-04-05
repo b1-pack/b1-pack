@@ -17,4 +17,8 @@
 package org.b1.pack.api.encryption;
 
 public abstract class EncryptionMethod {
+
+    public char[] getEncryptionPassword() {
+        return null;
+    }
 }

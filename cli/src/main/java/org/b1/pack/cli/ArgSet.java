@@ -44,7 +44,7 @@ public class ArgSet {
     private String typeFormat = B1;
     private String typeFlag;
     private String outputDirectory;
-    private String compressionMethod;
+    private String method;
     private boolean help;
     private boolean password;
 
@@ -53,7 +53,7 @@ public class ArgSet {
         OptionSpec<String> volumeOption = parser.accepts("v").withRequiredArg();
         OptionSpec<String> typeOption = parser.accepts("type").withRequiredArg();
         OptionSpec<String> outputOption = parser.accepts("o").withRequiredArg();
-        OptionSpec<String> compressionOption = parser.accepts("m").withRequiredArg();
+        OptionSpec<String> methodOption = parser.accepts("m").withRequiredArg();
         OptionSpec helpOption = parser.acceptsAll(Arrays.asList("?", "h", "help"));
         OptionSpec passwordOption = parser.accepts("p");
         OptionSet optionSet = parser.parse(args);
@@ -64,7 +64,7 @@ public class ArgSet {
         initMaxVolumeSize(optionSet.valueOf(volumeOption));
         initType(optionSet.valueOf(typeOption));
         outputDirectory = optionSet.valueOf(outputOption);
-        compressionMethod = optionSet.valueOf(compressionOption);
+        method = optionSet.valueOf(methodOption);
         help = optionSet.has(helpOption);
         password = optionSet.has(passwordOption);
     }
@@ -112,8 +112,8 @@ public class ArgSet {
         return outputDirectory;
     }
 
-    public String getCompressionMethod() {
-        return compressionMethod;
+    public String getMethod() {
+        return method;
     }
 
     public boolean isHelp() {

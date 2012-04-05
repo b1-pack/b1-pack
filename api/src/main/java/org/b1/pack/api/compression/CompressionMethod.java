@@ -16,11 +16,19 @@
 
 package org.b1.pack.api.compression;
 
-import org.b1.pack.api.common.PackEntry;
+public class CompressionMethod {
 
-public abstract class CompressionMethod {
+    public static final CompressionMethod SMART = new CompressionMethod("smart");
+    public static final CompressionMethod CLASSIC = new CompressionMethod("classic");
+    public static final CompressionMethod MAXIMUM = new CompressionMethod("maximum");
 
-    public boolean isCompressible(PackEntry entry) {
-        return true;
+    private final String name;
+
+    public CompressionMethod(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }

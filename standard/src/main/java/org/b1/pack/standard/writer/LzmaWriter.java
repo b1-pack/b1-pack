@@ -18,7 +18,6 @@ package org.b1.pack.standard.writer;
 
 import SevenZip.Compression.LZMA.Encoder;
 import org.b1.pack.api.builder.Writable;
-import org.b1.pack.api.compression.LzmaCompressionMethod;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
@@ -32,15 +31,15 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
     private final PipedInputStream pipedInputStream = new PipedInputStream();
     private final PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
-    private final LzmaCompressionMethod compressionMethod;
+    private final LzmaMethod lzmaMethod;
     private final BlockWriter blockWriter;
     private final RecordPointer startPointer;
     private final Future<Void> future;
     private long count;
 
-    public LzmaWriter(LzmaCompressionMethod compressionMethod, BlockWriter blockWriter, ExecutorService executorService) throws IOException {
+    public LzmaWriter(LzmaMethod lzmaMethod, BlockWriter blockWriter, ExecutorService executorService) throws IOException {
+        this.lzmaMethod = lzmaMethod;
         this.blockWriter = blockWriter;
-        this.compressionMethod = compressionMethod;
         this.startPointer = blockWriter.getCurrentPointer();
         this.future = executorService.submit(this);
     }
@@ -84,6 +83,8 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     public Void call() throws IOException {
         Encoder encoder = new Encoder();
         encoder.SetEndMarkerMode(true);
+        encoder.SetDictionarySize(lzmaMethod.getDictionarySize());
+        encoder.SetNumFastBytes(lzmaMethod.getNumberOfFastBytes());
         encoder.WriteCoderProperties(blockWriter);
         encoder.Code(pipedInputStream, blockWriter, -1, -1, null);
         return null;

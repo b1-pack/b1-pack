@@ -8,7 +8,7 @@ Commands:
 Options:
  -h, -?, --help: Show usage instructions
  -v <size>[B, kB, MB, GB]: Create volumes
+ -m [smart, classic, maximum]: Set compression method
  --type <type>: Set type of archive
- -m <method>: Set compression method
  -o <path>: Set output directory
- -p: Encrypt with a password
+ -p: Encrypt with a password (not implemented yet)

@@ -17,6 +17,7 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
+import org.b1.pack.api.compression.CompressionMethod;
 import org.b1.pack.api.writer.PackWriter;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class WriteCommand implements PackCommand {
         System.out.println("Starting");
         FsWriterProvider provider = new FsWriterProvider(FileTools.getOutputFolder(argSet), argSet.getPackName(), argSet.getMaxVolumeSize());
         provider.setSeekable(isSeekable(argSet.getTypeFlag()));
-        provider.setCompressionMethod(CompressionMethodFactory.getCompressionMethod(argSet.getCompressionMethod()));
+        provider.setCompressionMethod(new CompressionMethod(argSet.getMethod()));
         PackWriter.getInstance(argSet.getTypeFormat()).write(provider, FileTools.createFolderContent(argSet.getFileNames()));
         System.out.println();
         System.out.println("Done");
