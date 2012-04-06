@@ -134,7 +134,7 @@ class PackOutputStream extends OutputStream {
     }
 
     private void enableCompression() throws IOException {
-        if (lzmaWriter != null) return;
+        if (lzmaWriter != null || lzmaMethod == null) return;
         blockWriter.setCompressed(true);
         lzmaWriter = new LzmaWriter(lzmaMethod, blockWriter, executorService);
     }
