@@ -88,23 +88,21 @@ class RecordWriter implements FolderBuilder {
             return;
         }
         if (packOutputStream.isSeekable()) {
-            packOutputStream.setCompressible(false);
-            saveCatalogRecords();
+            saveCatalogRecords(false);
             saveCompleteRecords();
         } else {
             saveCompleteRecords();
             if (intermediate) return;
-            packOutputStream.setCompressible(true);
-            saveCatalogRecords();
+            saveCatalogRecords(true);
         }
         packOutputStream.setCompressible(false);
-        setCatalogMode();
+        setCatalogMode(false);
         builderList.clear();
         packOutputStream.save();
     }
 
-    private void saveCatalogRecords() throws IOException {
-        setCatalogMode();
+    private void saveCatalogRecords(boolean compressed) throws IOException {
+        setCatalogMode(compressed);
         for (StandardObjectBuilder builder : builderList) {
             builder.saveCatalogRecord();
         }
@@ -118,8 +116,8 @@ class RecordWriter implements FolderBuilder {
         }
     }
 
-    private void setCatalogMode() throws IOException {
-        RecordPointer pointer = packOutputStream.saveCatalogPointer();
+    private void setCatalogMode(boolean compressed) throws IOException {
+        RecordPointer pointer = packOutputStream.startCatalog(compressed);
         if (nextCatalogPointer != null) {
             nextCatalogPointer.init(pointer);
             nextCatalogPointer = null;

@@ -62,7 +62,9 @@ class PackOutputStream extends OutputStream {
         blockWriter.setObjectCount(objectCount);
     }
 
-    public RecordPointer saveCatalogPointer() throws IOException {
+    public RecordPointer startCatalog(boolean compressed) throws IOException {
+        disableCompression();
+        if (compressed) enableCompression();
         return blockWriter.saveCatalogPointer();
     }
 
