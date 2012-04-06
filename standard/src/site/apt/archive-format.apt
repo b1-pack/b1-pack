@@ -50,11 +50,12 @@ Volume construction
  In the cases when the chunk is being compressed with LZMA the resulting binary stream starts with 5 bytes of coder
  properties and is directly followed by the compressed data. An End Of Stream marker is always being used to designate
  the stream end, so neither the actual chunk size no "-1" (typically indicating the EOF marker presence) is stored
- in the stream. The compressed stream may be split into several parts. Each such part is then wrapped in "LzmaBlock"
- with an Adler-32 checksum computed over the part data.
+ in the stream. The compressed stream may be split into several parts. The first one is wrapped in "FirstLzmaBlock"
+ and the other (if any) are wrapped in blocks of type "NextLzmaBlock". The Adler-32 checksum in those blocks must be
+ computed over the part's data.
 
- Each "PlainBlock" or "LzmaBlock" obtained this way is placed into a "Block" which is then added to the volume body.
- If the current volume doesn't have enough space, the block is added to the next volume.
+ Each "PlainBlock", "FirstLzmaBlock" or "NextLzmaBlock" obtained this way is placed into a "Block" which is then added
+ to the volume body. If the current volume doesn't have enough space, the block is added to the next volume.
 
  However, for encrypted archives the blocks are not added to the volume directly. Instead a serialized "Block" is
  encrypted, wrapped in "AesBlock" and a new "Block" with that "AesBlock" is added to the volume.
@@ -69,8 +70,9 @@ Volume construction
 
   * "n:<volume number>" - a volume number starting from 1.
 
- The head of the first volume may also contain "t:<number>" representing the total number of files and other
- file system objects in the archive. Other volumes mustn't have this item.
+ The head of the first volume may also contain "t:<number>", representing the total number of files and other
+ file system objects in the archive, and "m:<method>", which indicates the compression method employed.
+ Other volumes mustn't have those items.
 
  The tail of the last volume in an archive must end with an item "b1:ae" and the previous volumes must end with
  "b1:ve". The volume containing the first catalog record in the archive and the following volumes must have a tail

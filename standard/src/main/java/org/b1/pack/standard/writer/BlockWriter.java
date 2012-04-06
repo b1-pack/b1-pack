@@ -33,6 +33,7 @@ class BlockWriter extends ChunkWriter {
     private final List<VolumeWriter> suspendedWriters = Lists.newArrayList();
     private final MemoryOutputStream readyContent = new MemoryOutputStream();
     private final WriterProvider provider;
+    private final String method;
     private CompositeWritable suspendedContent = new CompositeWritable();
     private VolumeWriter volumeWriter;
     private RecordPointer catalogPointer;
@@ -41,8 +42,9 @@ class BlockWriter extends ChunkWriter {
     private boolean compressed;
     private boolean firstBlockInChunk;
 
-    public BlockWriter(WriterProvider provider) {
+    public BlockWriter(WriterProvider provider, String method) {
         this.provider = provider;
+        this.method = method;
     }
 
     @Override
@@ -164,7 +166,8 @@ class BlockWriter extends ChunkWriter {
     }
 
     private VolumeWriter createVolumeWriter(long volumeNumber) throws IOException {
-        return new VolumeWriter(archiveId, volumeNumber, objectCount, provider.getMaxVolumeSize(), provider.getVolume(volumeNumber), catalogPointer);
+        return new VolumeWriter(archiveId, volumeNumber, objectCount, method,
+                provider.getMaxVolumeSize(), provider.getVolume(volumeNumber), catalogPointer);
     }
 
     private void completeVolumeWriter() throws IOException {

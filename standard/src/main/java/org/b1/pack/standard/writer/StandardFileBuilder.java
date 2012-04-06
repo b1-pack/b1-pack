@@ -73,6 +73,10 @@ class StandardFileBuilder extends StandardObjectBuilder implements FileBuilder {
         }
     }
 
+    protected void switchCompression() throws IOException {
+        stream.switchCompression(entry);
+    }
+
     private void writeFixedSizeContent() throws IOException {
         Numbers.writeLong(size, stream);
         Preconditions.checkState(writeContent(stream) == size, "Content size does not match");

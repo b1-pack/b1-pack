@@ -32,8 +32,8 @@ import java.util.concurrent.ExecutorService;
 class PackOutputStream extends OutputStream {
 
     private final WriterProvider provider;
-    private final BlockWriter blockWriter;
     private final LzmaMethod lzmaMethod;
+    private final BlockWriter blockWriter;
     private final ExecutorService executorService;
     private final int volumeNumberSize;
     private final int blockOffsetSize;
@@ -42,8 +42,8 @@ class PackOutputStream extends OutputStream {
 
     public PackOutputStream(WriterProvider provider) {
         this.provider = provider;
-        blockWriter = new BlockWriter(provider);
         lzmaMethod = LzmaMethod.valueOf(provider.getCompressionMethod());
+        blockWriter = new BlockWriter(provider, lzmaMethod == null ? null : lzmaMethod.getName());
         executorService = lzmaMethod == null ? null : provider.getExecutorService();
         volumeNumberSize = Numbers.getSerializedSize(provider.getMaxVolumeSize() == Long.MAX_VALUE ? 1 : provider.getMaxVolumeCount());
         blockOffsetSize = Numbers.getSerializedSize(provider.getMaxVolumeSize());

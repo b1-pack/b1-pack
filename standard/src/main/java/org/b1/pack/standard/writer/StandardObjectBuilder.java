@@ -30,7 +30,7 @@ abstract class StandardObjectBuilder {
     protected final RecordWriter recordWriter;
     protected final PackOutputStream stream;
     private final StandardFolderBuilder parent;
-    private final PackEntry entry;
+    protected final PackEntry entry;
     protected boolean completeRecordSaved;
     private RecordPointer pointer;
     private PbRecordPointer futurePointer;
@@ -47,6 +47,8 @@ abstract class StandardObjectBuilder {
 
     public abstract void saveCompleteRecord() throws IOException;
 
+    protected abstract void switchCompression() throws IOException;
+
     protected void writeBasicCatalogRecord(int recordType) throws IOException {
         writeLong(recordType);
         writePointer();
@@ -61,7 +63,7 @@ abstract class StandardObjectBuilder {
             parent.saveCompleteRecord();
         }
         completeRecordSaved = true;
-        stream.switchCompression(entry);
+        switchCompression();
         pointer = stream.getCurrentPointer();
         if (futurePointer != null) {
             futurePointer.init(pointer);

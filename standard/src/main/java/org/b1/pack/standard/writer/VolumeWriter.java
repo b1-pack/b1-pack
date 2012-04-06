@@ -43,13 +43,13 @@ class VolumeWriter {
     private long streamEnd;
     private boolean streamAtEnd;
 
-    public VolumeWriter(String archiveId, long volumeNumber, Long objectCount,
+    public VolumeWriter(String archiveId, long volumeNumber, Long objectCount, String method,
                         long maxVolumeSize, WriterVolume volume, RecordPointer catalogPointer) throws IOException {
         this.volumeNumber = volumeNumber;
         this.maxVolumeSize = maxVolumeSize;
         this.volume = volume;
         this.catalogPointer = catalogPointer;
-        byte[] volumeHead = Volumes.createVolumeHead(archiveId, volumeNumber, objectCount);
+        byte[] volumeHead = Volumes.createVolumeHead(archiveId, volumeNumber, objectCount, method);
         streamEnd = volumeHead.length;
         streamAtEnd = true;
         setLimits();

@@ -17,6 +17,7 @@
 package org.b1.pack.standard.common;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
 import javax.annotation.Nullable;
@@ -53,13 +54,19 @@ public class Volumes {
                 .putLong(uuid.getLeastSignificantBits()).array()).replace("=", "");
     }
 
-    public static byte[] createVolumeHead(String archiveId, long volumeNumber, @Nullable Long objectCount) {
+    public static byte[] createVolumeHead(String archiveId, long volumeNumber, @Nullable Long objectCount, String method) {
         StringBuilder builder = new StringBuilder(volumeNumber == 1 ? B1_AS : B1_VS)
                 .append(" v:").append(SCHEMA_VERSION)
                 .append(" a:").append(archiveId)
                 .append(" n:").append(volumeNumber);
-        if (volumeNumber == 1 && objectCount != null) {
-            builder.append(" t:").append(objectCount);
+        if (volumeNumber == 1) {
+            if (objectCount != null) {
+                builder.append(" t:").append(objectCount);
+            }
+            if (method != null) {
+                Preconditions.checkArgument(!method.contains(" "));
+                builder.append(" m:").append(method);
+            }
         }
         return Bytes.concat(builder.toString().getBytes(Charsets.UTF_8), SEPARATOR);
     }

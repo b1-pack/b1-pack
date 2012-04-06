@@ -16,12 +16,13 @@
 
 package org.b1.pack.standard.writer;
 
+import com.google.common.collect.ImmutableSet;
+import org.b1.pack.api.common.CompressionMethod;
 import org.b1.pack.api.common.PackEntry;
-import org.b1.pack.api.compression.CompressionMethod;
 
 class LzmaMethod {
 
-    private static final String[] COMPRESSED_FORMATS = {"jpg", "png", "mp3", "aac", "flac", "wma", "m4a", "avi", "mkv", "mp4", "m4v"};
+    private static final ImmutableSet<String> compressedFormatSet = CompressedFormatLoader.getCompressedFormatSet();
 
     private final String name;
     private final long solidBlockSize;
@@ -54,15 +55,10 @@ class LzmaMethod {
     }
 
     public boolean isCompressible(PackEntry entry) {
-        if (smart) {
-            String name = entry.getName();
-            int dotIndex = name.lastIndexOf('.');
-            String extension = dotIndex < 0 ? "" : name.substring(dotIndex + 1).toLowerCase();
-            for (String compressedFormat : COMPRESSED_FORMATS) {
-                if (compressedFormat.equals(extension)) return false;
-            }
-        }
-        return true;
+        if (!smart) return true;
+        String entryName = entry.getName();
+        int dotIndex = entryName.lastIndexOf('.');
+        return dotIndex < 0 || !compressedFormatSet.contains(entryName.substring(dotIndex + 1).toLowerCase());
     }
 
     public static LzmaMethod valueOf(CompressionMethod method) {

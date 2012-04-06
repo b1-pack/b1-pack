@@ -17,7 +17,7 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Objects;
-import org.b1.pack.api.compression.CompressionMethod;
+import org.b1.pack.api.common.CompressionMethod;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.api.writer.WriterVolume;
 

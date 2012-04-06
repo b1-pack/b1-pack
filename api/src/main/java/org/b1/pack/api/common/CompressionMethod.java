@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.compression;
+package org.b1.pack.api.common;
 
 public class CompressionMethod {
 
@@ -24,11 +24,15 @@ public class CompressionMethod {
 
     private final String name;
 
-    public CompressionMethod(String name) {
+    protected CompressionMethod(String name) {
         this.name = name;
     }
 
     public String getName() {
         return name;
+    }
+
+    public static CompressionMethod valueOf(String name) {
+        return name == null ? null : new CompressionMethod(name);
     }
 }

@@ -32,6 +32,7 @@ public class BuildCommand implements PackCommand {
     @Override
     public void execute(final ArgSet argSet) throws IOException {
         System.out.println("Starting");
+        Preconditions.checkArgument(argSet.getMethod() == null, "Compression not supported in this mode");
         File outputFolder = FileTools.getOutputFolder(argSet);
         final Set<FsObject> fsObjects = FileTools.getFsObjects(argSet.getFileNames());
         PackBuilder builder = PackBuilder.getInstance(argSet.getTypeFormat());

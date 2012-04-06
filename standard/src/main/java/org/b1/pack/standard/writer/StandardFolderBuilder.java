@@ -53,4 +53,8 @@ class StandardFolderBuilder extends StandardObjectBuilder implements FolderBuild
     public void saveCompleteRecord() throws IOException {
         writeBasicCompleteRecord(Constants.COMPLETE_FOLDER);
     }
+
+    protected void switchCompression() throws IOException {
+        // no-op
+    }
 }

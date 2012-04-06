@@ -14,11 +14,25 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.encryption;
+package org.b1.pack.api.common;
 
-public abstract class EncryptionMethod {
+public class EncryptionMethod {
+
+    private final String name;
+
+    protected EncryptionMethod(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public char[] getEncryptionPassword() {
         return null;
+    }
+
+    public static EncryptionMethod valueOf(String name) {
+        return name == null ? null : new EncryptionMethod(name);
     }
 }

@@ -16,8 +16,8 @@
 
 package org.b1.pack.api.writer;
 
-import org.b1.pack.api.compression.CompressionMethod;
-import org.b1.pack.api.encryption.EncryptionMethod;
+import org.b1.pack.api.common.CompressionMethod;
+import org.b1.pack.api.common.EncryptionMethod;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;

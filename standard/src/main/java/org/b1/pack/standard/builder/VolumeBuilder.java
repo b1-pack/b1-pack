@@ -76,7 +76,7 @@ public class VolumeBuilder {
     private void initVolume(@Nullable Long objectCount) {
         volumeNumber++;
         volumeContent = new CompositeWritable();
-        volumeContent.add(new ByteArrayWritable(Volumes.createVolumeHead(archiveId, volumeNumber, objectCount)));
+        volumeContent.add(new ByteArrayWritable(Volumes.createVolumeHead(archiveId, volumeNumber, objectCount, null)));
     }
 
     private void completeVolume(boolean lastVolume) {

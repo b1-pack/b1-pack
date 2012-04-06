@@ -112,6 +112,7 @@ class RecordWriter implements FolderBuilder {
 
     private void saveCompleteRecords() throws IOException {
         setContentMode();
+        packOutputStream.setCompressible(true);
         for (StandardObjectBuilder builder : builderList) {
             builder.saveCompleteRecord();
         }
