@@ -53,12 +53,16 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
-        byte[] properties = new byte[Encoder.kPropSize];
-        ByteStreams.readFully(inputStream, properties);
-        Decoder decoder = new Decoder();
-        Preconditions.checkState(decoder.SetDecoderProperties(properties));
-        Preconditions.checkState(decoder.Code(inputStream, pipedOutputStream, -1));
-        return null;
+        try {
+            byte[] properties = new byte[Encoder.kPropSize];
+            ByteStreams.readFully(inputStream, properties);
+            Decoder decoder = new Decoder();
+            Preconditions.checkState(decoder.SetDecoderProperties(properties));
+            Preconditions.checkState(decoder.Code(inputStream, pipedOutputStream, -1));
+            return null;
+        } finally {
+            pipedOutputStream.close();
+        }
     }
 
     @Override

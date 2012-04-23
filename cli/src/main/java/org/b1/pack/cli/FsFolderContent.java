@@ -51,11 +51,15 @@ public class FsFolderContent implements FolderContent {
     }
 
     private void addFile(List<String> path, File file) throws IOException {
-        PackEntry entry = new FsPackEntry(Iterables.getLast(path), file.lastModified());
-        if (file.isFile()) {
-            getParentBuilder(path).addFile(entry, file.length()).setContent(new FsFileContent(file));
+        if (path.isEmpty()) {
+            addChildren(builderMap.get(Collections.<String>emptyList()), file);
         } else {
-            addChildren(getParentBuilder(path).addFolder(entry), file);
+            PackEntry entry = new FsPackEntry(Iterables.getLast(path), file.lastModified());
+            if (file.isFile()) {
+                getParentBuilder(path).addFile(entry, file.length()).setContent(new FsFileContent(file));
+            } else {
+                addChildren(getParentBuilder(path).addFolder(entry), file);
+            }
         }
     }
 
