@@ -54,14 +54,24 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
     @Override
     public void write(int b) throws IOException {
-        pipedOutputStream.write(b);
-        count++;
+        try {
+            pipedOutputStream.write(b);
+            count++;
+        } catch (IOException e) {
+            checkEncoder();
+            throw e;
+        }
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        pipedOutputStream.write(b, off, len);
-        count += len;
+        try {
+            pipedOutputStream.write(b, off, len);
+            count += len;
+        } catch (IOException e) {
+            checkEncoder();
+            throw e;
+        }
     }
 
     @Override
@@ -81,16 +91,30 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
     @Override
     public Void call() throws IOException {
-        Encoder encoder = new Encoder();
-        encoder.SetEndMarkerMode(true);
-        encoder.SetDictionarySize(lzmaMethod.getDictionarySize());
-        encoder.SetNumFastBytes(lzmaMethod.getNumberOfFastBytes());
-        encoder.WriteCoderProperties(blockWriter);
-        encoder.Code(pipedInputStream, blockWriter, -1, -1, null);
-        return null;
+        try {
+            Encoder encoder = new Encoder();
+            encoder.SetEndMarkerMode(true);
+            encoder.SetDictionarySize(lzmaMethod.getDictionarySize());
+            encoder.SetNumFastBytes(lzmaMethod.getNumberOfFastBytes());
+            encoder.WriteCoderProperties(blockWriter);
+            encoder.Code(pipedInputStream, blockWriter, -1, -1, null);
+            return null;
+        } finally {
+            pipedInputStream.close();
+        }
     }
 
     public void cleanup() {
         future.cancel(true);
+    }
+
+    private void checkEncoder() throws IOException {
+        if (future.isDone()) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
     }
 }
