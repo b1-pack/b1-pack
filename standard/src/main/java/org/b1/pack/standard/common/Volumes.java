@@ -22,8 +22,7 @@ import com.google.common.primitives.Bytes;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
-import java.nio.ByteBuffer;
-import java.util.UUID;
+import java.security.SecureRandom;
 
 public class Volumes {
 
@@ -46,12 +45,24 @@ public class Volumes {
     public static final byte SEPARATOR_BYTE = (byte) 0xFC;
     private static final byte[] SEPARATOR = new byte[]{SEPARATOR_BYTE};
 
+    private static volatile SecureRandom secureRandom;
+
+    public static byte[] generateRandomBytes(int count) {
+        SecureRandom random = secureRandom;
+        if (random == null) {
+            random = secureRandom = new SecureRandom();
+        }
+        byte[] buffer = new byte[count];
+        random.nextBytes(buffer);
+        return buffer;
+    }
+
+    public static String encodeBase64(byte[] buffer) {
+        return DatatypeConverter.printBase64Binary(buffer).replace("=", "");
+    }
 
     public static String createArchiveId() {
-        UUID uuid = UUID.randomUUID();
-        return DatatypeConverter.printBase64Binary(ByteBuffer.allocate(16)
-                .putLong(uuid.getMostSignificantBits())
-                .putLong(uuid.getLeastSignificantBits()).array()).replace("=", "");
+        return encodeBase64(generateRandomBytes(16));
     }
 
     public static byte[] createVolumeHead(String archiveId, long volumeNumber, @Nullable Long objectCount, String method) {

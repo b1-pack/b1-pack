@@ -28,8 +28,12 @@ public class EncryptionMethod {
         return name;
     }
 
-    public char[] getEncryptionPassword() {
+    public char[] getPassword() {
         return null;
+    }
+
+    public int getIterationCount() {
+        return 1000;
     }
 
     public static EncryptionMethod valueOf(String name) {

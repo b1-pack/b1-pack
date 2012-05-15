@@ -87,5 +87,6 @@ Implementation
     encryptedBlock = AES-256-GCM(blockKey, block);
 ---
 
- * When performing AES-256 encryption in GCM mode the initialization vector and additional authenticated data are empty
-   and the generated 128-bit tag (MAC) is appended to the end of the encrypted message.
+ * When performing AES-256 encryption in GCM mode the initialization vector consists of 96 zero bits,
+   the additional authenticated data parameter is empty, and the generated 128-bit tag (MAC) is appended
+   to the end of the encrypted message.

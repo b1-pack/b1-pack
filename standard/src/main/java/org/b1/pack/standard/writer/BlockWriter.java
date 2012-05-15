@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.builder.Writable;
+import org.b1.pack.api.common.EncryptionMethod;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.standard.common.*;
 
@@ -29,12 +30,13 @@ import java.util.List;
 
 class BlockWriter extends ChunkWriter {
 
-    private final String archiveId = Volumes.createArchiveId();
+    private final String archiveId;
     private final List<VolumeWriter> suspendedWriters = Lists.newArrayList();
     private final MemoryOutputStream readyContent = new MemoryOutputStream();
     private final WriterProvider provider;
-    private final String method;
+    private final String compressionMethod;
     private CompositeWritable suspendedContent = new CompositeWritable();
+    private PackCipher packCipher;
     private VolumeWriter volumeWriter;
     private RecordPointer catalogPointer;
     private Long objectCount;
@@ -42,9 +44,17 @@ class BlockWriter extends ChunkWriter {
     private boolean compressed;
     private boolean firstBlockInChunk;
 
-    public BlockWriter(WriterProvider provider, String method) {
+    public BlockWriter(WriterProvider provider, String compressionMethod) {
         this.provider = provider;
-        this.method = method;
+        this.compressionMethod = compressionMethod;
+        EncryptionMethod method = provider.getEncryptionMethod();
+        if (method == null) {
+            archiveId = Volumes.createArchiveId();
+        } else {
+            byte[] salt = Volumes.generateRandomBytes(32);
+            archiveId = Volumes.encodeBase64(salt);
+            packCipher = new PackCipher(method, salt);
+        }
     }
 
     @Override
@@ -166,7 +176,7 @@ class BlockWriter extends ChunkWriter {
     }
 
     private VolumeWriter createVolumeWriter(long volumeNumber) throws IOException {
-        return new VolumeWriter(archiveId, volumeNumber, objectCount, method,
+        return new VolumeWriter(archiveId, volumeNumber, objectCount, compressionMethod,
                 provider.getMaxVolumeSize(), provider.getVolume(volumeNumber), catalogPointer);
     }
 
