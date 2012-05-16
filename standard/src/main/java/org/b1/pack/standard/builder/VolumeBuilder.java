@@ -43,7 +43,7 @@ public class VolumeBuilder {
         this.pointerMap = pointerMap;
         initVolume(objectCount);
         catalogPointer = new RecordPointer(volumeNumber, volumeContent.getSize(), 0);
-        volumeLimit = maxVolumeSize - PbInt.NULL.getSize() - Volumes.createVolumeTail(false, catalogPointer, 0).length;
+        volumeLimit = maxVolumeSize - PbInt.NULL.getSize() - Volumes.createVolumeTail(false, catalogPointer, 0, null).length;
     }
 
     public void addContent(Writable content) {
@@ -76,13 +76,13 @@ public class VolumeBuilder {
     private void initVolume(@Nullable Long objectCount) {
         volumeNumber++;
         volumeContent = new CompositeWritable();
-        volumeContent.add(new ByteArrayWritable(Volumes.createVolumeHead(archiveId, volumeNumber, objectCount, null)));
+        volumeContent.add(new ByteArrayWritable(Volumes.createVolumeHead(archiveId, volumeNumber, objectCount, null, null)));
     }
 
     private void completeVolume(boolean lastVolume) {
         volumeContent.add(PbInt.NULL);
         long minSize = lastVolume ? 0 : maxVolumeSize - volumeContent.getSize();
-        volumeContent.add(new ByteArrayWritable(Volumes.createVolumeTail(lastVolume, catalogPointer, minSize)));
+        volumeContent.add(new ByteArrayWritable(Volumes.createVolumeTail(lastVolume, catalogPointer, minSize, null)));
         volumeContents.add(volumeContent);
         volumeContent = null;
     }

@@ -53,7 +53,7 @@ class BlockWriter extends ChunkWriter {
         } else {
             byte[] salt = Volumes.generateRandomBytes(32);
             archiveId = Volumes.encodeBase64(salt);
-            packCipher = new PackCipher(method, salt);
+            packCipher = new PackCipher(method.getPassword(), salt, method.getIterationCount());
         }
     }
 
@@ -176,8 +176,8 @@ class BlockWriter extends ChunkWriter {
     }
 
     private VolumeWriter createVolumeWriter(long volumeNumber) throws IOException {
-        return new VolumeWriter(archiveId, volumeNumber, objectCount, compressionMethod,
-                provider.getMaxVolumeSize(), provider.getVolume(volumeNumber), catalogPointer);
+        return new VolumeWriter(archiveId, volumeNumber, objectCount, compressionMethod, provider.getMaxVolumeSize(),
+                provider.getVolume(volumeNumber), catalogPointer, packCipher.getVolumeCipher(volumeNumber));
     }
 
     private void completeVolumeWriter() throws IOException {

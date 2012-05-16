@@ -8,7 +8,7 @@ The B1 archive format supports password-based AES-256 encryption in GCM mode.
 
 Restrictions
 
- An archive is encrypted if and only if it has a head item "e:1/<iteration count>", where
+ An archive is encrypted if each volume has a head item "e:1/<iteration count>", where
 the iteration count is choosen to be quite large to increase the difficulty of a brute-force attack.
 
  The encryption adds the following restrictions to the archive structure:
@@ -18,7 +18,7 @@ the iteration count is choosen to be quite large to increase the difficulty of a
 
  * A head and/or a tail can have a single item "x:<base64>", that contains other items encrypted;
 
- * The head item "t:", if present, must be moved to the "x:" head item, i.e. encrypted;
+ * The head items "t:" and ":m", if present, must be moved to the "x:" head item, i.e. encrypted;
 
  * The tail item "c:", if present, must be moved to the "x:" tail item, i.e. encrypted;
 
@@ -66,8 +66,9 @@ Implementation
    blockKey = HMAC-SHA256(volumeKey, blockSalt);
 ---
 
- * If a head contains a "t:" item, it should be UTF-8 encoded, encrypted with the head key, base64 encoded,
-   appended to "x:" and stored as a head item:
+ * The head of the first volume must have an "x:" item built as follows. A text string containing space separated items
+   "t:" and/or "m:" is formed. If there are no such items the string is empty. After that the string is UTF-8 encoded,
+   encrypted with the head key, base64 encoded, appended to "x:" and stored as a head item:
 
 ---
     "x:" + BASE64(AES-256-GCM(headKey, UTF8("t:<number>")));

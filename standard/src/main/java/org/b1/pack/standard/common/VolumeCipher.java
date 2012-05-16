@@ -34,10 +34,16 @@ public class VolumeCipher {
     private static final byte[] TAIL_SALT = new byte[]{0x02};
 
     private final HMac hMac;
+    private final int iterationCount;
 
-    public VolumeCipher(KeyParameter key) {
+    public VolumeCipher(KeyParameter key, int iterationCount) {
+        this.iterationCount = iterationCount;
         hMac = new HMac(new SHA256Digest());
         hMac.init(key);
+    }
+
+    public int getIterationCount() {
+        return iterationCount;
     }
 
     public byte[] cipherHead(boolean encryption, byte[] in) {
@@ -49,7 +55,7 @@ public class VolumeCipher {
     }
 
     public byte[] cipherBlock(boolean encryption, long blockOffset, byte[] in) {
-        return doCipher(encryption, PackCipher.longToBytes(blockOffset), in);
+        return doCipher(encryption, PackCipher.longToUtf8(blockOffset), in);
     }
 
     private byte[] doCipher(boolean encryption, byte[] salt, byte[] in) {

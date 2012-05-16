@@ -20,10 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.api.writer.WriterVolume;
-import org.b1.pack.standard.common.PbBlock;
-import org.b1.pack.standard.common.PbInt;
-import org.b1.pack.standard.common.RecordPointer;
-import org.b1.pack.standard.common.Volumes;
+import org.b1.pack.standard.common.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,6 +33,7 @@ class VolumeWriter {
     private final long volumeNumber;
     private final long maxVolumeSize;
     private final WriterVolume volume;
+    private final VolumeCipher volumeCipher;
     private OutputStream outputStream;
     private RecordPointer catalogPointer;
     private long sizeLimit;
@@ -43,13 +41,14 @@ class VolumeWriter {
     private long streamEnd;
     private boolean streamAtEnd;
 
-    public VolumeWriter(String archiveId, long volumeNumber, Long objectCount, String method,
-                        long maxVolumeSize, WriterVolume volume, RecordPointer catalogPointer) throws IOException {
+    public VolumeWriter(String archiveId, long volumeNumber, Long objectCount, String method, long maxVolumeSize,
+                        WriterVolume volume, RecordPointer catalogPointer, VolumeCipher volumeCipher) throws IOException {
         this.volumeNumber = volumeNumber;
         this.maxVolumeSize = maxVolumeSize;
         this.volume = volume;
         this.catalogPointer = catalogPointer;
-        byte[] volumeHead = Volumes.createVolumeHead(archiveId, volumeNumber, objectCount, method);
+        this.volumeCipher = volumeCipher;
+        byte[] volumeHead = Volumes.createVolumeHead(archiveId, volumeNumber, objectCount, method, volumeCipher);
         streamEnd = volumeHead.length;
         streamAtEnd = true;
         setLimits();
@@ -112,7 +111,8 @@ class VolumeWriter {
         flush();
         seekToEnd();
         writeToStream(PbInt.NULL);
-        outputStream.write(Volumes.createVolumeTail(lastVolume, catalogPointer, lastVolume ? 0 : sizeLimit - streamEnd - PbInt.NULL.getSize()));
+        long minSize = lastVolume ? 0 : sizeLimit - streamEnd - PbInt.NULL.getSize();
+        outputStream.write(Volumes.createVolumeTail(lastVolume, catalogPointer, minSize, volumeCipher));
         outputStream.close();
         volume.save();
     }
@@ -123,7 +123,7 @@ class VolumeWriter {
 
     private void setLimits() throws IOException {
         sizeLimit = Math.min(maxVolumeSize, volume.getMaxSize());
-        spaceLimit = sizeLimit - Volumes.createVolumeTail(false, catalogPointer, 0).length - PbInt.NULL.getSize();
+        spaceLimit = sizeLimit - Volumes.createVolumeTail(false, catalogPointer, 0, volumeCipher).length - PbInt.NULL.getSize();
     }
 
     private void seekToEnd() throws IOException {

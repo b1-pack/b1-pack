@@ -20,7 +20,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
-import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 import java.security.SecureRandom;
 
@@ -65,24 +64,34 @@ public class Volumes {
         return encodeBase64(generateRandomBytes(16));
     }
 
-    public static byte[] createVolumeHead(String archiveId, long volumeNumber, @Nullable Long objectCount, String method) {
+    public static byte[] createVolumeHead(String archiveId, long volumeNumber, Long objectCount,
+                                          String method, VolumeCipher volumeCipher) {
         StringBuilder builder = new StringBuilder(volumeNumber == 1 ? B1_AS : B1_VS)
                 .append(" v:").append(SCHEMA_VERSION)
                 .append(" a:").append(archiveId)
                 .append(" n:").append(volumeNumber);
-        if (volumeNumber == 1) {
-            if (objectCount != null) {
-                builder.append(" t:").append(objectCount);
-            }
-            if (method != null) {
-                Preconditions.checkArgument(!method.contains(" "));
-                builder.append(" m:").append(method);
-            }
+        if (volumeCipher != null) {
+            builder.append(" e:1/").append(volumeCipher.getIterationCount());
         }
-        return Bytes.concat(builder.toString().getBytes(Charsets.UTF_8), SEPARATOR);
+        if (volumeNumber == 1) {
+            builder.append(getFirstVolumeItems(objectCount, method, volumeCipher));
+        }
+        return Bytes.concat(serializeItems(builder), SEPARATOR);
     }
 
-    public static byte[] createVolumeTail(boolean lastVolume, RecordPointer catalogPointer, long minSize) {
+    private static String getFirstVolumeItems(Long objectCount, String method, VolumeCipher volumeCipher) {
+        StringBuilder builder = new StringBuilder();
+        if (objectCount != null) {
+            builder.append(" t:").append(objectCount);
+        }
+        if (method != null) {
+            Preconditions.checkArgument(!method.contains(" "));
+            builder.append(" m:").append(method);
+        }
+        return volumeCipher == null ? builder.toString() : " " + encryptItems(volumeCipher, builder);
+    }
+
+    public static byte[] createVolumeTail(boolean lastVolume, RecordPointer catalogPointer, long minSize, VolumeCipher volumeCipher) {
         StringBuilder builder = new StringBuilder();
         if (catalogPointer != null) {
             builder.append("c:")
@@ -90,14 +99,25 @@ public class Volumes {
                     .append('/')
                     .append(catalogPointer.blockOffset)
                     .append('/')
-                    .append(catalogPointer.recordOffset)
-                    .append(' ');
+                    .append(catalogPointer.recordOffset);
+            if (volumeCipher != null) {
+                builder = new StringBuilder(encryptItems(volumeCipher, builder));
+            }
+            builder.append(' ');
         }
         String signature = lastVolume ? B1_AE : B1_VE;
         while (builder.length() < minSize - signature.length() - 1) {
             builder.append(' ');
         }
         builder.append(signature);
-        return Bytes.concat(SEPARATOR, builder.toString().getBytes(Charsets.UTF_8));
+        return Bytes.concat(SEPARATOR, serializeItems(builder));
+    }
+
+    private static String encryptItems(VolumeCipher volumeCipher, StringBuilder builder) {
+        return "x:" + encodeBase64(volumeCipher.cipherHead(true, serializeItems(builder)));
+    }
+
+    private static byte[] serializeItems(StringBuilder builder) {
+        return builder.toString().trim().getBytes(Charsets.UTF_8);
     }
 }
