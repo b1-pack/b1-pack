@@ -17,9 +17,7 @@
 package org.b1.pack.standard.reader;
 
 import SevenZip.Compression.LZMA.Decoder;
-import SevenZip.Compression.LZMA.Encoder;
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,10 +32,12 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     private final PipedInputStream pipedInputStream = new PipedInputStream();
     private final PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
     private final InputStream inputStream;
+    private final Decoder decoder;
     private final Future<Void> future;
 
-    public LzmaDecodingInputStream(InputStream inputStream, ExecutorService executorService) throws IOException {
+    public LzmaDecodingInputStream(InputStream inputStream, Decoder decoder, ExecutorService executorService) throws IOException {
         this.inputStream = inputStream;
+        this.decoder = decoder;
         this.future = executorService.submit(this);
     }
 
@@ -54,10 +54,6 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     @Override
     public Void call() throws Exception {
         try {
-            byte[] properties = new byte[Encoder.kPropSize];
-            ByteStreams.readFully(inputStream, properties);
-            Decoder decoder = new Decoder();
-            Preconditions.checkState(decoder.SetDecoderProperties(properties));
             Preconditions.checkState(decoder.Code(inputStream, pipedOutputStream, -1));
             return null;
         } finally {

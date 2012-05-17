@@ -27,7 +27,6 @@ class LzmaEncodedInputStream extends InputStream {
     private final BlockCursor blockCursor;
 
     public LzmaEncodedInputStream(BlockCursor blockCursor) {
-        Preconditions.checkState(blockCursor.getBlockType() == Constants.FIRST_LZMA_BLOCK);
         this.blockCursor = blockCursor;
     }
 

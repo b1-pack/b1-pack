@@ -48,11 +48,12 @@ Volume construction
  not going to be compressed, it's wrapped in "PlainBlock" with an Adler-32 checksum computed over the chunk data.
 
  In the cases when the chunk is being compressed with LZMA the resulting binary stream starts with 5 bytes of coder
- properties and is directly followed by the compressed data. An End Of Stream marker is always being used to designate
- the stream end, so neither the actual chunk size no "-1" (typically indicating the EOF marker presence) is stored
- in the stream. The compressed stream may be split into several parts. The first one is wrapped in "FirstLzmaBlock"
- and the other (if any) are wrapped in blocks of type "NextLzmaBlock". The Adler-32 checksum in those blocks must be
- computed over the part's data.
+ properties and is directly followed by one or more compressed streams. An End Of Stream marker is always being used
+ to designate the stream end, so neither the actual input size no "-1" (typically indicating the EOF marker presence)
+ is stored in the stream. A writer should create only one LZMA stream per chunk, but a reader should be able to handle
+ several LZMA streams. The resulting binary stream consisting of coder properties and LZMA streams may be split into
+ several parts. The first one is wrapped in "FirstLzmaBlock" and the other (if any) are wrapped in blocks of type
+ "NextLzmaBlock". The Adler-32 checksum in those blocks must be computed over the part's data.
 
  Each "PlainBlock", "FirstLzmaBlock" or "NextLzmaBlock" obtained this way is placed into a "Block" which is then added
  to the volume body. If the current volume doesn't have enough space, the block is added to the next volume.

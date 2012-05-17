@@ -177,7 +177,7 @@ class BlockWriter extends ChunkWriter {
 
     private VolumeWriter createVolumeWriter(long volumeNumber) throws IOException {
         return new VolumeWriter(archiveId, volumeNumber, objectCount, compressionMethod, provider.getMaxVolumeSize(),
-                provider.getVolume(volumeNumber), catalogPointer, packCipher.getVolumeCipher(volumeNumber));
+                provider.getVolume(volumeNumber), catalogPointer, packCipher == null ? null : packCipher.getVolumeCipher(volumeNumber));
     }
 
     private void completeVolumeWriter() throws IOException {

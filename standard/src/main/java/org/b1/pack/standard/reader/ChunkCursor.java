@@ -16,6 +16,10 @@
 
 package org.b1.pack.standard.reader;
 
+import SevenZip.Compression.LZMA.Decoder;
+import SevenZip.Compression.LZMA.Encoder;
+import com.google.common.base.Preconditions;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import org.b1.pack.standard.common.BlockPointer;
 import org.b1.pack.standard.common.Constants;
@@ -28,8 +32,10 @@ import java.io.InputStream;
 class ChunkCursor implements Closeable {
 
     private final BlockCursor blockCursor;
+    private final byte[] lzmaProperties = new byte[Encoder.kPropSize];
     private BlockPointer blockPointer;
     private CountingInputStream inputStream = new CountingInputStream(new ByteArrayInputStream(new byte[0]));
+    private long streamOffset;
 
     public ChunkCursor(BlockCursor blockCursor) {
         this.blockCursor = blockCursor;
@@ -44,16 +50,30 @@ class ChunkCursor implements Closeable {
     }
 
     public long getRecordOffset() {
-        return inputStream.getCount();
+        return streamOffset + inputStream.getCount();
     }
 
     public void seek(BlockPointer pointer) throws IOException {
+        inputStream.close();
         blockCursor.seek(pointer);
         initChunk();
     }
 
     public void next() throws IOException {
+        streamOffset = getRecordOffset();
+        inputStream.close();
+        if (blockCursor.getInputStream().available() > 0) {
+            Preconditions.checkState(
+                    blockCursor.getBlockType() == Constants.FIRST_LZMA_BLOCK ||
+                    blockCursor.getBlockType() == Constants.NEXT_LZMA_BLOCK);
+            inputStream = createLzmaInputStream(new LzmaEncodedInputStream(blockCursor));
+            return;
+        }
         blockCursor.next();
+        if (blockCursor.getBlockType() == Constants.NEXT_LZMA_BLOCK) {
+            inputStream = createLzmaInputStream(new LzmaEncodedInputStream(blockCursor));
+            return;
+        }
         initChunk();
     }
 
@@ -63,10 +83,21 @@ class ChunkCursor implements Closeable {
     }
 
     private void initChunk() throws IOException {
-        inputStream.close();
         blockPointer = blockCursor.getBlockPointer();
-        inputStream = new CountingInputStream(blockCursor.getBlockType() == Constants.PLAIN_BLOCK ? blockCursor.getInputStream()
-                : new LzmaDecodingInputStream(new LzmaEncodedInputStream(blockCursor), blockCursor.getExecutorService()));
+        streamOffset = 0;
+        if (blockCursor.getBlockType() == Constants.PLAIN_BLOCK) {
+            inputStream = new CountingInputStream(blockCursor.getInputStream());
+            return;
+        }
+        Preconditions.checkState(blockCursor.getBlockType() == Constants.FIRST_LZMA_BLOCK);
+        LzmaEncodedInputStream stream = new LzmaEncodedInputStream(blockCursor);
+        ByteStreams.readFully(stream, lzmaProperties);
+        inputStream = createLzmaInputStream(stream);
+    }
 
+    private CountingInputStream createLzmaInputStream(LzmaEncodedInputStream stream) throws IOException {
+        Decoder decoder = new Decoder();
+        Preconditions.checkState(decoder.SetDecoderProperties(lzmaProperties));
+        return new CountingInputStream(new LzmaDecodingInputStream(stream, decoder, blockCursor.getExecutorService()));
     }
 }
