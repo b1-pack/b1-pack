@@ -16,6 +16,8 @@
 
 package org.b1.pack.standard.reader;
 
+import com.google.common.io.ByteStreams;
+import org.b1.pack.standard.common.BlockPointer;
 import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.IOException;
@@ -30,7 +32,18 @@ class PackInputStream extends InputStream {
     }
 
     public void seek(RecordPointer pointer) throws IOException {
-        chunkCursor.seek(pointer);
+        BlockPointer blockPointer = chunkCursor.getBlockPointer();
+        if (blockPointer != null &&
+                blockPointer.volumeNumber == pointer.volumeNumber &&
+                blockPointer.blockOffset == pointer.blockOffset) {
+            long skipCount = pointer.recordOffset - chunkCursor.getRecordOffset();
+            if (skipCount >= 0) {
+                ByteStreams.skipFully(this, skipCount);
+                return;
+            }
+        }
+        chunkCursor.seek(new BlockPointer(pointer.volumeNumber, pointer.blockOffset));
+        ByteStreams.skipFully(this, pointer.recordOffset);
     }
 
     @Override

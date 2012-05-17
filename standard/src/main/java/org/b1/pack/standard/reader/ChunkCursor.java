@@ -16,11 +16,9 @@
 
 package org.b1.pack.standard.reader;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import org.b1.pack.standard.common.BlockPointer;
 import org.b1.pack.standard.common.Constants;
-import org.b1.pack.standard.common.RecordPointer;
 
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -37,23 +35,21 @@ class ChunkCursor implements Closeable {
         this.blockCursor = blockCursor;
     }
 
+    public BlockPointer getBlockPointer() {
+        return blockPointer;
+    }
+
     public InputStream getInputStream() {
         return inputStream;
     }
 
-    public void seek(RecordPointer pointer) throws IOException {
-        if (blockPointer != null &&
-                blockPointer.volumeNumber == pointer.volumeNumber &&
-                blockPointer.blockOffset == pointer.blockOffset) {
-            long skipCount = pointer.recordOffset - inputStream.getCount();
-            if (skipCount >= 0) {
-                ByteStreams.skipFully(inputStream, skipCount);
-                return;
-            }
-        }
-        blockCursor.seek(new BlockPointer(pointer.volumeNumber, pointer.blockOffset));
+    public long getRecordOffset() {
+        return inputStream.getCount();
+    }
+
+    public void seek(BlockPointer pointer) throws IOException {
+        blockCursor.seek(pointer);
         initChunk();
-        ByteStreams.skipFully(inputStream, pointer.recordOffset);
     }
 
     public void next() throws IOException {
