@@ -88,7 +88,10 @@ public class Volumes {
             Preconditions.checkArgument(!method.contains(" "));
             builder.append(" m:").append(method);
         }
-        return volumeCipher == null ? builder.toString() : " " + encryptItems(volumeCipher, builder);
+        if (volumeCipher == null) {
+            return builder.toString();
+        }
+        return " x:" + encodeBase64(volumeCipher.cipherHead(true, serializeItems(builder)));
     }
 
     public static byte[] createVolumeTail(boolean lastVolume, RecordPointer catalogPointer, long minSize, VolumeCipher volumeCipher) {
@@ -101,7 +104,7 @@ public class Volumes {
                     .append('/')
                     .append(catalogPointer.recordOffset);
             if (volumeCipher != null) {
-                builder = new StringBuilder(encryptItems(volumeCipher, builder));
+                builder = new StringBuilder("x:").append(encodeBase64(volumeCipher.cipherTail(true, serializeItems(builder))));
             }
             builder.append(' ');
         }
@@ -111,10 +114,6 @@ public class Volumes {
         }
         builder.append(signature);
         return Bytes.concat(SEPARATOR, serializeItems(builder));
-    }
-
-    private static String encryptItems(VolumeCipher volumeCipher, StringBuilder builder) {
-        return "x:" + encodeBase64(volumeCipher.cipherHead(true, serializeItems(builder)));
     }
 
     private static byte[] serializeItems(StringBuilder builder) {

@@ -18,6 +18,7 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Objects;
 import org.b1.pack.api.common.CompressionMethod;
+import org.b1.pack.api.common.EncryptionMethod;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.api.writer.WriterVolume;
 
@@ -30,6 +31,7 @@ public class FsWriterProvider extends WriterProvider {
     private final long maxVolumeSize;
     private boolean seekable = true;
     private CompressionMethod compressionMethod;
+    private EncryptionMethod encryptionMethod;
 
     public FsWriterProvider(File outputFolder, String packName, Long maxVolumeSize) {
         this.volumeNameExpert = new VolumeNameExpert(outputFolder, packName, maxVolumeSize != null ? 1 : 0);
@@ -56,11 +58,19 @@ public class FsWriterProvider extends WriterProvider {
         return compressionMethod;
     }
 
+    public EncryptionMethod getEncryptionMethod() {
+        return encryptionMethod;
+    }
+
     public void setSeekable(boolean seekable) {
         this.seekable = seekable;
     }
 
     public void setCompressionMethod(CompressionMethod compressionMethod) {
         this.compressionMethod = compressionMethod;
+    }
+
+    public void setEncryptionMethod(EncryptionMethod encryptionMethod) {
+        this.encryptionMethod = encryptionMethod;
     }
 }

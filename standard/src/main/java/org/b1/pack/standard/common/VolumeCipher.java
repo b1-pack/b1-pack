@@ -28,7 +28,8 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 public class VolumeCipher {
 
-    private static final int MAC_BIT_SIZE = 128;
+    public static final int MAC_BYTE_SIZE = 16;
+
     private static final byte[] BLANK_NONCE = new byte[12];
     private static final byte[] HEAD_SALT = new byte[]{0x01};
     private static final byte[] TAIL_SALT = new byte[]{0x02};
@@ -60,7 +61,7 @@ public class VolumeCipher {
 
     private byte[] doCipher(boolean encryption, byte[] salt, byte[] in) {
         GCMBlockCipher cipher = new GCMBlockCipher(new AESFastEngine(), new BasicGCMMultiplier());
-        AEADParameters parameters = new AEADParameters(PackCipher.generateKey(hMac, salt), MAC_BIT_SIZE, BLANK_NONCE, null);
+        AEADParameters parameters = new AEADParameters(PackCipher.generateKey(hMac, salt), MAC_BYTE_SIZE * 8, BLANK_NONCE, null);
         cipher.init(encryption, parameters);
         byte[] out = new byte[cipher.getOutputSize(in.length)];
         int count = cipher.processBytes(in, 0, in.length, out, 0);

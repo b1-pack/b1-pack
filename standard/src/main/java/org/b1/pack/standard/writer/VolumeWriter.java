@@ -29,7 +29,7 @@ import java.util.SortedMap;
 
 class VolumeWriter {
 
-    private final SortedMap<Long, PbBlock> suspendedBlocks = Maps.newTreeMap();
+    private final SortedMap<Long, Writable> suspendedBlocks = Maps.newTreeMap();
     private final long volumeNumber;
     private final long maxVolumeSize;
     private final WriterVolume volume;
@@ -86,21 +86,23 @@ class VolumeWriter {
     }
 
     public void suspendBlock(PbBlock block) throws IOException {
-        suspendedBlocks.put(streamEnd, block);
+        Writable writable = encrypt(streamEnd, block);
+        suspendedBlocks.put(streamEnd, writable);
         streamAtEnd = false;
-        streamEnd += block.getSize();
+        streamEnd += writable.getSize();
     }
 
     public void writeBlock(PbBlock block) throws IOException {
+        Writable writable = encrypt(streamEnd, block);
         seekToEnd();
-        writeToStream(block);
-        streamEnd += block.getSize();
+        writeToStream(writable);
+        streamEnd += writable.getSize();
     }
 
     public void flush() throws IOException {
         if (suspendedBlocks.isEmpty()) return;
         streamAtEnd = false;
-        for (Map.Entry<Long, PbBlock> entry : suspendedBlocks.entrySet()) {
+        for (Map.Entry<Long, Writable> entry : suspendedBlocks.entrySet()) {
             volume.seek(outputStream, entry.getKey());
             writeToStream(entry.getValue());
         }
@@ -119,6 +121,10 @@ class VolumeWriter {
 
     public void cleanup() {
         Closeables.closeQuietly(outputStream);
+    }
+
+    private Writable encrypt(long offset, PbBlock block) {
+        return volumeCipher == null ? block : new AesBlock(volumeCipher, offset, block);
     }
 
     private void setLimits() throws IOException {

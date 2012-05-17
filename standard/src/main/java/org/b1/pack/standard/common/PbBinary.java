@@ -23,4 +23,8 @@ public class PbBinary extends CompositeWritable {
     public PbBinary(Writable content) {
         super(new PbInt(content.getSize()), content, PbInt.ZERO);
     }
+
+    public static long getSerializedSize(long contentSize) {
+        return Numbers.getSerializedSize(contentSize) + contentSize + PbInt.ZERO.getSize();
+    }
 }

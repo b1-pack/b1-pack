@@ -20,6 +20,10 @@ import org.b1.pack.api.builder.Writable;
 
 public class PbBlock extends CompositeWritable {
 
+    protected PbBlock(Writable... writables) {
+        super(writables);
+    }
+
     private PbBlock(long code, Writable writable) {
         super(new PbInt(code), writable);
     }
