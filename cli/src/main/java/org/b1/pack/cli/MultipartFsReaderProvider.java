@@ -16,20 +16,19 @@
 
 package org.b1.pack.cli;
 
-import org.b1.pack.api.reader.ReaderProvider;
 import org.b1.pack.api.reader.ReaderVolume;
 
 import java.io.File;
 import java.util.LinkedList;
 
-public class MultipartReaderProvider extends ReaderProvider {
+public class MultipartFsReaderProvider extends FsReaderProvider {
 
     private final String prefix;
     private final String suffix;
     private final int digitCount;
     private final int minVolumeCount;
 
-    public MultipartReaderProvider(String prefix, String suffix, int digitCount, int minVolumeCount) {
+    public MultipartFsReaderProvider(String prefix, String suffix, int digitCount, int minVolumeCount) {
         this.prefix = prefix;
         this.suffix = suffix;
         this.digitCount = digitCount;

@@ -18,21 +18,17 @@ package org.b1.pack.api.common;
 
 public class CompressionMethod {
 
-    public static final CompressionMethod SMART = new CompressionMethod("smart");
-    public static final CompressionMethod CLASSIC = new CompressionMethod("classic");
-    public static final CompressionMethod MAXIMUM = new CompressionMethod("maximum");
+    public static final String SMART = "smart";
+    public static final String CLASSIC = "classic";
+    public static final String MAXIMUM = "maximum";
 
     private final String name;
 
-    protected CompressionMethod(String name) {
+    public CompressionMethod(String name) {
         this.name = name;
     }
 
     public String getName() {
         return name;
-    }
-
-    public static CompressionMethod valueOf(String name) {
-        return name == null ? null : new CompressionMethod(name);
     }
 }

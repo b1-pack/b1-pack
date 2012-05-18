@@ -18,9 +18,11 @@ package org.b1.pack.api.common;
 
 public class EncryptionMethod {
 
+    public static final String AES = "AES";
+
     private final String name;
 
-    protected EncryptionMethod(String name) {
+    public EncryptionMethod(String name) {
         this.name = name;
     }
 
@@ -33,10 +35,6 @@ public class EncryptionMethod {
     }
 
     public int getIterationCount() {
-        return 1000;
-    }
-
-    public static EncryptionMethod valueOf(String name) {
-        return name == null ? null : new EncryptionMethod(name);
+        return 100000;
     }
 }

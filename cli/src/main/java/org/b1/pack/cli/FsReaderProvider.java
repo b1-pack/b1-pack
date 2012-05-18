@@ -16,24 +16,30 @@
 
 package org.b1.pack.cli;
 
+import com.google.common.base.Preconditions;
 import org.b1.pack.api.reader.ReaderProvider;
 
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ReaderProviderFactory {
+public abstract class FsReaderProvider extends ReaderProvider {
 
     private static final Pattern PATTERN = Pattern.compile("(?i)(.*\\.part)(\\d+)(.b1)");
 
-    public static ReaderProvider createReaderProvider(File packFile) {
+    public static ReaderProvider getInstance(File packFile) {
         Matcher matcher = PATTERN.matcher(packFile.getPath());
         if (!matcher.matches()) {
-            return new BasicReaderProvider(packFile);
+            return new BasicFsReaderProvider(packFile);
         }
         String prefix = matcher.group(1);
         String number = matcher.group(2);
         String suffix = matcher.group(3);
-        return new MultipartReaderProvider(prefix, suffix, number.length(), Integer.parseInt(number));
+        return new MultipartFsReaderProvider(prefix, suffix, number.length(), Integer.parseInt(number));
+    }
+
+    @Override
+    public char[] getPassword() {
+        return Preconditions.checkNotNull(System.console(), "No console attached").readPassword("Password for decryption: ");
     }
 }

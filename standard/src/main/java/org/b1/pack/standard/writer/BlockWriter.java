@@ -51,6 +51,7 @@ class BlockWriter extends ChunkWriter {
         if (method == null) {
             archiveId = Volumes.createArchiveId();
         } else {
+            Preconditions.checkArgument(EncryptionMethod.AES.equals(method.getName()), "Unsupported encryption method: %s", method.getName());
             byte[] salt = Volumes.generateRandomBytes(32);
             archiveId = Volumes.encodeBase64(salt);
             packCipher = new PackCipher(method.getPassword(), salt, method.getIterationCount());

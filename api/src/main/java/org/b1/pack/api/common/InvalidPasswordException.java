@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.b1.pack.api.common;
 
-package org.b1.pack.cli;
+public class InvalidPasswordException extends RuntimeException {
 
-import org.b1.pack.api.reader.ReaderProvider;
-import org.b1.pack.api.reader.ReaderVolume;
-
-import java.io.File;
-
-public class BasicReaderProvider extends ReaderProvider {
-
-    private final File packFile;
-
-    public BasicReaderProvider(File packFile) {
-        this.packFile = packFile;
-    }
-
-    @Override
-    public ReaderVolume getVolume(long number) {
-        return number == 1 ? new FsReaderVolume(packFile) : null;
-    }
-
-    @Override
-    public long getVolumeCount() {
-        return 1;
+    public InvalidPasswordException(String message) {
+        super(message);
     }
 }

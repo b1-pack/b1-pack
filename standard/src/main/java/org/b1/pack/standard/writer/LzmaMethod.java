@@ -66,12 +66,12 @@ class LzmaMethod {
             return null;
         }
         String name = method.getName();
-        if (name.equals(CompressionMethod.SMART.getName()) || name.equals(CompressionMethod.CLASSIC.getName())) {
-            return new LzmaMethod(name, 1 << 27, 1 << 20, 1 << 5, name.equals(CompressionMethod.SMART.getName()));
+        if (CompressionMethod.SMART.equals(name) || CompressionMethod.CLASSIC.equals(name)) {
+            return new LzmaMethod(name, 1 << 27, 1 << 20, 1 << 5, CompressionMethod.SMART.equals(name));
         }
-        if (name.equals(CompressionMethod.MAXIMUM.getName())) {
+        if (CompressionMethod.MAXIMUM.equals(name)) {
             return new LzmaMethod(name, 1L << 32, 1 << 25, 1 << 6, false);
         }
-        throw new IllegalArgumentException("Unknown compression method: " + name);
+        throw new IllegalArgumentException("Unsupported compression method: " + name);
     }
 }

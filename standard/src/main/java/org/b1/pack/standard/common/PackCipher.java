@@ -16,11 +16,16 @@
 package org.b1.pack.standard.common;
 
 import com.google.common.base.Charsets;
-import org.bouncycastle.crypto.PBEParametersGenerator;
+import com.google.common.base.Preconditions;
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.util.Strings;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 public class PackCipher {
 
@@ -30,11 +35,8 @@ public class PackCipher {
 
     public PackCipher(char[] password, byte[] salt, int iterationCount) {
         this.iterationCount = iterationCount;
-        SHA256Digest digest = new SHA256Digest();
-        hMac = new HMac(digest);
-        PKCS5S2ParametersGenerator generator = new PKCS5S2ParametersGenerator(digest);
-        generator.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(password), salt, iterationCount);
-        hMac.init(generator.generateDerivedParameters(KEY_SIZE));
+        hMac = new HMac(new SHA256Digest());
+        hMac.init(generateKey(password, salt, iterationCount));
     }
 
     public VolumeCipher getVolumeCipher(long volumeNumber) {
@@ -50,5 +52,29 @@ public class PackCipher {
 
     public static byte[] longToUtf8(long value) {
         return Long.toString(value).getBytes(Charsets.UTF_8);
+    }
+
+    private CipherParameters generateKey(char[] password, byte[] salt, int iterationCount) {
+        byte[] utf8Password = getUtf8Password(Preconditions.checkNotNull(password, "No password provided"));
+        try {
+            PKCS5S2ParametersGenerator generator = new PKCS5S2ParametersGenerator(new SHA256Digest());
+            generator.init(utf8Password, salt, iterationCount);
+            return generator.generateDerivedParameters(KEY_SIZE);
+        } finally {
+            Arrays.fill(utf8Password, (byte) 0);
+        }
+    }
+
+    private byte[] getUtf8Password(char[] password) {
+        MemoryOutputStream stream = new MemoryOutputStream(password.length * 4);
+        try {
+            Strings.toUTF8ByteArray(password, stream);
+            return stream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            Arrays.fill(password, (char) 0);
+            Arrays.fill(stream.getBuf(), (byte) 0);
+        }
     }
 }

@@ -29,21 +29,8 @@ public class ListCommand implements PackCommand {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         System.out.println("Listing " + file);
-        System.out.println();
-        System.out.println("Name");
-        System.out.println("Type             Size     Date       Time");
-        printLine();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(ReaderProviderFactory.createReaderProvider(file), new ListBuilder(""));
-        printLine();
-        System.out.println();
+        reader.read(FsReaderProvider.getInstance(file), new ListBuilder("", true));
         System.out.println("Done");
-    }
-
-    private static void printLine() {
-        for (int i = 0; i < 80; i++) {
-            System.out.print('-');
-        }
-        System.out.println();
     }
 }

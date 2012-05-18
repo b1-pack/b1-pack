@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 b1.org
+ * Copyright 2011 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package org.b1.pack.api.reader;
+package org.b1.pack.cli;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.b1.pack.api.reader.ReaderVolume;
 
-public abstract class ReaderProvider {
+import java.io.File;
 
-    public abstract ReaderVolume getVolume(long number);
+public class BasicFsReaderProvider extends FsReaderProvider {
 
-    public abstract long getVolumeCount();
+    private final File packFile;
 
-    public ExecutorService getExecutorService() {
-        return Executors.newCachedThreadPool();
+    public BasicFsReaderProvider(File packFile) {
+        this.packFile = packFile;
     }
 
-    public char[] getPassword() {
-        return null;
+    @Override
+    public ReaderVolume getVolume(long number) {
+        return number == 1 ? new FsReaderVolume(packFile) : null;
+    }
+
+    @Override
+    public long getVolumeCount() {
+        return 1;
     }
 }

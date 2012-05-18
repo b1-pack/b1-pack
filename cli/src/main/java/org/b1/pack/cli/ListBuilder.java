@@ -27,27 +27,54 @@ import java.io.IOException;
 public class ListBuilder implements FolderBuilder {
 
     private final String namePrefix;
+    private boolean needHeader;
 
-    public ListBuilder(String namePrefix) {
+    public ListBuilder(String namePrefix, boolean needHeader) {
         this.namePrefix = namePrefix;
+        this.needHeader = needHeader;
     }
 
     @Override
     public FileBuilder addFile(PackEntry entry, Long size) throws IOException {
+        printHeader();
         printInfo(namePrefix + entry.getName(), 'F', size, entry.getLastModifiedTime());
         return null;
+    }
+
+    private void printHeader() {
+        if (needHeader) {
+            needHeader = false;
+            System.out.println();
+            System.out.println("Name");
+            System.out.println("Type             Size     Date       Time");
+            printLine();
+        }
     }
 
     @Override
     public FolderBuilder addFolder(PackEntry entry) throws IOException {
         String path = namePrefix + entry.getName();
         printInfo(path, 'D', null, entry.getLastModifiedTime());
-        return new ListBuilder(path + File.separator);
+        return new ListBuilder(path + File.separator, false);
     }
 
     @Override
     public void save() throws IOException {
-        // no-op
+        if (namePrefix.isEmpty()) {
+            if (needHeader) {
+                System.out.println("No files found");
+            } else {
+                printLine();
+                System.out.println();
+            }
+        }
+    }
+
+    private static void printLine() {
+        for (int i = 0; i < 80; i++) {
+            System.out.print('-');
+        }
+        System.out.println();
     }
 
     private static void printInfo(String path, char type, @Nullable Long size, Long time) {

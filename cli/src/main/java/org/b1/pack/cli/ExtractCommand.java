@@ -29,10 +29,11 @@ public class ExtractCommand implements PackCommand {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         final File outputFolder = FileTools.getOutputFolder(argSet);
-        System.out.println("Extracting from \"" + file + "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
+        System.out.println("Extracting from \"" + file +
+                "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
         System.out.println();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(ReaderProviderFactory.createReaderProvider(file), new FsFolderBuilder(outputFolder, null));
+        reader.read(FsReaderProvider.getInstance(file), new FsFolderBuilder(outputFolder, null));
         System.out.println();
         System.out.println("Done");
     }

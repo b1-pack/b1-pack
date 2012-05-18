@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.b1.pack.cli;
 
-package org.b1.pack.api.reader;
+import com.google.common.base.Preconditions;
+import org.b1.pack.api.common.EncryptionMethod;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+public class FsEncryptionMethod extends EncryptionMethod {
 
-public abstract class ReaderProvider {
-
-    public abstract ReaderVolume getVolume(long number);
-
-    public abstract long getVolumeCount();
-
-    public ExecutorService getExecutorService() {
-        return Executors.newCachedThreadPool();
+    public FsEncryptionMethod() {
+        super(EncryptionMethod.AES);
     }
 
+    @Override
     public char[] getPassword() {
-        return null;
+        return Preconditions.checkNotNull(System.console(), "No console attached").readPassword("Password for encryption: ");
     }
 }

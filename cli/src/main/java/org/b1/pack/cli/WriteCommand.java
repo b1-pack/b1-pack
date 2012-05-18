@@ -27,10 +27,17 @@ public class WriteCommand implements PackCommand {
     @Override
     public void execute(ArgSet argSet) throws IOException {
         System.out.println("Starting");
-        FsWriterProvider provider = new FsWriterProvider(FileTools.getOutputFolder(argSet), argSet.getPackName(), argSet.getMaxVolumeSize());
+        FsWriterProvider provider = new FsWriterProvider(
+                FileTools.getOutputFolder(argSet), argSet.getPackName(), argSet.getMaxVolumeSize());
         provider.setSeekable(isSeekable(argSet.getTypeFlag()));
-        provider.setCompressionMethod(CompressionMethod.valueOf(argSet.getMethod()));
-        PackWriter.getInstance(argSet.getTypeFormat()).write(provider, FileTools.createFolderContent(argSet.getFileNames()));
+        if (argSet.getMethod() != null) {
+            provider.setCompressionMethod(new CompressionMethod(argSet.getMethod()));
+        }
+        if (argSet.isPassword()) {
+            provider.setEncryptionMethod(new FsEncryptionMethod());
+        }
+        PackWriter writer = PackWriter.getInstance(argSet.getTypeFormat());
+        writer.write(provider, FileTools.createFolderContent(argSet.getFileNames()));
         System.out.println();
         System.out.println("Done");
     }
