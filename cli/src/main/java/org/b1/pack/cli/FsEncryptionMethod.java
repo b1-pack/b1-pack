@@ -18,14 +18,37 @@ package org.b1.pack.cli;
 import com.google.common.base.Preconditions;
 import org.b1.pack.api.common.EncryptionMethod;
 
+import java.io.Console;
+import java.util.Arrays;
+
 public class FsEncryptionMethod extends EncryptionMethod {
 
-    public FsEncryptionMethod() {
-        super(EncryptionMethod.AES);
+    private final String password;
+
+    public FsEncryptionMethod(String name, String password) {
+        super(name);
+        this.password = password;
     }
 
     @Override
     public char[] getPassword() {
-        return Preconditions.checkNotNull(System.console(), "No console attached").readPassword("Password for encryption: ");
+        if (password != null) {
+            return password.toCharArray();
+        }
+        Console console = Preconditions.checkNotNull(System.console(), "Console is not available for password input");
+        char[] password1 = console.readPassword("Enter password for encryption (will not be echoed): ");
+        char[] password2 = console.readPassword("Verify password for encryption (will not be echoed): ");
+        if (Arrays.equals(password1, password2)) {
+            clearPassword(password1);
+            return password2;
+        } else {
+            clearPassword(password1);
+            clearPassword(password2);
+            throw new IllegalStateException("Passwords do not match");
+        }
+    }
+
+    private static void clearPassword(char[] password) {
+        Arrays.fill(password, (char) 0);
     }
 }

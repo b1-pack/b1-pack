@@ -24,7 +24,8 @@ public class BasicFsReaderProvider extends FsReaderProvider {
 
     private final File packFile;
 
-    public BasicFsReaderProvider(File packFile) {
+    public BasicFsReaderProvider(String password, File packFile) {
+        super(password);
         this.packFile = packFile;
     }
 

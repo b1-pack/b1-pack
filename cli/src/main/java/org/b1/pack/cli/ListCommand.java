@@ -30,7 +30,7 @@ public class ListCommand implements PackCommand {
         File file = new File(argSet.getPackName());
         System.out.println("Listing " + file);
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(FsReaderProvider.getInstance(file), new ListBuilder("", true));
+        reader.read(FsReaderProvider.getInstance(argSet.getPassword(), file), new ListBuilder("", true));
         System.out.println("Done");
     }
 }

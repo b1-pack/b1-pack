@@ -34,39 +34,43 @@ public class ArgSet {
 
     public static final Pattern SIZE_PATTERN = Pattern.compile("(\\d+)([kMG]?B)");
     public static final Pattern TYPE_PATTERN = Pattern.compile("(.*?)(?::(.+))?");
-    public static final ImmutableMap<String, Integer> SIZE_MULTIPLIERS =
-            ImmutableMap.of("B", 1, "kB", 1000, "MB", 1000 * 1000, "GB", 1000 * 1000 * 1000);
+    public static final ImmutableMap<String, Integer> SIZE_MULTIPLIERS = ImmutableMap.<String, Integer>builder()
+            .put("B", 1).put("kB", 1000).put("MB", 1000 * 1000).put("GB", 1000 * 1000 * 1000)
+            .put("KiB", 1024).put("MiB", 1024 * 1024).put("GiB", 1024 * 1024 * 1024).build();
 
     private String command;
     private String packName;
     private List<String> fileNames;
+    private boolean help;
+    private String outputDirectory;
     private Long maxVolumeSize;
+    private String compression;
+    private String encryption;
+    private String password;
     private String typeFormat = B1;
     private String typeFlag;
-    private String outputDirectory;
-    private String method;
-    private boolean help;
-    private boolean password;
 
     public ArgSet(String[] args) {
         OptionParser parser = new OptionParser();
-        OptionSpec<String> volumeOption = parser.accepts("v").withRequiredArg();
-        OptionSpec<String> typeOption = parser.accepts("type").withRequiredArg();
-        OptionSpec<String> outputOption = parser.accepts("o").withRequiredArg();
-        OptionSpec<String> methodOption = parser.accepts("m").withRequiredArg();
         OptionSpec helpOption = parser.acceptsAll(Arrays.asList("?", "h", "help"));
-        OptionSpec passwordOption = parser.accepts("p");
+        OptionSpec<String> outputOption = parser.accepts("o").withRequiredArg();
+        OptionSpec<String> volumeOption = parser.accepts("v").withRequiredArg();
+        OptionSpec<String> methodOption = parser.accepts("m").withRequiredArg();
+        OptionSpec<String> encryptOption = parser.accepts("encrypt").withRequiredArg();
+        OptionSpec<String> passwordOption = parser.accepts("password").withRequiredArg();
+        OptionSpec<String> typeOption = parser.accepts("type").withRequiredArg();
         OptionSet optionSet = parser.parse(args);
         LinkedList<String> arguments = new LinkedList<String>(optionSet.nonOptionArguments());
         command = arguments.pollFirst();
         packName = arguments.pollFirst();
         fileNames = arguments;
-        initMaxVolumeSize(optionSet.valueOf(volumeOption));
-        initType(optionSet.valueOf(typeOption));
-        outputDirectory = optionSet.valueOf(outputOption);
-        method = optionSet.valueOf(methodOption);
         help = optionSet.has(helpOption);
-        password = optionSet.has(passwordOption);
+        outputDirectory = optionSet.valueOf(outputOption);
+        initMaxVolumeSize(optionSet.valueOf(volumeOption));
+        compression = optionSet.valueOf(methodOption);
+        encryption = optionSet.valueOf(encryptOption);
+        password = optionSet.valueOf(passwordOption);
+        initType(optionSet.valueOf(typeOption));
     }
 
     private void initMaxVolumeSize(String size) {
@@ -96,8 +100,28 @@ public class ArgSet {
         return fileNames;
     }
 
+    public boolean isHelp() {
+        return help;
+    }
+
+    public String getOutputDirectory() {
+        return outputDirectory;
+    }
+
     public Long getMaxVolumeSize() {
         return maxVolumeSize;
+    }
+
+    public String getCompression() {
+        return compression;
+    }
+
+    public String getEncryption() {
+        return encryption;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getTypeFormat() {
@@ -106,21 +130,5 @@ public class ArgSet {
 
     public String getTypeFlag() {
         return typeFlag;
-    }
-
-    public String getOutputDirectory() {
-        return outputDirectory;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public boolean isHelp() {
-        return help;
-    }
-
-    public boolean isPassword() {
-        return password;
     }
 }

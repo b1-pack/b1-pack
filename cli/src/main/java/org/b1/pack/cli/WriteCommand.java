@@ -30,11 +30,13 @@ public class WriteCommand implements PackCommand {
         FsWriterProvider provider = new FsWriterProvider(
                 FileTools.getOutputFolder(argSet), argSet.getPackName(), argSet.getMaxVolumeSize());
         provider.setSeekable(isSeekable(argSet.getTypeFlag()));
-        if (argSet.getMethod() != null) {
-            provider.setCompressionMethod(new CompressionMethod(argSet.getMethod()));
+        if (argSet.getCompression() != null) {
+            provider.setCompressionMethod(new CompressionMethod(argSet.getCompression()));
         }
-        if (argSet.isPassword()) {
-            provider.setEncryptionMethod(new FsEncryptionMethod());
+        if (argSet.getEncryption() != null) {
+            provider.setEncryptionMethod(new FsEncryptionMethod(argSet.getEncryption(), argSet.getPassword()));
+        } else {
+            Preconditions.checkArgument(argSet.getPassword() == null, "No encryption method specified");
         }
         PackWriter writer = PackWriter.getInstance(argSet.getTypeFormat());
         writer.write(provider, FileTools.createFolderContent(argSet.getFileNames()));

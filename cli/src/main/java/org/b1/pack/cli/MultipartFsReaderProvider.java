@@ -28,7 +28,8 @@ public class MultipartFsReaderProvider extends FsReaderProvider {
     private final int digitCount;
     private final int minVolumeCount;
 
-    public MultipartFsReaderProvider(String prefix, String suffix, int digitCount, int minVolumeCount) {
+    public MultipartFsReaderProvider(String password, String prefix, String suffix, int digitCount, int minVolumeCount) {
+        super(password);
         this.prefix = prefix;
         this.suffix = suffix;
         this.digitCount = digitCount;

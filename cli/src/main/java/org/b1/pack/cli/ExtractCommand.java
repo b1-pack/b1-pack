@@ -33,7 +33,7 @@ public class ExtractCommand implements PackCommand {
                 "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
         System.out.println();
         PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(FsReaderProvider.getInstance(file), new FsFolderBuilder(outputFolder, null));
+        reader.read(FsReaderProvider.getInstance(argSet.getPassword(), file), new FsFolderBuilder(outputFolder, null));
         System.out.println();
         System.out.println("Done");
     }
