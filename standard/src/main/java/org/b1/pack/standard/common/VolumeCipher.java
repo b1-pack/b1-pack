@@ -66,7 +66,7 @@ public class VolumeCipher {
         byte[] out = new byte[cipher.getOutputSize(in.length)];
         int count = cipher.processBytes(in, 0, in.length, out, 0);
         try {
-            Preconditions.checkState(cipher.doFinal(out, count) == out.length);
+            Preconditions.checkState(count + cipher.doFinal(out, count) == out.length);
         } catch (InvalidCipherTextException e) {
             RuntimeCryptoException exception = new RuntimeCryptoException();
             exception.initCause(e);

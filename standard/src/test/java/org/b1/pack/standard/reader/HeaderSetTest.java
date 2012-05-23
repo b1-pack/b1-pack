@@ -26,7 +26,6 @@ public class HeaderSetTest {
     @Test
     public void test_head() throws Exception {
         HeaderSet set = new HeaderSet("b1:as v:0.1 a:qwerty n:1 t:100");
-        assertEquals("as", set.getHeaderType());
         assertEquals(0.1d, set.getSchemaVersion(), 0);
         assertEquals("qwerty", set.getArchiveId());
         assertEquals(1, set.getVolumeNumber().intValue());
@@ -36,7 +35,6 @@ public class HeaderSetTest {
     @Test
     public void test_tail() throws Exception {
         HeaderSet set = new HeaderSet("c:11/22/33   b1:ve");
-        assertEquals("ve", set.getHeaderType());
         RecordPointer pointer = set.getCatalogPointer();
         assertEquals(11, pointer.volumeNumber);
         assertEquals(22, pointer.blockOffset);

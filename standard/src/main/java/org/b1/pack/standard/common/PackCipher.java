@@ -39,6 +39,10 @@ public class PackCipher {
         hMac.init(generateKey(password, salt, iterationCount));
     }
 
+    public int getIterationCount() {
+        return iterationCount;
+    }
+
     public VolumeCipher getVolumeCipher(long volumeNumber) {
         return new VolumeCipher(generateKey(hMac, longToUtf8(volumeNumber)), iterationCount);
     }

@@ -42,7 +42,7 @@ public class AesBlock implements Writable {
 
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
-        long size = getSize();
+        long size = block.getSize();
         MemoryOutputStream buffer = new MemoryOutputStream(Ints.checkedCast(size));
         block.writeTo(buffer, 0, size);
         Writable content = new ByteArrayWritable(cipher.cipherBlock(true, offset, buffer.getBuf()));

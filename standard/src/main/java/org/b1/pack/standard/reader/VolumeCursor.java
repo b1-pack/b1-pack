@@ -24,11 +24,9 @@ import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Ints;
 import org.b1.pack.api.reader.ReaderProvider;
 import org.b1.pack.api.reader.ReaderVolume;
-import org.b1.pack.standard.common.BlockPointer;
-import org.b1.pack.standard.common.MemoryOutputStream;
-import org.b1.pack.standard.common.RecordPointer;
-import org.b1.pack.standard.common.Volumes;
+import org.b1.pack.standard.common.*;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -41,6 +39,8 @@ class VolumeCursor implements Closeable {
 
     private final ReaderProvider provider;
     private ExecutorService executorService;
+    private PackCipher packCipher;
+    private VolumeCipher volumeCipher;
     private String archiveId;
     private Long objectTotal;
     private RecordPointer catalogPointer;
@@ -121,30 +121,49 @@ class VolumeCursor implements Closeable {
         volumeNumber = number;
         volume = Preconditions.checkNotNull(provider.getVolume(number), "Volume %s not found", number);
         inputStream = new CountingInputStream(volume.getInputStream());
-        headerSet = readHead();
-        if (archiveId == null) {
-            archiveId = headerSet.getArchiveId();
-        }
-        checkVolume(headerSet.getHeaderType().equals(volumeNumber == 1 ? Volumes.AS : Volumes.VS));
+        headerSet = readHead(number);
         checkVolume(headerSet.getSchemaVersion() != null && headerSet.getSchemaVersion() <= Volumes.SCHEMA_VERSION);
         checkVolume(headerSet.getArchiveId() != null && headerSet.getArchiveId().equals(archiveId));
         checkVolume(headerSet.getVolumeNumber() != null && headerSet.getVolumeNumber() == volumeNumber);
     }
 
-    private HeaderSet readHead() throws IOException {
+    private HeaderSet readHead(long volumeNumber) throws IOException {
+        String signature = volumeNumber == 1 ? Volumes.B1_AS : Volumes.B1_VS;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         while (true) {
             int b = inputStream.read();
             checkVolume(b != -1);
             if ((byte) b == Volumes.SEPARATOR_BYTE) break;
             buffer.write(b);
-            if (buffer.size() == Volumes.B1_AS.length()) {
-                String signature = buffer.toString(Charsets.UTF_8.name());
-                checkVolume(signature.equals(Volumes.B1_AS) || signature.equals(Volumes.B1_VS));
+            if (buffer.size() == signature.length()) {
+                checkVolume(buffer.toString(Charsets.UTF_8.name()).equals(signature));
             }
         }
-        checkVolume(buffer.size() > Volumes.B1_AS.length());
-        return new HeaderSet(buffer.toString(Charsets.UTF_8.name()));
+        checkVolume(buffer.size() > signature.length());
+        HeaderSet headerSet = new HeaderSet(buffer.toString(Charsets.UTF_8.name()));
+        Integer iterationCount = headerSet.getIterationCount();
+        if (archiveId == null) {
+            archiveId = headerSet.getArchiveId();
+            checkVolume(archiveId != null);
+            if (iterationCount != null) {
+                packCipher = new PackCipher(provider.getPassword(), DatatypeConverter.parseBase64Binary(archiveId), iterationCount);
+            }
+        } else {
+            if (iterationCount == null) {
+                checkVolume(packCipher == null);
+            } else {
+                checkVolume(packCipher != null && packCipher.getIterationCount() == iterationCount);
+            }
+        }
+        if (packCipher == null) {
+            return headerSet;
+        }
+        byte[] encryptedHeaders = headerSet.getEncryptedHeaders();
+        checkVolume(encryptedHeaders != null);
+        volumeCipher = packCipher.getVolumeCipher(volumeNumber);
+        String plaintext = new String(volumeCipher.cipherHead(false, encryptedHeaders), Charsets.UTF_8);
+        checkVolume(plaintext.startsWith(signature));
+        return new HeaderSet(plaintext);
     }
 
     private HeaderSet readTail() throws IOException {
@@ -157,8 +176,20 @@ class VolumeCursor implements Closeable {
         int index = Bytes.lastIndexOf(outputStream.getBuf(), Volumes.SEPARATOR_BYTE) + 1;
         checkVolume(index > 0);
         String result = new String(outputStream.getBuf(), index, capacity - index, Charsets.UTF_8);
+        checkVolumeEnd(result);
+        HeaderSet headerSet = new HeaderSet(result);
+        if (packCipher == null) {
+            return headerSet;
+        }
+        byte[] encryptedHeaders = headerSet.getEncryptedHeaders();
+        checkVolume(encryptedHeaders != null);
+        String plaintext = new String(volumeCipher.cipherTail(false, encryptedHeaders), Charsets.UTF_8);
+        checkVolumeEnd(plaintext);
+        return new HeaderSet(plaintext);
+    }
+
+    private void checkVolumeEnd(String result) {
         checkVolume(result.endsWith(Volumes.B1_AE) || result.endsWith(Volumes.B1_VE));
-        return new HeaderSet(result);
     }
 
     private void checkVolume(boolean expression) {

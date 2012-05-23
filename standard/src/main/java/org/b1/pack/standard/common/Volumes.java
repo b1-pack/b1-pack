@@ -31,6 +31,8 @@ public class Volumes {
     public static final String N = "n";
     public static final String T = "t";
     public static final String C = "c";
+    public static final String E = "e";
+    public static final String X = "x";
     public static final String AS = "as";
     public static final String VS = "vs";
     public static final char COLON = ':';
@@ -57,7 +59,7 @@ public class Volumes {
     }
 
     public static String encodeBase64(byte[] buffer) {
-        return DatatypeConverter.printBase64Binary(buffer).replace("=", "");
+        return DatatypeConverter.printBase64Binary(buffer);
     }
 
     public static String createArchiveId() {
@@ -70,53 +72,50 @@ public class Volumes {
                 .append(" v:").append(SCHEMA_VERSION)
                 .append(" a:").append(archiveId)
                 .append(" n:").append(volumeNumber);
-        if (volumeCipher != null) {
+        if (volumeCipher == null) {
+            appendPrivateItems(builder, volumeNumber, objectCount, method);
+        } else {
             builder.append(" e:1/").append(volumeCipher.getIterationCount());
-        }
-        if (volumeNumber == 1) {
-            builder.append(getFirstVolumeItems(objectCount, method, volumeCipher));
+            String publicItems = builder.toString();
+            appendPrivateItems(builder, volumeNumber, objectCount, method);
+            byte[] plaintext = serializeItems(builder);
+            builder = new StringBuilder(publicItems).append(" x:").append(encodeBase64(volumeCipher.cipherHead(true, plaintext)));
         }
         return Bytes.concat(serializeItems(builder), SEPARATOR);
     }
 
-    private static String getFirstVolumeItems(Long objectCount, String method, VolumeCipher volumeCipher) {
-        StringBuilder builder = new StringBuilder();
-        if (objectCount != null) {
-            builder.append(" t:").append(objectCount);
+    private static void appendPrivateItems(StringBuilder builder, long volumeNumber, Long objectCount, String method) {
+        if (volumeNumber == 1) {
+            if (objectCount != null) {
+                builder.append(" t:").append(objectCount);
+            }
+            if (method != null) {
+                Preconditions.checkArgument(!method.contains(" "));
+                builder.append(" m:").append(method);
+            }
         }
-        if (method != null) {
-            Preconditions.checkArgument(!method.contains(" "));
-            builder.append(" m:").append(method);
-        }
-        if (volumeCipher == null) {
-            return builder.toString();
-        }
-        return " x:" + encodeBase64(volumeCipher.cipherHead(true, serializeItems(builder)));
     }
 
     public static byte[] createVolumeTail(boolean lastVolume, RecordPointer catalogPointer, long minSize, VolumeCipher volumeCipher) {
+        String signature = lastVolume ? B1_AE : B1_VE;
         StringBuilder builder = new StringBuilder();
         if (catalogPointer != null) {
             builder.append("c:")
-                    .append(catalogPointer.volumeNumber)
-                    .append('/')
-                    .append(catalogPointer.blockOffset)
-                    .append('/')
-                    .append(catalogPointer.recordOffset);
-            if (volumeCipher != null) {
-                builder = new StringBuilder("x:").append(encodeBase64(volumeCipher.cipherTail(true, serializeItems(builder))));
-            }
-            builder.append(' ');
+                    .append(catalogPointer.volumeNumber).append('/')
+                    .append(catalogPointer.blockOffset).append('/')
+                    .append(catalogPointer.recordOffset).append(' ');
         }
-        String signature = lastVolume ? B1_AE : B1_VE;
+        if (volumeCipher != null) {
+            byte[] plaintext = serializeItems(builder.append(signature));
+            builder = new StringBuilder("x:").append(encodeBase64(volumeCipher.cipherTail(true, plaintext))).append(' ');
+        }
         while (builder.length() < minSize - signature.length() - 1) {
             builder.append(' ');
         }
-        builder.append(signature);
-        return Bytes.concat(SEPARATOR, serializeItems(builder));
+        return Bytes.concat(SEPARATOR, serializeItems(builder.append(signature)));
     }
 
     private static byte[] serializeItems(StringBuilder builder) {
-        return builder.toString().trim().getBytes(Charsets.UTF_8);
+        return builder.toString().getBytes(Charsets.UTF_8);
     }
 }
