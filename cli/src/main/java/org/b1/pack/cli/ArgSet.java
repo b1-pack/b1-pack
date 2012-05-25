@@ -32,9 +32,9 @@ import static org.b1.pack.api.common.PackFormat.B1;
 
 public class ArgSet {
 
-    public static final Pattern SIZE_PATTERN = Pattern.compile("(\\d+)([kMG]?B)");
+    public static final Pattern SIZE_PATTERN = Pattern.compile("(\\d+)(\\w+)");
     public static final Pattern TYPE_PATTERN = Pattern.compile("(.*?)(?::(.+))?");
-    public static final ImmutableMap<String, Integer> SIZE_MULTIPLIERS = ImmutableMap.<String, Integer>builder()
+    public static final ImmutableMap<String, Integer> SIZE_UNITS = ImmutableMap.<String, Integer>builder()
             .put("B", 1).put("kB", 1000).put("MB", 1000 * 1000).put("GB", 1000 * 1000 * 1000)
             .put("KiB", 1024).put("MiB", 1024 * 1024).put("GiB", 1024 * 1024 * 1024).build();
 
@@ -76,8 +76,14 @@ public class ArgSet {
     private void initMaxVolumeSize(String size) {
         if (size == null) return;
         Matcher matcher = SIZE_PATTERN.matcher(size);
-        Preconditions.checkArgument(matcher.matches(), "Invalid volume size: %s", size);
-        maxVolumeSize = Long.parseLong(matcher.group(1)) * SIZE_MULTIPLIERS.get(matcher.group(2));
+        if (matcher.matches()) {
+            Integer unit = SIZE_UNITS.get(matcher.group(2));
+            if (unit != null) {
+                maxVolumeSize = Long.parseLong(matcher.group(1)) * unit;
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Invalid volume size: " + size);
     }
 
     private void initType(String type) {

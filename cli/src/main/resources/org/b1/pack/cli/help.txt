@@ -12,4 +12,4 @@ Options:
  -m <method>: Compress archive with methods like "smart", "classic", or "maximum"
  --encrypt <algorithm>: Encrypt archive using algorithms such as "AES"
  --password <password>: Provide a password for encryption or decryption
- --type <type>: Set type of archive, "B1" by default
+ --type <type>: Set type of archive, which is "B1" by default

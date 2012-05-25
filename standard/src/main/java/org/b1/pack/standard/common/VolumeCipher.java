@@ -16,8 +16,8 @@
 package org.b1.pack.standard.common;
 
 import com.google.common.base.Preconditions;
+import org.b1.pack.api.common.InvalidPasswordException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.RuntimeCryptoException;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.macs.HMac;
@@ -68,9 +68,7 @@ public class VolumeCipher {
         try {
             Preconditions.checkState(count + cipher.doFinal(out, count) == out.length);
         } catch (InvalidCipherTextException e) {
-            RuntimeCryptoException exception = new RuntimeCryptoException();
-            exception.initCause(e);
-            throw exception;
+            throw new InvalidPasswordException("Password is invalid or archive is corrupt", e);
         }
         return out;
     }

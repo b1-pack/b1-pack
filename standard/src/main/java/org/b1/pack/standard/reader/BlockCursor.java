@@ -20,9 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import com.google.common.primitives.Ints;
-import org.b1.pack.standard.common.BlockPointer;
-import org.b1.pack.standard.common.MemoryOutputStream;
-import org.b1.pack.standard.common.Numbers;
+import org.b1.pack.standard.common.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -71,13 +69,28 @@ class BlockCursor implements Closeable {
 
     public void next() throws IOException {
         readBlockType();
+        InputStream inputStream = volumeCursor.getInputStream();
+        VolumeCipher volumeCipher = volumeCursor.getVolumeCipher();
+        if (volumeCipher != null) {
+            Preconditions.checkState(blockType == Constants.AES_BLOCK);
+            inputStream = new ByteArrayInputStream(volumeCipher.cipherBlock(
+                    false, blockPointer.blockOffset, ByteStreams.toByteArray(new ChunkedInputStream(inputStream))));
+            blockType = Preconditions.checkNotNull(Numbers.readLong(inputStream));
+        }
+        Preconditions.checkState(
+                blockType == Constants.PLAIN_BLOCK ||
+                blockType == Constants.FIRST_LZMA_BLOCK ||
+                blockType == Constants.NEXT_LZMA_BLOCK);
         outputStream.reset();
         Adler32 adler32 = new Adler32();
-        ByteStreams.copy(new ChunkedInputStream(volumeCursor.getInputStream()), new CheckedOutputStream(outputStream, adler32));
+        ByteStreams.copy(new ChunkedInputStream(inputStream), new CheckedOutputStream(outputStream, adler32));
         Preconditions.checkArgument(outputStream.size() > 0, "Empty block");
         byte[] buffer = new byte[4];
-        ByteStreams.readFully(volumeCursor.getInputStream(), buffer);
+        ByteStreams.readFully(inputStream, buffer);
         Preconditions.checkArgument(Ints.fromByteArray(buffer) == (int) adler32.getValue(), "Invalid checksum");
+        if (volumeCipher != null) {
+            Preconditions.checkState(inputStream.available() == 0);
+        }
         createInputStream();
     }
 

@@ -14,13 +14,11 @@ the iteration count is choosen to be quite large to increase the difficulty of a
  The encryption adds the following restrictions to the archive structure:
 
  * The head item "a:" (archive identifier) must contain a base64-encoded 256-bit value,
-   generated with a cryptographically secure pseudo-random number generator.
+   generated with a cryptographically secure pseudo-random number generator;
 
- * A head and/or a tail can have a single item "x:<base64>", that contains other items encrypted;
+ * Both head an tail must have an item "x:<base64>" with the original head/tail encrypted;
 
- * The head items "t:" and ":m", if present, must be moved to the "x:" head item, i.e. encrypted;
-
- * The tail item "c:", if present, must be moved to the "x:" tail item, i.e. encrypted;
+ * The head items "t:" and ":m" and the tail item "c:" can only be present in encrypted form in item "x:";
 
  * Only blocks of type "AesBlock" are allowed.
 
@@ -66,19 +64,18 @@ Implementation
    blockKey = HMAC-SHA256(volumeKey, blockSalt);
 ---
 
- * The head of the first volume must have an "x:" item built as follows. A text string containing space separated items
-   "t:" and/or "m:" is formed. If there are no such items the string is empty. After that the string is UTF-8 encoded,
-   encrypted with the head key, base64 encoded, appended to "x:" and stored as a head item:
+ * The UTF-8 representation of the head of each volume must be encrypted with the head key, base64 encoded,
+   appended to "x:" and stored as an additional head item:
 
 ---
-    "x:" + BASE64(AES-256-GCM(headKey, UTF8("t:<number>")));
+    "x:" + BASE64(AES-256-GCM(headKey, UTF8(headItems)));
 ---
 
- * If a tail contains a "c:" item, it should be UTF-8 encoded, encrypted with the tail key, base64 encoded,
-   appended to "x:" and stored as a tail item:
+ * The UTF-8 representation of the tail of each volume must be encrypted with the tail key, base64 encoded,
+   appended to "x:" and stored as an additional tail item:
 
 ---
-    "x:" + BASE64(AES-256-GCM(tailKey, UTF8("c:<volume number>/<block offset>/<record offset>")));
+    "x:" + BASE64(AES-256-GCM(tailKey, UTF8(tailItems)));
 ---
 
  * Each "Block" is replaced with another "Block" containing "AesBlock" with the encrypted binary represendation
@@ -87,6 +84,9 @@ Implementation
 ---
     encryptedBlock = AES-256-GCM(blockKey, block);
 ---
+
+ * The head items "t:" and "m:" and the tail item "c:" must be removed from the plaintext head/tail because
+   they are not required for decryption and can be obtained after decrypting the "x:" items;
 
  * When performing AES-256 encryption in GCM mode the initialization vector consists of 96 zero bits,
    the additional authenticated data parameter is empty, and the generated 128-bit tag (MAC) is appended

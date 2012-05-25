@@ -82,6 +82,10 @@ class VolumeCursor implements Closeable {
         return inputStream;
     }
 
+    public VolumeCipher getVolumeCipher() {
+        return volumeCipher;
+    }
+
     public void seek(BlockPointer pointer) throws IOException {
         if (pointer.volumeNumber == volumeNumber) {
             long skipCount = pointer.blockOffset - inputStream.getCount();
