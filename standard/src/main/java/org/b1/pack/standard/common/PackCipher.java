@@ -16,7 +16,7 @@
 package org.b1.pack.standard.common;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
+import org.b1.pack.api.common.InvalidPasswordException;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -34,6 +34,7 @@ public class PackCipher {
     private final int iterationCount;
 
     public PackCipher(char[] password, byte[] salt, int iterationCount) {
+        if (password == null) throw new InvalidPasswordException("No password provided");
         this.iterationCount = iterationCount;
         hMac = new HMac(new SHA256Digest());
         hMac.init(generateKey(password, salt, iterationCount));
@@ -59,7 +60,7 @@ public class PackCipher {
     }
 
     private CipherParameters generateKey(char[] password, byte[] salt, int iterationCount) {
-        byte[] utf8Password = getUtf8Password(Preconditions.checkNotNull(password, "No password provided"));
+        byte[] utf8Password = getUtf8Password(password);
         try {
             PKCS5S2ParametersGenerator generator = new PKCS5S2ParametersGenerator(new SHA256Digest());
             generator.init(utf8Password, salt, iterationCount);
