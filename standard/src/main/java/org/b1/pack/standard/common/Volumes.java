@@ -19,8 +19,8 @@ package org.b1.pack.standard.common;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
+import org.spongycastle.util.encoders.Base64;
 
-import javax.xml.bind.DatatypeConverter;
 import java.security.SecureRandom;
 
 public class Volumes {
@@ -59,7 +59,11 @@ public class Volumes {
     }
 
     public static String encodeBase64(byte[] buffer) {
-        return DatatypeConverter.printBase64Binary(buffer);
+        return new String(Base64.encode(buffer), Charsets.US_ASCII);
+    }
+
+    public static byte[] decodeBase64(String s) {
+        return Base64.decode(s);
     }
 
     public static String createArchiveId() {

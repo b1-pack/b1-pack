@@ -26,7 +26,6 @@ import org.b1.pack.api.reader.ReaderProvider;
 import org.b1.pack.api.reader.ReaderVolume;
 import org.b1.pack.standard.common.*;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -150,7 +149,7 @@ class VolumeCursor implements Closeable {
             archiveId = headerSet.getArchiveId();
             checkVolume(archiveId != null);
             if (iterationCount != null) {
-                packCipher = new PackCipher(provider.getPassword(), DatatypeConverter.parseBase64Binary(archiveId), iterationCount);
+                packCipher = new PackCipher(provider.getPassword(), Volumes.decodeBase64(archiveId), iterationCount);
             }
         } else {
             if (iterationCount == null) {

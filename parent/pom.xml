@@ -86,12 +86,12 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>11.0.2</version>
+                <version>12.0</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
                 <artifactId>jopt-simple</artifactId>
-                <version>4.0-beta1</version>
+                <version>4.3</version>
             </dependency>
             <dependency>
                 <groupId>net.alchim31.3rd.org.7-zip</groupId>
@@ -99,9 +99,9 @@
                 <version>4.65</version>
             </dependency>
             <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.47</version>
+                <groupId>com.madgag</groupId>
+                <artifactId>sc-light-jdk15on</artifactId>
+                <version>1.47.0.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

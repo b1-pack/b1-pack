@@ -17,12 +17,12 @@ package org.b1.pack.standard.common;
 
 import com.google.common.base.Charsets;
 import org.b1.pack.api.common.InvalidPasswordException;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
-import org.bouncycastle.crypto.macs.HMac;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.util.Strings;
+import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.digests.SHA256Digest;
+import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
+import org.spongycastle.crypto.macs.HMac;
+import org.spongycastle.crypto.params.KeyParameter;
+import org.spongycastle.util.Strings;
 
 import java.io.IOException;
 import java.util.Arrays;

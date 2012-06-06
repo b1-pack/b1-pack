@@ -32,8 +32,8 @@
             <artifactId>lzma</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <groupId>com.madgag</groupId>
+            <artifactId>sc-light-jdk15on</artifactId>
         </dependency>
     </dependencies>
     <distributionManagement>

@@ -17,14 +17,14 @@ package org.b1.pack.standard.common;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.api.common.InvalidPasswordException;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.engines.AESFastEngine;
-import org.bouncycastle.crypto.macs.HMac;
-import org.bouncycastle.crypto.modes.GCMBlockCipher;
-import org.bouncycastle.crypto.modes.gcm.BasicGCMMultiplier;
-import org.bouncycastle.crypto.params.AEADParameters;
-import org.bouncycastle.crypto.params.KeyParameter;
+import org.spongycastle.crypto.InvalidCipherTextException;
+import org.spongycastle.crypto.digests.SHA256Digest;
+import org.spongycastle.crypto.engines.AESFastEngine;
+import org.spongycastle.crypto.macs.HMac;
+import org.spongycastle.crypto.modes.GCMBlockCipher;
+import org.spongycastle.crypto.modes.gcm.BasicGCMMultiplier;
+import org.spongycastle.crypto.params.AEADParameters;
+import org.spongycastle.crypto.params.KeyParameter;
 
 public class VolumeCipher {
 

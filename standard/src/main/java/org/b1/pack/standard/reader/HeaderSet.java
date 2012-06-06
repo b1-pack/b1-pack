@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import org.b1.pack.standard.common.RecordPointer;
 import org.b1.pack.standard.common.Volumes;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,7 +99,7 @@ class HeaderSet {
             iterationCount = Integer.parseInt(matcher.group(1));
         } else if (key.equals(Volumes.X)) {
             Preconditions.checkArgument(encryptedHeaders == null);
-            encryptedHeaders = DatatypeConverter.parseBase64Binary(value);
+            encryptedHeaders = Volumes.decodeBase64(value);
         }
     }
 }
