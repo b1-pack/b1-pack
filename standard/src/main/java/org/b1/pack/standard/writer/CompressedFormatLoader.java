@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -55,7 +54,7 @@ class CompressedFormatLoader implements LineProcessor<ImmutableSet<String>> {
                 Resources.readLines(resources.nextElement(), Charsets.UTF_8, loader);
             }
         } catch (IOException e) {
-            throw new IOError(e);
+            throw new RuntimeException(e);
         }
         return loader.getResult();
     }

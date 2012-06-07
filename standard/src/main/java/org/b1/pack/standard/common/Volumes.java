@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 import org.spongycastle.util.encoders.Base64;
 
+import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 
 public class Volumes {
@@ -59,7 +60,11 @@ public class Volumes {
     }
 
     public static String encodeBase64(byte[] buffer) {
-        return new String(Base64.encode(buffer), Charsets.US_ASCII);
+        try {
+            return new String(Base64.encode(buffer), Charsets.US_ASCII.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static byte[] decodeBase64(String s) {
@@ -82,10 +87,10 @@ public class Volumes {
             builder.append(" e:1/").append(volumeCipher.getIterationCount());
             String publicItems = builder.toString();
             appendPrivateItems(builder, volumeNumber, objectCount, method);
-            byte[] plaintext = serializeItems(builder);
+            byte[] plaintext = getUtf8Bytes(builder.toString());
             builder = new StringBuilder(publicItems).append(" x:").append(encodeBase64(volumeCipher.cipherHead(true, plaintext)));
         }
-        return Bytes.concat(serializeItems(builder), SEPARATOR);
+        return Bytes.concat(getUtf8Bytes(builder.toString()), SEPARATOR);
     }
 
     private static void appendPrivateItems(StringBuilder builder, long volumeNumber, Long objectCount, String method) {
@@ -110,16 +115,20 @@ public class Volumes {
                     .append(catalogPointer.recordOffset).append(' ');
         }
         if (volumeCipher != null) {
-            byte[] plaintext = serializeItems(builder.append(signature));
+            byte[] plaintext = getUtf8Bytes(builder.append(signature).toString());
             builder = new StringBuilder("x:").append(encodeBase64(volumeCipher.cipherTail(true, plaintext))).append(' ');
         }
         while (builder.length() < minSize - signature.length() - 1) {
             builder.append(' ');
         }
-        return Bytes.concat(SEPARATOR, serializeItems(builder.append(signature)));
+        return Bytes.concat(SEPARATOR, getUtf8Bytes(builder.append(signature).toString()));
     }
 
-    private static byte[] serializeItems(StringBuilder builder) {
-        return builder.toString().getBytes(Charsets.UTF_8);
+    public static byte[] getUtf8Bytes(String s) {
+        try {
+            return s.getBytes(Charsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

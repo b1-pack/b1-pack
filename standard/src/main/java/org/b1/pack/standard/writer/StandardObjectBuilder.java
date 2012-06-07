@@ -105,7 +105,7 @@ abstract class StandardObjectBuilder {
     }
 
     protected void writeString(String s) throws IOException {
-        byte[] bytes = s.getBytes(Charsets.UTF_8);
+        byte[] bytes = s.getBytes(Charsets.UTF_8.name());
         writeLong(bytes.length);
         stream.write(bytes);
     }

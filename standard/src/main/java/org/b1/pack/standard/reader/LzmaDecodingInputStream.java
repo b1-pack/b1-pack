@@ -67,7 +67,7 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
             try {
                 future.get();
             } catch (Exception e) {
-                throw new IOException(e);
+                throw (IOException) new IOException().initCause(e);
             }
         } else {
             pipedInputStream.close();

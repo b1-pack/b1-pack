@@ -23,7 +23,7 @@ import org.b1.pack.api.builder.*;
 import org.b1.pack.standard.common.*;
 
 import javax.annotation.Nullable;
-import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +74,7 @@ public class StandardBuilderPack extends BuilderPack {
     }
 
     private PbRecordHeader createHeader(BuilderObject object) {
-        Deque<String> path = Lists.newLinkedList(object.getPath());
+        LinkedList<String> path = Lists.newLinkedList(object.getPath());
         String name = path.removeLast();
         Long parentId = null;
         for (String s : path) {

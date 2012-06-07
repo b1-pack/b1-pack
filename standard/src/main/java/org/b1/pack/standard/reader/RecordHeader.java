@@ -60,6 +60,6 @@ class RecordHeader {
         }
         byte[] bytes = new byte[Ints.checkedCast(size)];
         ByteStreams.readFully(stream, bytes);
-        return new String(bytes, Charsets.UTF_8);
+        return new String(bytes, Charsets.UTF_8.name());
     }
 }

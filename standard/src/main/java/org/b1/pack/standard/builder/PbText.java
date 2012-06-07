@@ -16,11 +16,11 @@
 
 package org.b1.pack.standard.builder;
 
-import com.google.common.base.Charsets;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.standard.common.ByteArrayWritable;
 import org.b1.pack.standard.common.CompositeWritable;
 import org.b1.pack.standard.common.PbInt;
+import org.b1.pack.standard.common.Volumes;
 
 public class PbText extends CompositeWritable {
 
@@ -29,7 +29,7 @@ public class PbText extends CompositeWritable {
     }
 
     private static Writable[] create(String value) {
-        byte[] utf8 = value.getBytes(Charsets.UTF_8);
+        byte[] utf8 = Volumes.getUtf8Bytes(value);
         return new Writable[]{new PbInt((long) utf8.length), new ByteArrayWritable(utf8)};
     }
 }

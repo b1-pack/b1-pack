@@ -22,11 +22,11 @@ import org.b1.pack.api.builder.Writable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.NavigableMap;
+import java.util.TreeMap;
 
 public class CompositeWritable implements Writable {
 
-    private final NavigableMap<Long, Writable> map = Maps.newTreeMap();
+    private final TreeMap<Long, Writable> map = Maps.newTreeMap();
     private long size;
 
     public CompositeWritable(Writable... writables) {
@@ -49,12 +49,18 @@ public class CompositeWritable implements Writable {
 
     @Override
     public void writeTo(OutputStream stream, long start, long end) throws IOException {
-        for (Map.Entry<Long, Writable> entry : map.tailMap(start, false).entrySet()) {
+        for (Map.Entry<Long, Writable> entry : map.tailMap(start).entrySet()) {
             Writable part = entry.getValue();
             long partSize = part.getSize();
             long partEnd = entry.getKey();
             long partStart = partEnd - partSize;
-            part.writeTo(stream, Math.max(start - partStart, 0), partSize - Math.max(partEnd - end, 0));
+            long startInPart = Math.max(start - partStart, 0);
+            long endInPart = partSize - Math.max(partEnd - end, 0);
+            if (startInPart < endInPart) {
+                part.writeTo(stream, startInPart, endInPart);
+            } else if (startInPart > endInPart) {
+                throw new IllegalArgumentException();
+            }
             if (end <= partEnd) {
                 return;
             }

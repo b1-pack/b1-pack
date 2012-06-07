@@ -15,7 +15,6 @@
  */
 package org.b1.pack.standard.common;
 
-import com.google.common.base.Charsets;
 import org.b1.pack.api.common.InvalidPasswordException;
 import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -56,7 +55,7 @@ public class PackCipher {
     }
 
     public static byte[] longToUtf8(long value) {
-        return Long.toString(value).getBytes(Charsets.UTF_8);
+        return Volumes.getUtf8Bytes(Long.toString(value));
     }
 
     private CipherParameters generateKey(char[] password, byte[] salt, int iterationCount) {

@@ -50,7 +50,7 @@ public class IntegrationTest {
         final String folderName = "builderFolder";
         final String fileName = "builderFile.txt";
         final long fileTime = System.currentTimeMillis();
-        final byte[] fileContentBytes = "Hello, World!".getBytes(UTF_8);
+        final byte[] fileContentBytes = "Hello, World!".getBytes(UTF_8.name());
         final String packName = "builderTest";
         String volumeName = packName + ".b1";
         // START SNIPPET: builder
@@ -75,7 +75,7 @@ public class IntegrationTest {
         String folderName = "writerFolder";
         String fileName = "writerFile.txt";
         long fileTime = System.currentTimeMillis();
-        byte[] fileContentBytes = "Hello, test!".getBytes(UTF_8);
+        byte[] fileContentBytes = "Hello, test!".getBytes(UTF_8.name());
         String packName = "writerTest";
         String volumeName = packName + ".b1";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

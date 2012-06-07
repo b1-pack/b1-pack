@@ -85,7 +85,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
         try {
             future.get();
         } catch (Exception e) {
-            throw new IOException(e);
+            throw (IOException) new IOException().initCause(e);
         }
     }
 
@@ -113,7 +113,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
             try {
                 future.get();
             } catch (Exception e) {
-                throw new IOException(e);
+                throw (IOException) new IOException().initCause(e);
             }
         }
     }

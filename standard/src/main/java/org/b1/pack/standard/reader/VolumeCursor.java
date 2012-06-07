@@ -164,7 +164,7 @@ class VolumeCursor implements Closeable {
         byte[] encryptedHeaders = headerSet.getEncryptedHeaders();
         checkVolume(encryptedHeaders != null);
         volumeCipher = packCipher.getVolumeCipher(volumeNumber);
-        String plaintext = new String(volumeCipher.cipherHead(false, encryptedHeaders), Charsets.UTF_8);
+        String plaintext = new String(volumeCipher.cipherHead(false, encryptedHeaders), Charsets.UTF_8.name());
         checkVolume(plaintext.startsWith(signature));
         return new HeaderSet(plaintext);
     }
@@ -178,7 +178,7 @@ class VolumeCursor implements Closeable {
         Preconditions.checkState(outputStream.size() == capacity);
         int index = Bytes.lastIndexOf(outputStream.getBuf(), Volumes.SEPARATOR_BYTE) + 1;
         checkVolume(index > 0);
-        String result = new String(outputStream.getBuf(), index, capacity - index, Charsets.UTF_8);
+        String result = new String(outputStream.getBuf(), index, capacity - index, Charsets.UTF_8.name());
         checkVolumeEnd(result);
         HeaderSet headerSet = new HeaderSet(result);
         if (packCipher == null) {
@@ -186,7 +186,7 @@ class VolumeCursor implements Closeable {
         }
         byte[] encryptedHeaders = headerSet.getEncryptedHeaders();
         checkVolume(encryptedHeaders != null);
-        String plaintext = new String(volumeCipher.cipherTail(false, encryptedHeaders), Charsets.UTF_8);
+        String plaintext = new String(volumeCipher.cipherTail(false, encryptedHeaders), Charsets.UTF_8.name());
         checkVolumeEnd(plaintext);
         return new HeaderSet(plaintext);
     }
