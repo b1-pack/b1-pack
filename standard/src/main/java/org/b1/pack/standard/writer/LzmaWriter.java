@@ -20,26 +20,27 @@ import SevenZip.Compression.LZMA.Encoder;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.standard.common.RecordPointer;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.Pipe;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
-    private final PipedInputStream pipedInputStream = new PipedInputStream();
-    private final PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
+    private final Pipe pipe = Pipe.open();
+    private final InputStream pipedInputStream = new BufferedInputStream(Channels.newInputStream(pipe.source()));
+    private final OutputStream pipedOutputStream = Channels.newOutputStream(pipe.sink());
     private final LzmaMethod lzmaMethod;
-    private final BlockWriter blockWriter;
+    private final OutputStream outputStream;
     private final RecordPointer startPointer;
     private final Future<Void> future;
     private long count;
 
     public LzmaWriter(LzmaMethod lzmaMethod, BlockWriter blockWriter, ExecutorService executorService) throws IOException {
         this.lzmaMethod = lzmaMethod;
-        this.blockWriter = blockWriter;
+        this.outputStream = new BufferedOutputStream(blockWriter);
         this.startPointer = blockWriter.getCurrentPointer();
         this.future = executorService.submit(this);
     }
@@ -96,8 +97,9 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
             encoder.SetEndMarkerMode(true);
             encoder.SetDictionarySize(lzmaMethod.getDictionarySize());
             encoder.SetNumFastBytes(lzmaMethod.getNumberOfFastBytes());
-            encoder.WriteCoderProperties(blockWriter);
-            encoder.Code(pipedInputStream, blockWriter, -1, -1, null);
+            encoder.WriteCoderProperties(outputStream);
+            encoder.Code(pipedInputStream, outputStream, -1, -1, null);
+            outputStream.flush();
             return null;
         } finally {
             pipedInputStream.close();
