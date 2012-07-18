@@ -1,3 +1,4 @@
+b1 zip jar rar 7z arj bz2 bzip2 tbz2 tbz gz gzip tgz z taz
 jpg png gif mp3 aac flac wma avi mkv mp4 m4a m4v flv mov webm webp
 jp2 j2k jpf jpx jpm ape wv tta aa3 oma shn mpc mp+ mpp rm divx
 3gp f4v mj2 qt mpg mpeg ps ts m4p m4b m4r ogv oga ogx ogg spx
