@@ -24,14 +24,14 @@ class LzmaMethod {
 
     private static final ImmutableSet<String> compressedFormatSet = CompressedFormatLoader.getCompressedFormatSet();
 
-    private final String name;
+    private final CompressionMethod method;
     private final long solidBlockSize;
     private final int dictionarySize;
     private final int numberOfFastBytes;
     private final boolean smart;
 
-    public LzmaMethod(String name, long solidBlockSize, int dictionarySize, int numberOfFastBytes, boolean smart) {
-        this.name = name;
+    public LzmaMethod(CompressionMethod method, long solidBlockSize, int dictionarySize, int numberOfFastBytes, boolean smart) {
+        this.method = method;
         this.solidBlockSize = solidBlockSize;
         this.dictionarySize = dictionarySize;
         this.numberOfFastBytes = numberOfFastBytes;
@@ -39,7 +39,7 @@ class LzmaMethod {
     }
 
     public String getName() {
-        return name;
+        return method.getName();
     }
 
     public long getSolidBlockSize() {
@@ -54,7 +54,8 @@ class LzmaMethod {
         return numberOfFastBytes;
     }
 
-    public boolean isCompressible(PackEntry entry) {
+    public boolean isCompressible(PackEntry entry, Long size) {
+        if (!method.isCompressible(entry, size)) return false;
         if (!smart) return true;
         String entryName = entry.getName();
         int dotIndex = entryName.lastIndexOf('.');
@@ -67,10 +68,10 @@ class LzmaMethod {
         }
         String name = method.getName();
         if (CompressionMethod.SMART.equals(name) || CompressionMethod.CLASSIC.equals(name)) {
-            return new LzmaMethod(name, 1 << 27, 1 << 20, 1 << 5, CompressionMethod.SMART.equals(name));
+            return new LzmaMethod(method, 1 << 27, 1 << 20, 1 << 5, CompressionMethod.SMART.equals(name));
         }
         if (CompressionMethod.MAXIMUM.equals(name)) {
-            return new LzmaMethod(name, 1L << 32, 1 << 25, 1 << 6, false);
+            return new LzmaMethod(method, 1L << 32, 1 << 25, 1 << 6, false);
         }
         throw new IllegalArgumentException("Unsupported compression method: " + name);
     }

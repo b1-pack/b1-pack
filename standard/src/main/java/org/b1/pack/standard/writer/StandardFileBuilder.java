@@ -74,7 +74,7 @@ class StandardFileBuilder extends StandardObjectBuilder implements FileBuilder {
     }
 
     protected void switchCompression() throws IOException {
-        stream.switchCompression(entry);
+        stream.switchCompression(entry, size);
     }
 
     private void writeFixedSizeContent() throws IOException {

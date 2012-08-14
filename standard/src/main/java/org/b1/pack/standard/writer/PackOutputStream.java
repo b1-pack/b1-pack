@@ -68,9 +68,9 @@ class PackOutputStream extends OutputStream {
         return blockWriter.saveCatalogPointer();
     }
 
-    public void switchCompression(PackEntry entry) throws IOException {
+    public void switchCompression(PackEntry entry, Long size) throws IOException {
         if (lzmaMethod != null) {
-            setCompressible(lzmaMethod.isCompressible(entry));
+            setCompressible(lzmaMethod.isCompressible(entry, size));
         }
     }
 

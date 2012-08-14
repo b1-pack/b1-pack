@@ -31,4 +31,8 @@ public class CompressionMethod {
     public String getName() {
         return name;
     }
+
+    public boolean isCompressible(PackEntry entry, Long size) {
+        return true;
+    }
 }
