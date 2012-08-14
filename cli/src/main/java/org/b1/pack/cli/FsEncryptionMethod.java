@@ -24,10 +24,12 @@ import java.util.Arrays;
 public class FsEncryptionMethod extends EncryptionMethod {
 
     private final String password;
+    private final Integer iterationCount;
 
-    public FsEncryptionMethod(String name, String password) {
+    public FsEncryptionMethod(String name, String password, Integer iterationCount) {
         super(name);
         this.password = password;
+        this.iterationCount = iterationCount;
     }
 
     @Override
@@ -46,6 +48,14 @@ public class FsEncryptionMethod extends EncryptionMethod {
             clearPassword(password2);
             throw new IllegalStateException("Passwords do not match");
         }
+    }
+
+    @Override
+    public int getIterationCount() {
+        if (iterationCount != null) {
+            return iterationCount;
+        }
+        return super.getIterationCount();
     }
 
     private static void clearPassword(char[] password) {

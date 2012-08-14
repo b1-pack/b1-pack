@@ -34,6 +34,7 @@ public class ArgSet {
 
     public static final Pattern SIZE_PATTERN = Pattern.compile("(\\d+)(\\w+)");
     public static final Pattern TYPE_PATTERN = Pattern.compile("(.*?)(?::(.+))?");
+    public static final Pattern ENCRYPT_PATTERN = Pattern.compile("(.*?)(?::(\\d+))?");
     public static final ImmutableMap<String, Integer> SIZE_UNITS = ImmutableMap.<String, Integer>builder()
             .put("B", 1).put("kB", 1000).put("MB", 1000 * 1000).put("GB", 1000 * 1000 * 1000)
             .put("KiB", 1024).put("MiB", 1024 * 1024).put("GiB", 1024 * 1024 * 1024).build();
@@ -45,7 +46,8 @@ public class ArgSet {
     private String outputDirectory;
     private Long maxVolumeSize;
     private String compression;
-    private String encryption;
+    private String encryptionName;
+    private Integer iterationCount;
     private String password;
     private String typeFormat = B1;
     private String typeFlag;
@@ -66,10 +68,10 @@ public class ArgSet {
         fileNames = arguments;
         help = optionSet.has(helpOption);
         outputDirectory = optionSet.valueOf(outputOption);
-        initMaxVolumeSize(optionSet.valueOf(volumeOption));
         compression = optionSet.valueOf(methodOption);
-        encryption = optionSet.valueOf(encryptOption);
         password = optionSet.valueOf(passwordOption);
+        initMaxVolumeSize(optionSet.valueOf(volumeOption));
+        initEncrypt(optionSet.valueOf(encryptOption));
         initType(optionSet.valueOf(typeOption));
     }
 
@@ -84,6 +86,15 @@ public class ArgSet {
             }
         }
         throw new IllegalArgumentException("Invalid volume size: " + size);
+    }
+
+    private void initEncrypt(String encrypt) {
+        if (encrypt == null) return;
+        Matcher matcher = ENCRYPT_PATTERN.matcher(encrypt);
+        Preconditions.checkArgument(matcher.matches());
+        encryptionName = matcher.group(1);
+        String count = matcher.group(2);
+        iterationCount = count == null ? null : Integer.valueOf(count);
     }
 
     private void initType(String type) {
@@ -122,8 +133,12 @@ public class ArgSet {
         return compression;
     }
 
-    public String getEncryption() {
-        return encryption;
+    public String getEncryptionName() {
+        return encryptionName;
+    }
+
+    public Integer getIterationCount() {
+        return iterationCount;
     }
 
     public String getPassword() {

@@ -33,8 +33,8 @@ public class WriteCommand implements PackCommand {
         if (argSet.getCompression() != null) {
             provider.setCompressionMethod(new CompressionMethod(argSet.getCompression()));
         }
-        if (argSet.getEncryption() != null) {
-            provider.setEncryptionMethod(new FsEncryptionMethod(argSet.getEncryption(), argSet.getPassword()));
+        if (argSet.getEncryptionName() != null) {
+            provider.setEncryptionMethod(new FsEncryptionMethod(argSet.getEncryptionName(), argSet.getPassword(), argSet.getIterationCount()));
         } else {
             Preconditions.checkArgument(argSet.getPassword() == null, "No encryption method specified");
         }
