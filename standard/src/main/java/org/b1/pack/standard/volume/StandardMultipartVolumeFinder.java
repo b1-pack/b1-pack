@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.b1.pack.standard.volume;
 
-package org.b1.pack.cli;
+import org.b1.pack.api.volume.VolumeFinder;
+import org.b1.pack.api.volume.VolumeFinderProvider;
 
-import org.b1.pack.api.reader.ReaderVolume;
-
-import java.io.File;
 import java.util.LinkedList;
 
-public class MultipartFsReaderProvider extends FsReaderProvider {
+class StandardMultipartVolumeFinder extends VolumeFinder {
 
+    private final VolumeFinderProvider provider;
     private final String prefix;
     private final String suffix;
     private final int digitCount;
     private final int minVolumeCount;
 
-    public MultipartFsReaderProvider(String password, String prefix, String suffix, int digitCount, int minVolumeCount) {
-        super(password);
+    public StandardMultipartVolumeFinder(VolumeFinderProvider provider, String prefix, String suffix, int digitCount, int minVolumeCount) {
+        this.provider = provider;
         this.prefix = prefix;
         this.suffix = suffix;
         this.digitCount = digitCount;
@@ -37,26 +37,26 @@ public class MultipartFsReaderProvider extends FsReaderProvider {
     }
 
     @Override
-    public ReaderVolume getVolume(long number) {
-        String n = Long.toString(number);
+    public String getVolumeName(long volumeNumber) {
+        String n = Long.toString(volumeNumber);
         LinkedList<String> list = new LinkedList<String>();
         list.add(n);
         while (n.length() < digitCount) {
             list.add(n = '0' + n);
         }
         while (!list.isEmpty()) {
-            File file = new File(prefix + list.removeLast() + suffix);
-            if (file.isFile()) {
-                return new FsReaderVolume(file);
+            String volumeName = prefix + list.removeLast() + suffix;
+            if (provider.isVolumePresent(volumeName)) {
+                return volumeName;
             }
         }
         return null;
     }
 
     @Override
-    public long getVolumeCount() {
+    public int getVolumeCount() {
         int count = minVolumeCount;
-        while (getVolume(count + 1) != null) {
+        while (getVolumeName(count + 1) != null) {
             count++;
         }
         return count;

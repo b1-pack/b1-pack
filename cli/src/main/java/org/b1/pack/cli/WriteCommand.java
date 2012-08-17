@@ -16,8 +16,11 @@
 
 package org.b1.pack.cli;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import org.b1.pack.api.common.CompressionMethod;
+import org.b1.pack.api.volume.VolumeAllocator;
+import org.b1.pack.api.volume.VolumeService;
 import org.b1.pack.api.writer.PackWriter;
 
 import java.io.IOException;
@@ -27,8 +30,11 @@ public class WriteCommand implements PackCommand {
     @Override
     public void execute(ArgSet argSet) throws IOException {
         System.out.println("Starting");
+        VolumeAllocator volumeAllocator = VolumeService.getInstance(argSet.getTypeFormat()).
+                createVolumeAllocator(new FsVolumeAllocatorProvider(argSet.getPackName(), argSet.getMaxVolumeSize() != null ? 1 : 0));
         FsWriterProvider provider = new FsWriterProvider(
-                FileTools.getOutputFolder(argSet), argSet.getPackName(), argSet.getMaxVolumeSize());
+                FileTools.getOutputFolder(argSet), volumeAllocator,
+                Objects.firstNonNull(argSet.getMaxVolumeSize(), Long.MAX_VALUE));
         provider.setSeekable(isSeekable(argSet.getTypeFlag()));
         if (argSet.getCompression() != null) {
             provider.setCompressionMethod(new CompressionMethod(argSet.getCompression()));

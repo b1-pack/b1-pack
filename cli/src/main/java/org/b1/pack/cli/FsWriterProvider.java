@@ -16,9 +16,9 @@
 
 package org.b1.pack.cli;
 
-import com.google.common.base.Objects;
 import org.b1.pack.api.common.CompressionMethod;
 import org.b1.pack.api.common.EncryptionMethod;
+import org.b1.pack.api.volume.VolumeAllocator;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.api.writer.WriterVolume;
 
@@ -27,15 +27,17 @@ import java.io.IOException;
 
 public class FsWriterProvider extends WriterProvider {
 
-    private final VolumeNameExpert volumeNameExpert;
+    private final File outputFolder;
+    private final VolumeAllocator volumeAllocator;
     private final long maxVolumeSize;
     private boolean seekable = true;
     private CompressionMethod compressionMethod;
     private EncryptionMethod encryptionMethod;
 
-    public FsWriterProvider(File outputFolder, String packName, Long maxVolumeSize) {
-        this.volumeNameExpert = new VolumeNameExpert(outputFolder, packName, maxVolumeSize != null ? 1 : 0);
-        this.maxVolumeSize = Objects.firstNonNull(maxVolumeSize, Long.MAX_VALUE);
+    public FsWriterProvider(File outputFolder, VolumeAllocator volumeAllocator, Long maxVolumeSize) {
+        this.outputFolder = outputFolder;
+        this.volumeAllocator = volumeAllocator;
+        this.maxVolumeSize = maxVolumeSize;
     }
 
     @Override
@@ -45,7 +47,8 @@ public class FsWriterProvider extends WriterProvider {
 
     @Override
     public WriterVolume getVolume(long number) throws IOException {
-        return new FsWriterVolume(volumeNameExpert.getVolumeFile(number));
+        String name = volumeAllocator.getVolumeName(number);
+        return new FsWriterVolume(outputFolder == null ? new File(name) : new File(outputFolder, name));
     }
 
     @Override

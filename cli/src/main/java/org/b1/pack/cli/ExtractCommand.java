@@ -18,6 +18,8 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.api.reader.PackReader;
+import org.b1.pack.api.volume.VolumeFinder;
+import org.b1.pack.api.volume.VolumeService;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +34,11 @@ public class ExtractCommand implements PackCommand {
         System.out.println("Extracting from \"" + file +
                 "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
         System.out.println();
-        PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(FsReaderProvider.getInstance(argSet.getPassword(), file), new FsFolderBuilder(outputFolder, null));
+        File parentFolder = file.getParentFile();
+        VolumeFinder volumeFinder = VolumeService.getInstance(argSet.getTypeFormat())
+                .createVolumeFinder(new FsVolumeFinderProvider(parentFolder, file.getName()));
+        PackReader.getInstance(argSet.getTypeFormat())
+                .read(new FsReaderProvider(parentFolder, volumeFinder, argSet.getPassword()), new FsFolderBuilder(outputFolder, null));
         System.out.println();
         System.out.println("Done");
     }

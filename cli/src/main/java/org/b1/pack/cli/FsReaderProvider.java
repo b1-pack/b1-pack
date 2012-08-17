@@ -18,31 +18,32 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.api.reader.ReaderProvider;
+import org.b1.pack.api.reader.ReaderVolume;
+import org.b1.pack.api.volume.VolumeFinder;
 
 import java.io.Console;
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public abstract class FsReaderProvider extends ReaderProvider {
+public class FsReaderProvider extends ReaderProvider {
 
-    private static final Pattern PATTERN = Pattern.compile("(?i)(.*\\.part)(\\d+)(.b1)");
-
+    private final File parentFolder;
+    private final VolumeFinder volumeFinder;
     private final String password;
 
-    protected FsReaderProvider(String password) {
+    public FsReaderProvider(File parentFolder, VolumeFinder volumeFinder, String password) {
+        this.parentFolder = parentFolder;
+        this.volumeFinder = volumeFinder;
         this.password = password;
     }
 
-    public static ReaderProvider getInstance(String password, File packFile) {
-        Matcher matcher = PATTERN.matcher(packFile.getPath());
-        if (!matcher.matches()) {
-            return new BasicFsReaderProvider(password, packFile);
-        }
-        String prefix = matcher.group(1);
-        String number = matcher.group(2);
-        String suffix = matcher.group(3);
-        return new MultipartFsReaderProvider(password, prefix, suffix, number.length(), Integer.parseInt(number));
+    @Override
+    public ReaderVolume getVolume(long number) {
+        return new FsReaderVolume(new File(parentFolder, volumeFinder.getVolumeName(number)));
+    }
+
+    @Override
+    public long getVolumeCount() {
+        return volumeFinder.getVolumeCount();
     }
 
     @Override

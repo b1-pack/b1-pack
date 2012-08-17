@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 b1.org
+ * Copyright 2012 b1.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.b1.pack.api.volume;
 
-package org.b1.pack.cli;
+public abstract class VolumeAllocator {
 
-import org.b1.pack.api.reader.ReaderVolume;
+    public abstract String getVolumeName(long volumeNumber);
 
-import java.io.File;
-
-public class BasicFsReaderProvider extends FsReaderProvider {
-
-    private final File packFile;
-
-    public BasicFsReaderProvider(String password, File packFile) {
-        super(password);
-        this.packFile = packFile;
-    }
-
-    @Override
-    public ReaderVolume getVolume(long number) {
-        return number == 1 ? new FsReaderVolume(packFile) : null;
-    }
-
-    @Override
-    public long getVolumeCount() {
-        return 1;
-    }
 }

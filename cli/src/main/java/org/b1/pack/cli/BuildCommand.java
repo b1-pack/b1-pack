@@ -21,6 +21,8 @@ import org.b1.pack.api.builder.BuilderCommand;
 import org.b1.pack.api.builder.BuilderPack;
 import org.b1.pack.api.builder.BuilderVolume;
 import org.b1.pack.api.builder.PackBuilder;
+import org.b1.pack.api.volume.VolumeAllocator;
+import org.b1.pack.api.volume.VolumeService;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,9 +54,11 @@ public class BuildCommand implements PackCommand {
                 }
             }
         });
-        VolumeNameExpert expert = new VolumeNameExpert(outputFolder, argSet.getPackName(), argSet.getMaxVolumeSize() != null ? volumes.size() : 0);
+        VolumeAllocator volumeAllocator = VolumeService.getInstance(argSet.getTypeFormat())
+                .createVolumeAllocator(new FsVolumeAllocatorProvider(argSet.getPackName(), argSet.getMaxVolumeSize() != null ? volumes.size() : 0));
         for (int i = 0, volumesSize = volumes.size(); i < volumesSize; i++) {
-            buildVolume(expert.getVolumeFile(i + 1), volumes.get(i));
+            String name = volumeAllocator.getVolumeName(i + 1);
+            buildVolume(outputFolder == null ? new File(name) : new File(outputFolder, name), volumes.get(i));
         }
         System.out.println();
         System.out.println("Done");

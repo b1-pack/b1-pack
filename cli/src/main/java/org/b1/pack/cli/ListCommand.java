@@ -18,6 +18,8 @@ package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
 import org.b1.pack.api.reader.PackReader;
+import org.b1.pack.api.volume.VolumeFinder;
+import org.b1.pack.api.volume.VolumeService;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +31,11 @@ public class ListCommand implements PackCommand {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         System.out.println("Listing " + file);
-        PackReader reader = PackReader.getInstance(argSet.getTypeFormat());
-        reader.read(FsReaderProvider.getInstance(argSet.getPassword(), file), new ListBuilder("", true));
+        File parentFolder = file.getParentFile();
+        VolumeFinder volumeFinder = VolumeService.getInstance(argSet.getTypeFormat()).
+                createVolumeFinder(new FsVolumeFinderProvider(parentFolder, file.getName()));
+        PackReader.getInstance(argSet.getTypeFormat()).
+                read(new FsReaderProvider(parentFolder, volumeFinder, argSet.getPassword()), new ListBuilder("", true));
         System.out.println("Done");
     }
 }
