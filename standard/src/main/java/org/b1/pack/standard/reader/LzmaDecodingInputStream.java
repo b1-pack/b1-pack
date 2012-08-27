@@ -36,7 +36,7 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     private final Future<Void> future;
 
     public LzmaDecodingInputStream(InputStream inputStream, Decoder decoder, ExecutorService executorService) throws IOException {
-        this.inputStream = new BufferedInputStream(inputStream);
+        this.inputStream = inputStream;
         this.decoder = decoder;
         this.future = executorService.submit(this);
     }
