@@ -19,6 +19,7 @@ package org.b1.pack.api.common;
 public abstract class PackFormat {
 
     public static final String B1 = "B1";
+    public static final String ZIP = "ZIP";
 
     private PackFormat() {
     }

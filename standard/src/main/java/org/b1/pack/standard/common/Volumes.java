@@ -43,7 +43,7 @@ public class Volumes {
     public static final String B1_AE = "b1:ae";
     public static final String B1_VE = "b1:ve";
 
-    public static final double SCHEMA_VERSION = 0.2;
+    public static final double SCHEMA_VERSION = 0.3;
     public static final byte SEPARATOR_BYTE = (byte) 0xFC;
     private static final byte[] SEPARATOR = new byte[]{SEPARATOR_BYTE};
 
