@@ -21,9 +21,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.LineProcessor;
-import com.google.common.io.Resources;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Enumeration;
 
@@ -51,12 +52,24 @@ class CompressedFormatLoader implements LineProcessor<ImmutableSet<String>> {
         try {
             Enumeration<URL> resources = getResources("org/b1/pack/standard/writer/compressedFormats.txt");
             while (resources.hasMoreElements()) {
-                Resources.readLines(resources.nextElement(), Charsets.UTF_8, loader);
+                readLines(resources.nextElement(), loader);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return loader.getResult();
+    }
+
+    private static void readLines(URL url, LineProcessor<?> loader) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), Charsets.UTF_8));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!loader.processLine(line)) break;
+            }
+        } finally {
+            reader.close();
+        }
     }
 
     private static Enumeration<URL> getResources(String name) throws IOException {
