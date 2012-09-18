@@ -18,42 +18,51 @@ package org.b1.pack.standard.common;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 
-public class InputStreamWrapper<T extends InputStream> extends InputStream {
+public class InterruptibleInputStream extends InputStream {
 
-    protected T stream;
+    private final Thread thread;
+    private final InputStream stream;
 
-    public InputStreamWrapper(T stream) {
+    public InterruptibleInputStream(Thread thread, InputStream stream) {
+        this.thread = thread;
         this.stream = stream;
     }
 
     @Override
     public int read() throws IOException {
+        check();
         return stream.read();
     }
 
     @Override
     public int read(byte[] b) throws IOException {
+        check();
         return stream.read(b);
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+        check();
         return stream.read(b, off, len);
     }
 
     @Override
     public long skip(long n) throws IOException {
+        check();
         return stream.skip(n);
     }
 
     @Override
     public int available() throws IOException {
+        check();
         return stream.available();
     }
 
     @Override
     public void close() throws IOException {
+        // do not call check() here
         stream.close();
     }
 
@@ -64,11 +73,18 @@ public class InputStreamWrapper<T extends InputStream> extends InputStream {
 
     @Override
     public void reset() throws IOException {
+        check();
         stream.reset();
     }
 
     @Override
     public boolean markSupported() {
         return stream.markSupported();
+    }
+
+    private void check() throws InterruptedIOException {
+        if (thread.isInterrupted()) {
+            throw new InterruptedIOException("Thread interrupted: " + thread.getName());
+        }
     }
 }

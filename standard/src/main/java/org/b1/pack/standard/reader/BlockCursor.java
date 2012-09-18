@@ -32,6 +32,7 @@ import java.util.zip.CheckedOutputStream;
 
 class BlockCursor implements Closeable {
 
+    private final Thread creatorThread = Thread.currentThread();
     private final MemoryOutputStream outputStream = new MemoryOutputStream();
     private final VolumeCursor volumeCursor;
     private BlockPointer blockPointer;
@@ -40,6 +41,7 @@ class BlockCursor implements Closeable {
 
     public BlockCursor(VolumeCursor volumeCursor) {
         this.volumeCursor = volumeCursor;
+
     }
 
     public ExecutorService getExecutorService() {
@@ -100,7 +102,8 @@ class BlockCursor implements Closeable {
     }
 
     private void createInputStream() {
-        inputStream = new CountingInputStream(new ByteArrayInputStream(outputStream.getBuf(), 0, outputStream.size()));
+        inputStream = new CountingInputStream(new InterruptibleInputStream(creatorThread,
+                new ByteArrayInputStream(outputStream.getBuf(), 0, outputStream.size())));
     }
 
     private void readBlockType() throws IOException {
