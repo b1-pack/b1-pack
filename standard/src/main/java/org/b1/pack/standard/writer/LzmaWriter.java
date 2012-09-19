@@ -19,19 +19,18 @@ package org.b1.pack.standard.writer;
 import SevenZip.Compression.LZMA.Encoder;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.standard.common.RecordPointer;
+import org.b1.pack.standard.common.SynchronousPipe;
 
 import java.io.*;
-import java.nio.channels.Channels;
-import java.nio.channels.Pipe;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
-    private final Pipe pipe = Pipe.open();
-    private final InputStream pipedInputStream = new BufferedInputStream(Channels.newInputStream(pipe.source()));
-    private final OutputStream pipedOutputStream = Channels.newOutputStream(pipe.sink());
+    private final SynchronousPipe pipe = new SynchronousPipe();
+    private final InputStream pipedInputStream = pipe.inputStream;
+    private final OutputStream pipedOutputStream = pipe.outputStream;
     private final LzmaMethod lzmaMethod;
     private final OutputStream outputStream;
     private final RecordPointer startPointer;

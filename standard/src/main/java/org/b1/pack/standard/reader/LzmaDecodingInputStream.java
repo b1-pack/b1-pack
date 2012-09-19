@@ -18,19 +18,20 @@ package org.b1.pack.standard.reader;
 
 import SevenZip.Compression.LZMA.Decoder;
 import com.google.common.base.Preconditions;
+import org.b1.pack.standard.common.SynchronousPipe;
 
-import java.io.*;
-import java.nio.channels.Channels;
-import java.nio.channels.Pipe;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
 
-    private final Pipe pipe = Pipe.open();
-    private final InputStream pipedInputStream = Channels.newInputStream(pipe.source());
-    private final OutputStream pipedOutputStream = new BufferedOutputStream(Channels.newOutputStream(pipe.sink()));
+    private final SynchronousPipe pipe = new SynchronousPipe();
+    private final InputStream pipedInputStream = pipe.inputStream;
+    private final OutputStream pipedOutputStream = pipe.outputStream;
     private final InputStream inputStream;
     private final Decoder decoder;
     private final Future<Void> future;
