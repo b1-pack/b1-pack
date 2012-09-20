@@ -26,8 +26,12 @@ import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
+
+    private static final Logger log = Logger.getLogger(LzmaDecodingInputStream.class.getName());
 
     private final SynchronousPipe pipe = new SynchronousPipe();
     private final InputStream pipedInputStream = pipe.inputStream;
@@ -35,6 +39,8 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     private final InputStream inputStream;
     private final Decoder decoder;
     private final Future<Void> future;
+    private volatile boolean decodingComplete;
+    private boolean streamClosed;
 
     public LzmaDecodingInputStream(InputStream inputStream, Decoder decoder, ExecutorService executorService) throws IOException {
         this.inputStream = inputStream;
@@ -58,20 +64,26 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
             Preconditions.checkState(decoder.Code(inputStream, pipedOutputStream, -1));
             return null;
         } finally {
+            decodingComplete = true;
             pipedOutputStream.close();
         }
     }
 
     @Override
     public void close() throws IOException {
-        if (future.isDone()) {
-            try {
-                future.get();
-            } catch (Exception e) {
+        if (streamClosed) return;
+        streamClosed = true;
+        boolean errorsReported = decodingComplete;
+        inputStream.close();
+        pipedInputStream.close();
+        try {
+            future.get();
+        } catch (Exception e) {
+            if (errorsReported) {
                 throw (IOException) new IOException().initCause(e);
+            } else {
+                log.log(Level.FINEST, "Ignoring exception", e);
             }
-        } else {
-            pipedInputStream.close();
         }
     }
 }

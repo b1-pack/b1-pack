@@ -57,14 +57,14 @@ public class SynchronousPipeTest {
                 return true;
             }
         });
-        Thread.sleep(100);
+        Thread.sleep(500);
         assertTrue(readerStarted);
         Future<Boolean> writerFuture = service.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 writerStarted = true;
                 pipe.outputStream.write(TEST_BYTES);
-                Thread.sleep(100);
+                Thread.sleep(500);
                 pipe.outputStream.close();
                 writerClosed = true;
                 return true;

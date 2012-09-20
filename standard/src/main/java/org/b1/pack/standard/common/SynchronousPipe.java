@@ -25,17 +25,17 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SynchronousPipe {
 
-    private final Lock lock = new ReentrantLock();
-    private final Condition dataPresent = lock.newCondition();
-    private final Condition dataAbsent = lock.newCondition();
-    private final byte[] readerBuffer = new byte[1];
-    private final byte[] writerBuffer = new byte[1];
+    protected final Lock lock = new ReentrantLock();
+    protected final Condition dataPresent = lock.newCondition();
+    protected final Condition dataAbsent = lock.newCondition();
+    protected final byte[] readerBuffer = new byte[1];
+    protected final byte[] writerBuffer = new byte[1];
 
-    private byte[] buffer;
-    private int offset;
-    private int length;
-    private boolean inputClosed;
-    private boolean outputClosed;
+    protected byte[] buffer;
+    protected int offset;
+    protected int length;
+    protected boolean inputClosed;
+    protected boolean outputClosed;
 
     public final InputStream inputStream = new InputStream() {
 
@@ -116,45 +116,39 @@ public class SynchronousPipe {
 
     };
 
-    private void obtainLock() throws InterruptedIOException {
+    protected void assertInputOpen() throws IOException {
+        if (inputClosed) throw new IOException("Input closed");
+    }
+
+    protected void assertOutputOpen() throws IOException {
+        if (outputClosed) throw new IOException("Output closed");
+    }
+
+    protected void obtainLock() throws InterruptedIOException {
         try {
             lock.lockInterruptibly();
         } catch (InterruptedException e) {
-            rethrow(e);
+            throw (InterruptedIOException) new InterruptedIOException().initCause(e);
         }
     }
 
-    private void waitForDataPresent() throws InterruptedIOException {
+    protected void waitForDataPresent() throws InterruptedIOException {
         while (length == 0 && !inputClosed && !outputClosed) {
             try {
                 dataPresent.await();
             } catch (InterruptedException e) {
-                rethrow(e);
+                throw (InterruptedIOException) new InterruptedIOException().initCause(e);
             }
         }
     }
 
-    private void waitForDataAbsent() throws InterruptedIOException {
+    protected void waitForDataAbsent() throws InterruptedIOException {
         while (length > 0 && !inputClosed && !outputClosed) {
             try {
                 dataAbsent.await();
             } catch (InterruptedException e) {
-                rethrow(e);
+                throw (InterruptedIOException) new InterruptedIOException().initCause(e);
             }
         }
-    }
-
-    private static void rethrow(InterruptedException e) throws InterruptedIOException {
-        InterruptedIOException exception = new InterruptedIOException();
-        exception.initCause(e);
-        throw exception;
-    }
-
-    private void assertInputOpen() throws IOException {
-        if (inputClosed) throw new IOException("Input closed");
-    }
-
-    private void assertOutputOpen() throws IOException {
-        if (outputClosed) throw new IOException("Output closed");
     }
 }

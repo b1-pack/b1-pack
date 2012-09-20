@@ -28,12 +28,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.zip.Adler32;
-import java.util.zip.CheckedOutputStream;
 
 class BlockCursor implements Closeable {
 
     private final Thread creatorThread = Thread.currentThread();
-    private final MemoryOutputStream outputStream = new MemoryOutputStream();
+    private final ChunkedInputBuffer inputBuffer = new ChunkedInputBuffer();
+    private final byte[] checksumBuffer = new byte[4];
     private final VolumeCursor volumeCursor;
     private BlockPointer blockPointer;
     private Long blockType;
@@ -83,13 +83,12 @@ class BlockCursor implements Closeable {
                 blockType == Constants.PLAIN_BLOCK ||
                 blockType == Constants.FIRST_LZMA_BLOCK ||
                 blockType == Constants.NEXT_LZMA_BLOCK);
-        outputStream.reset();
+        inputBuffer.resetAndRead(inputStream);
+        Preconditions.checkArgument(inputBuffer.size() > 0, "Empty block");
+        ByteStreams.readFully(inputStream, checksumBuffer);
         Adler32 adler32 = new Adler32();
-        ByteStreams.copy(new ChunkedInputStream(inputStream), new CheckedOutputStream(outputStream, adler32));
-        Preconditions.checkArgument(outputStream.size() > 0, "Empty block");
-        byte[] buffer = new byte[4];
-        ByteStreams.readFully(inputStream, buffer);
-        Preconditions.checkArgument(Ints.fromByteArray(buffer) == (int) adler32.getValue(), "Invalid checksum");
+        adler32.update(inputBuffer.getBuf(), 0, inputBuffer.size());
+        Preconditions.checkArgument(Ints.fromByteArray(checksumBuffer) == (int) adler32.getValue(), "Invalid checksum");
         if (volumeCipher != null) {
             Preconditions.checkState(inputStream.available() == 0);
         }
@@ -103,7 +102,7 @@ class BlockCursor implements Closeable {
 
     private void createInputStream() {
         inputStream = new CountingInputStream(new InterruptibleInputStream(creatorThread,
-                new ByteArrayInputStream(outputStream.getBuf(), 0, outputStream.size())));
+                new ByteArrayInputStream(inputBuffer.getBuf(), 0, inputBuffer.size())));
     }
 
     private void readBlockType() throws IOException {

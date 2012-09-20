@@ -25,6 +25,7 @@ import java.io.InputStream;
 class LzmaEncodedInputStream extends InputStream {
 
     private final BlockCursor blockCursor;
+    private boolean closed;
 
     public LzmaEncodedInputStream(BlockCursor blockCursor) {
         this.blockCursor = blockCursor;
@@ -33,6 +34,7 @@ class LzmaEncodedInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         while (true) {
+            assertOpen();
             int result = blockCursor.getInputStream().read();
             if (result != -1) return result;
             moveToNextBlock();
@@ -42,6 +44,7 @@ class LzmaEncodedInputStream extends InputStream {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         while (true) {
+            assertOpen();
             int result = blockCursor.getInputStream().read(b, off, len);
             if (result != -1) return result;
             moveToNextBlock();
@@ -51,5 +54,14 @@ class LzmaEncodedInputStream extends InputStream {
     private void moveToNextBlock() throws IOException {
         blockCursor.next();
         Preconditions.checkState(blockCursor.getBlockType() == Constants.NEXT_LZMA_BLOCK);
+    }
+
+    @Override
+    public void close() throws IOException {
+        closed = true;
+    }
+
+    protected void assertOpen() throws IOException {
+        if (closed) throw new IOException("Stream closed");
     }
 }

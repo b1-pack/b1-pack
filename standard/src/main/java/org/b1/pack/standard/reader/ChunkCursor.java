@@ -93,11 +93,11 @@ class ChunkCursor implements Closeable {
         Preconditions.checkState(blockCursor.getBlockType() == Constants.FIRST_LZMA_BLOCK);
         LzmaEncodedInputStream stream = new LzmaEncodedInputStream(blockCursor);
         ByteStreams.readFully(stream, lzmaProperties);
-        Preconditions.checkState(lzmaDecoder.SetDecoderProperties(lzmaProperties));
         inputStream = createLzmaInputStream(stream);
     }
 
     private CountingInputStream createLzmaInputStream(LzmaEncodedInputStream stream) throws IOException {
+        Preconditions.checkState(lzmaDecoder.SetDecoderProperties(lzmaProperties));
         return new CountingInputStream(new LzmaDecodingInputStream(stream, lzmaDecoder, blockCursor.getExecutorService()));
     }
 }
