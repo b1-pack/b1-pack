@@ -22,11 +22,9 @@ import java.io.InterruptedIOException;
 
 public class InterruptibleInputStream extends InputStream {
 
-    private final Thread thread;
     private final InputStream stream;
 
-    public InterruptibleInputStream(Thread thread, InputStream stream) {
-        this.thread = thread;
+    public InterruptibleInputStream(InputStream stream) {
         this.stream = stream;
     }
 
@@ -83,8 +81,8 @@ public class InterruptibleInputStream extends InputStream {
     }
 
     private void check() throws InterruptedIOException {
-        if (thread.isInterrupted()) {
-            throw new InterruptedIOException("Thread interrupted: " + thread.getName());
+        if (Thread.interrupted()) {
+            throw new InterruptedIOException("Thread interrupted: " + Thread.currentThread().getName());
         }
     }
 }

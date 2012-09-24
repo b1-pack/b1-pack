@@ -31,7 +31,6 @@ import java.util.zip.Adler32;
 
 class BlockCursor implements Closeable {
 
-    private final Thread creatorThread = Thread.currentThread();
     private final ChunkedInputBuffer inputBuffer = new ChunkedInputBuffer();
     private final byte[] checksumBuffer = new byte[4];
     private final VolumeCursor volumeCursor;
@@ -41,7 +40,6 @@ class BlockCursor implements Closeable {
 
     public BlockCursor(VolumeCursor volumeCursor) {
         this.volumeCursor = volumeCursor;
-
     }
 
     public ExecutorService getExecutorService() {
@@ -101,8 +99,7 @@ class BlockCursor implements Closeable {
     }
 
     private void createInputStream() {
-        inputStream = new CountingInputStream(new InterruptibleInputStream(creatorThread,
-                new ByteArrayInputStream(inputBuffer.getBuf(), 0, inputBuffer.size())));
+        inputStream = new CountingInputStream(new InterruptibleInputStream(new ByteArrayInputStream(inputBuffer.getBuf(), 0, inputBuffer.size())));
     }
 
     private void readBlockType() throws IOException {
