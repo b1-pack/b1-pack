@@ -73,13 +73,15 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     public void close() throws IOException {
         if (streamClosed) return;
         streamClosed = true;
-        boolean errorsReported = decodingComplete;
+        boolean complete = decodingComplete;
+        if (!complete) {
+            future.cancel(true);
+        }
         pipedInputStream.close();
         try {
-            future.cancel(true);
             future.get();
         } catch (Exception e) {
-            if (errorsReported) {
+            if (complete) {
                 throw (IOException) new IOException().initCause(e);
             } else {
                 log.log(Level.FINEST, "Ignoring exception", e);

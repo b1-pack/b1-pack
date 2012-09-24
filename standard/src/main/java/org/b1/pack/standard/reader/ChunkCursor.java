@@ -16,8 +16,6 @@
 
 package org.b1.pack.standard.reader;
 
-import SevenZip.Compression.LZMA.Decoder;
-import SevenZip.Compression.LZMA.Encoder;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
@@ -28,11 +26,11 @@ import java.io.*;
 
 class ChunkCursor implements Closeable {
 
+    private final byte[] lzmaProperties = new byte[LzmaDecoder.PROPERTIES_SIZE];
     private final BlockCursor blockCursor;
-    private final byte[] lzmaProperties = new byte[Encoder.kPropSize];
-    private final Decoder lzmaDecoder = new Decoder();
-    private BlockPointer blockPointer;
     private CountingInputStream inputStream = new CountingInputStream(new ByteArrayInputStream(new byte[0]));
+    private LzmaDecoder lzmaDecoder;
+    private BlockPointer blockPointer;
     private long streamOffset;
     private InputStream encodedInputStream;
 
@@ -102,7 +100,10 @@ class ChunkCursor implements Closeable {
     }
 
     private void resumeLzmaDecoder() throws IOException {
-        Preconditions.checkState(lzmaDecoder.SetDecoderProperties(lzmaProperties));
-        inputStream = new CountingInputStream(new LzmaDecodingInputStream(encodedInputStream, lzmaDecoder, blockCursor.getExecutorService()));
+        if (lzmaDecoder == null) {
+            lzmaDecoder = new LzmaDecoder(blockCursor.getExecutorService());
+        }
+        lzmaDecoder.init(lzmaProperties);
+        inputStream = new CountingInputStream(lzmaDecoder.getInputStream(encodedInputStream));
     }
 }
