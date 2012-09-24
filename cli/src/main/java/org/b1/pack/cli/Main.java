@@ -30,7 +30,9 @@ public class Main {
             ImmutableMap.of("a", new AddCommand(), "l", new ListCommand(), "x", new ExtractCommand());
 
     public static void main(String[] args) throws Exception {
+        boolean debugMode = Boolean.getBoolean(Main.class.getName() + ".debug");
         try {
+            long startTime = System.currentTimeMillis();
             ArgSet argSet = new ArgSet(args);
             String command = argSet.getCommand();
             if (argSet.isHelp()) {
@@ -40,9 +42,12 @@ public class Main {
                 Preconditions.checkNotNull(command, "No command");
                 Preconditions.checkNotNull(COMAND_MAP.get(command), "Invalid command: %s", command).execute(argSet);
             }
+            if (debugMode) {
+                System.out.println("Executed in " + (System.currentTimeMillis() - startTime) + " ms.");
+            }
         } catch (Exception e) {
             printError(e);
-            if (Boolean.getBoolean(Main.class.getName() + ".debug")) {
+            if (debugMode) {
                 throw e;
             } else {
                 System.exit(1);

@@ -74,7 +74,6 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
         if (streamClosed) return;
         streamClosed = true;
         boolean errorsReported = decodingComplete;
-        inputStream.close();
         pipedInputStream.close();
         try {
             future.get();

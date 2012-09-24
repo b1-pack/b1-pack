@@ -24,10 +24,7 @@ import com.google.common.io.CountingInputStream;
 import org.b1.pack.standard.common.BlockPointer;
 import org.b1.pack.standard.common.Constants;
 
-import java.io.ByteArrayInputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 class ChunkCursor implements Closeable {
 
@@ -37,6 +34,7 @@ class ChunkCursor implements Closeable {
     private BlockPointer blockPointer;
     private CountingInputStream inputStream = new CountingInputStream(new ByteArrayInputStream(new byte[0]));
     private long streamOffset;
+    private InputStream encodedInputStream;
 
     public ChunkCursor(BlockCursor blockCursor) {
         this.blockCursor = blockCursor;
@@ -63,16 +61,17 @@ class ChunkCursor implements Closeable {
     public void next() throws IOException {
         streamOffset = getRecordOffset();
         inputStream.close();
-        if (blockCursor.getInputStream().available() > 0) {
+        if (encodedInputStream != null && encodedInputStream.available() > 0) {
             Preconditions.checkState(
                     blockCursor.getBlockType() == Constants.FIRST_LZMA_BLOCK ||
                     blockCursor.getBlockType() == Constants.NEXT_LZMA_BLOCK);
-            inputStream = createLzmaInputStream(new LzmaEncodedInputStream(blockCursor));
+            resumeLzmaDecoder();
             return;
         }
+        encodedInputStream = null;
         blockCursor.next();
         if (blockCursor.getBlockType() == Constants.NEXT_LZMA_BLOCK) {
-            inputStream = createLzmaInputStream(new LzmaEncodedInputStream(blockCursor));
+            startLzmaDecoder(false);
             return;
         }
         initChunk();
@@ -91,13 +90,19 @@ class ChunkCursor implements Closeable {
             return;
         }
         Preconditions.checkState(blockCursor.getBlockType() == Constants.FIRST_LZMA_BLOCK);
-        LzmaEncodedInputStream stream = new LzmaEncodedInputStream(blockCursor);
-        ByteStreams.readFully(stream, lzmaProperties);
-        inputStream = createLzmaInputStream(stream);
+        startLzmaDecoder(true);
     }
 
-    private CountingInputStream createLzmaInputStream(LzmaEncodedInputStream stream) throws IOException {
+    private void startLzmaDecoder(boolean firstBlock) throws IOException {
+        encodedInputStream = new BufferedInputStream(new LzmaEncodedInputStream(blockCursor));
+        if (firstBlock) {
+            ByteStreams.readFully(encodedInputStream, lzmaProperties);
+        }
+        resumeLzmaDecoder();
+    }
+
+    private void resumeLzmaDecoder() throws IOException {
         Preconditions.checkState(lzmaDecoder.SetDecoderProperties(lzmaProperties));
-        return new CountingInputStream(new LzmaDecodingInputStream(stream, lzmaDecoder, blockCursor.getExecutorService()));
+        inputStream = new CountingInputStream(new LzmaDecodingInputStream(encodedInputStream, lzmaDecoder, blockCursor.getExecutorService()));
     }
 }
