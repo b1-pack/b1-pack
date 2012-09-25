@@ -27,14 +27,15 @@ class LzmaDecoder {
 
     public static final int PROPERTIES_SIZE = Encoder.kPropSize;
 
-    private final Decoder decoder = new Decoder();
     private final ExecutorService executorService;
+    private Decoder decoder;
 
     public LzmaDecoder(ExecutorService executorService) {
         this.executorService = executorService;
     }
 
     public void init(byte[] properties) {
+        decoder = new Decoder();
         Preconditions.checkState(decoder.SetDecoderProperties(properties));
     }
 
