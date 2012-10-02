@@ -81,17 +81,17 @@ public class IntegrationTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         // START SNIPPET: writer
         WriterVolume writerVolume = createWriterVolume(buffer);
-        WriterProvider provider = createWriterProvider(writerVolume);
         final PackEntry folderEntry = createPackEntry(folderName, fileTime);
         final PackEntry fileEntry = createPackEntry(fileName, fileTime);
         final long fileSize = fileContentBytes.length;
         final FileContent fileContent = createFileContent(fileContentBytes);
-        PackWriter.getInstance(B1).write(provider, new FolderContent() {
+        WriterProvider provider = createWriterProvider(new FolderContent() {
             @Override
             public void writeTo(FolderBuilder builder) throws IOException {
                 builder.addFolder(folderEntry).addFile(fileEntry, fileSize).setContent(fileContent);
             }
-        });
+        }, writerVolume);
+        PackWriter.getInstance(B1).write(provider);
         // END SNIPPET: writer
         byte[] volumeContent = buffer.toByteArray();
         verifyVolumeWithReader(folderName, fileName, fileTime, fileContentBytes, volumeName, volumeContent);
@@ -101,11 +101,11 @@ public class IntegrationTest {
                                         String volumeName, byte[] volumeContentBytes) throws IOException {
         // START SNIPPET: reader
         ReaderVolume readerVolume = createReaderVolume(volumeName, volumeContentBytes);
-        ReaderProvider readerProvider = createReaderProvider(readerVolume);
         List<String> folderList = Lists.newArrayList();
         Map<String, byte[]> fileMap = Maps.newHashMap();
         final FolderBuilder builder = createFolderBuilder("", fileTime, folderList, fileMap);
-        PackReader.getInstance(B1).read(readerProvider, builder);
+        ReaderProvider readerProvider = createReaderProvider(builder, readerVolume);
+        PackReader.getInstance(B1).read(readerProvider);
         assertEquals(folderName, getOnlyElement(folderList));
         Map.Entry<String, byte[]> fileEntry = getOnlyElement(fileMap.entrySet());
         assertEquals(folderName + "/" + fileName, fileEntry.getKey());
@@ -168,8 +168,13 @@ public class IntegrationTest {
         };
     }
 
-    private static WriterProvider createWriterProvider(final WriterVolume writerVolume) {
+    private static WriterProvider createWriterProvider(final FolderContent folderContent, final WriterVolume writerVolume) {
         return new WriterProvider() {
+            @Override
+            public FolderContent getFolderContent() {
+                return folderContent;
+            }
+
             @Override
             public boolean isSeekable() {
                 return false;
@@ -226,8 +231,13 @@ public class IntegrationTest {
         };
     }
 
-    private static ReaderProvider createReaderProvider(final ReaderVolume readerVolume) {
+    private static ReaderProvider createReaderProvider(final FolderBuilder builder, final ReaderVolume readerVolume) {
         return new ReaderProvider() {
+            @Override
+            public FolderBuilder getFolderBuilder() {
+                return builder;
+            }
+
             @Override
             public ReaderVolume getVolume(long number) {
                 checkArgument(number == 1);

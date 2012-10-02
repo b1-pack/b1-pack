@@ -16,10 +16,14 @@
 
 package org.b1.pack.api.reader;
 
+import org.b1.pack.api.common.FolderBuilder;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class ReaderProvider {
+
+    public abstract FolderBuilder getFolderBuilder();
 
     public abstract ReaderVolume getVolume(long number);
 

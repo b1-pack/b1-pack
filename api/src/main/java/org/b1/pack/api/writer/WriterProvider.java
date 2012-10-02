@@ -18,12 +18,15 @@ package org.b1.pack.api.writer;
 
 import org.b1.pack.api.common.CompressionMethod;
 import org.b1.pack.api.common.EncryptionMethod;
+import org.b1.pack.api.common.FolderContent;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class WriterProvider {
+
+    public abstract FolderContent getFolderContent();
 
     public abstract boolean isSeekable();
 

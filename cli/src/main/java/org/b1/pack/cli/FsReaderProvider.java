@@ -17,6 +17,7 @@
 package org.b1.pack.cli;
 
 import com.google.common.base.Preconditions;
+import org.b1.pack.api.common.FolderBuilder;
 import org.b1.pack.api.reader.ReaderProvider;
 import org.b1.pack.api.reader.ReaderVolume;
 import org.b1.pack.api.volume.VolumeFinder;
@@ -26,14 +27,21 @@ import java.io.File;
 
 public class FsReaderProvider extends ReaderProvider {
 
+    private final FolderBuilder folderBuilder;
     private final File parentFolder;
     private final VolumeFinder volumeFinder;
     private final String password;
 
-    public FsReaderProvider(File parentFolder, VolumeFinder volumeFinder, String password) {
+    public FsReaderProvider(FolderBuilder folderBuilder, File parentFolder, VolumeFinder volumeFinder, String password) {
+        this.folderBuilder = folderBuilder;
         this.parentFolder = parentFolder;
         this.volumeFinder = volumeFinder;
         this.password = password;
+    }
+
+    @Override
+    public FolderBuilder getFolderBuilder() {
+        return folderBuilder;
     }
 
     @Override

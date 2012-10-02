@@ -27,11 +27,11 @@ import static org.b1.pack.api.common.PackFormat.B1;
 public class StandardPackReader extends PackReader {
 
     @Override
-    public void read(ReaderProvider provider, FolderBuilder builder) throws IOException {
+    public void read(ReaderProvider provider) throws IOException {
         VolumeCursor volumeCursor = new VolumeCursor(provider);
         try {
             volumeCursor.initialize();
-            read(volumeCursor, builder);
+            read(volumeCursor, provider.getFolderBuilder());
         } finally {
             volumeCursor.close();
         }

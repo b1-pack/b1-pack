@@ -18,6 +18,7 @@ package org.b1.pack.cli;
 
 import org.b1.pack.api.common.CompressionMethod;
 import org.b1.pack.api.common.EncryptionMethod;
+import org.b1.pack.api.common.FolderContent;
 import org.b1.pack.api.volume.VolumeAllocator;
 import org.b1.pack.api.writer.WriterProvider;
 import org.b1.pack.api.writer.WriterVolume;
@@ -27,6 +28,7 @@ import java.io.IOException;
 
 public class FsWriterProvider extends WriterProvider {
 
+    private final FolderContent folderContent;
     private final File outputFolder;
     private final VolumeAllocator volumeAllocator;
     private final long maxVolumeSize;
@@ -34,10 +36,16 @@ public class FsWriterProvider extends WriterProvider {
     private CompressionMethod compressionMethod;
     private EncryptionMethod encryptionMethod;
 
-    public FsWriterProvider(File outputFolder, VolumeAllocator volumeAllocator, Long maxVolumeSize) {
+    public FsWriterProvider(FolderContent folderContent, File outputFolder, VolumeAllocator volumeAllocator, Long maxVolumeSize) {
+        this.folderContent = folderContent;
         this.outputFolder = outputFolder;
         this.volumeAllocator = volumeAllocator;
         this.maxVolumeSize = maxVolumeSize;
+    }
+
+    @Override
+    public FolderContent getFolderContent() {
+        return folderContent;
     }
 
     @Override

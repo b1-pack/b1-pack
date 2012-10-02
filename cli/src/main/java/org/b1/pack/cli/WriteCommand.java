@@ -32,7 +32,7 @@ public class WriteCommand implements PackCommand {
         System.out.println("Starting");
         VolumeAllocator volumeAllocator = VolumeService.getInstance(argSet.getTypeFormat()).
                 createVolumeAllocator(new FsVolumeAllocatorProvider(argSet.getPackName(), argSet.getMaxVolumeSize() != null ? 1 : 0));
-        FsWriterProvider provider = new FsWriterProvider(
+        FsWriterProvider provider = new FsWriterProvider(FileTools.createFolderContent(argSet.getFileNames()),
                 FileTools.getOutputFolder(argSet), volumeAllocator,
                 Objects.firstNonNull(argSet.getMaxVolumeSize(), Long.MAX_VALUE));
         provider.setSeekable(isSeekable(argSet.getTypeFlag()));
@@ -45,7 +45,7 @@ public class WriteCommand implements PackCommand {
             Preconditions.checkArgument(argSet.getPassword() == null, "No encryption method specified");
         }
         PackWriter writer = PackWriter.getInstance(argSet.getTypeFormat());
-        writer.write(provider, FileTools.createFolderContent(argSet.getFileNames()));
+        writer.write(provider);
         System.out.println();
         System.out.println("Done");
     }

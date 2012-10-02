@@ -38,7 +38,7 @@ public class ExtractCommand implements PackCommand {
         VolumeFinder volumeFinder = VolumeService.getInstance(argSet.getTypeFormat())
                 .createVolumeFinder(new FsVolumeFinderProvider(parentFolder, file.getName()));
         PackReader.getInstance(argSet.getTypeFormat())
-                .read(new FsReaderProvider(parentFolder, volumeFinder, argSet.getPassword()), new FsFolderBuilder(outputFolder, null));
+                .read(new FsReaderProvider(new FsFolderBuilder(outputFolder, null), parentFolder, volumeFinder, argSet.getPassword()));
         System.out.println();
         System.out.println("Done");
     }

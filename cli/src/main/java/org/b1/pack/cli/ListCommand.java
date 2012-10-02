@@ -35,7 +35,7 @@ public class ListCommand implements PackCommand {
         VolumeFinder volumeFinder = VolumeService.getInstance(argSet.getTypeFormat()).
                 createVolumeFinder(new FsVolumeFinderProvider(parentFolder, file.getName()));
         PackReader.getInstance(argSet.getTypeFormat()).
-                read(new FsReaderProvider(parentFolder, volumeFinder, argSet.getPassword()), new ListBuilder("", true));
+                read(new FsReaderProvider(new ListBuilder("", true), parentFolder, volumeFinder, argSet.getPassword()));
         System.out.println("Done");
     }
 }
