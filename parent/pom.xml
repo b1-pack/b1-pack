@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.b1.pack</groupId>
     <artifactId>b1-pack-parent</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>B1 Pack Project</name>
     <description>The B1 Pack Project is a set of modules that implement the B1 file archive format.</description>
