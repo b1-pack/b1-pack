@@ -18,57 +18,49 @@ package org.b1.pack.standard.writer;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.LineProcessor;
+import com.google.common.io.CharStreams;
+import com.google.common.io.InputSupplier;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 
-class CompressedFormatLoader implements LineProcessor<ImmutableSet<String>> {
+class CompressedFormatDetector {
 
-    private static final Splitter SPLITTER = Splitter.on(' ').omitEmptyStrings();
+    private static CompressedFormatDetector instance;
 
-    private final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+    private final ImmutableSet<String> nameExtensions;
 
-    @Override
-    public boolean processLine(String line) throws IOException {
-        for (String s : SPLITTER.split(line)) {
-            builder.add(s.toLowerCase());
+    private CompressedFormatDetector(ImmutableSet<String> nameExtensions) {
+        this.nameExtensions = nameExtensions;
+    }
+
+    public static CompressedFormatDetector getInstance() {
+        if (instance == null) {
+            // ok to create several instances in rare cases
+            instance = new CompressedFormatDetector(loadExtensions());
         }
-        return true;
+        return instance;
     }
 
-    @Override
-    public ImmutableSet<String> getResult() {
-        return builder.build();
+    public boolean isNameExtensionOfCompressedFile(String extension) {
+        return nameExtensions.contains(extension.toLowerCase());
     }
 
-    public static ImmutableSet<String> getCompressedFormatSet() {
-        CompressedFormatLoader loader = new CompressedFormatLoader();
+    private static ImmutableSet<String> loadExtensions() {
         try {
+            ImmutableSet.Builder<String> builder = ImmutableSet.builder();
             Enumeration<URL> resources = getResources("org/b1/pack/standard/writer/compressedFormats.txt");
             while (resources.hasMoreElements()) {
-                readLines(resources.nextElement(), loader);
+                readResource(resources.nextElement(), builder);
             }
+            return builder.build();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        return loader.getResult();
-    }
-
-    private static void readLines(URL url, LineProcessor<?> loader) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), Charsets.UTF_8));
-        try {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!loader.processLine(line)) break;
-            }
-        } finally {
-            reader.close();
         }
     }
 
@@ -77,5 +69,17 @@ class CompressedFormatLoader implements LineProcessor<ImmutableSet<String>> {
         Enumeration<URL> resources = classLoader != null ? classLoader.getResources(name) : ClassLoader.getSystemResources(name);
         Preconditions.checkState(resources.hasMoreElements(), "Cannot find %s", name);
         return resources;
+    }
+
+    private static void readResource(final URL url, ImmutableSet.Builder<String> builder) throws IOException {
+        StringTokenizer tokenizer = new StringTokenizer(CharStreams.toString(new InputSupplier<Reader>() {
+            @Override
+            public Reader getInput() throws IOException {
+                return new InputStreamReader(url.openStream(), Charsets.UTF_8);
+            }
+        }));
+        while (tokenizer.hasMoreTokens()) {
+            builder.add(tokenizer.nextToken().toLowerCase());
+        }
     }
 }

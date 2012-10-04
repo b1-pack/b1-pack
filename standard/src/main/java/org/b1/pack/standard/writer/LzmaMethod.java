@@ -16,13 +16,10 @@
 
 package org.b1.pack.standard.writer;
 
-import com.google.common.collect.ImmutableSet;
 import org.b1.pack.api.common.CompressionMethod;
 import org.b1.pack.api.common.PackEntry;
 
 class LzmaMethod {
-
-    private static final ImmutableSet<String> compressedFormatSet = CompressedFormatLoader.getCompressedFormatSet();
 
     private final CompressionMethod method;
     private final long solidBlockSize;
@@ -59,7 +56,7 @@ class LzmaMethod {
         if (!smart) return true;
         String entryName = entry.getName();
         int dotIndex = entryName.lastIndexOf('.');
-        return dotIndex < 0 || !compressedFormatSet.contains(entryName.substring(dotIndex + 1).toLowerCase());
+        return dotIndex < 0 || !CompressedFormatDetector.getInstance().isNameExtensionOfCompressedFile(entryName.substring(dotIndex + 1));
     }
 
     public static LzmaMethod valueOf(CompressionMethod method) {
