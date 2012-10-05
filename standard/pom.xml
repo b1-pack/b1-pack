@@ -14,8 +14,11 @@
     <url>http://dev.b1.org</url>
     <repositories>
         <repository>
-            <id>github-releases</id>
-            <url>http://oss.sonatype.org/content/repositories/github-releases</url>
+            <id>b1-releases</id>
+            <url>http://dev.b1.org/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <dependencies>
@@ -24,12 +27,12 @@
             <artifactId>b1-pack-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.b1.pack</groupId>
+            <artifactId>lzma-sdk-4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.alchim31.3rd.org.7-zip</groupId>
-            <artifactId>lzma</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>com.madgag</groupId>
