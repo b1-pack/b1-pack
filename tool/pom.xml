@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.b1.pack</groupId>
         <artifactId>b1-pack-parent</artifactId>
-        <version>0.9.0</version>
+        <version>0.9.1</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <artifactId>b1-pack-tool</artifactId>
