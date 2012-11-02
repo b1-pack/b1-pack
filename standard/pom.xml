@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.b1.pack</groupId>
         <artifactId>b1-pack-parent</artifactId>
-        <version>0.9.1</version>
+        <version>0.9.2-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <artifactId>b1-pack-standard</artifactId>
@@ -12,15 +12,6 @@
     <name>B1 Pack Format</name>
     <description>The B1 Pack Format module provides a Java library for creating, listing, and extracting B1 archives.</description>
     <url>http://dev.b1.org</url>
-    <repositories>
-        <repository>
-            <id>b1-releases</id>
-            <url>http://dev.b1.org/releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.b1.pack</groupId>
