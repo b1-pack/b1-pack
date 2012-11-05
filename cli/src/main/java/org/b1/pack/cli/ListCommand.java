@@ -22,6 +22,7 @@ import org.b1.pack.api.volume.VolumeFinder;
 import org.b1.pack.api.volume.VolumeService;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ListCommand implements PackCommand {
@@ -30,6 +31,9 @@ public class ListCommand implements PackCommand {
     public void execute(ArgSet argSet) throws IOException {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
+        if (!file.isFile()) {
+            throw new FileNotFoundException("File not found: " + file);
+        }
         System.out.println("Listing " + file);
         File parentFolder = file.getParentFile();
         VolumeFinder volumeFinder = VolumeService.getInstance(argSet.getTypeFormat()).
