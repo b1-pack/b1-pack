@@ -35,6 +35,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     private final OutputStream outputStream;
     private final RecordPointer startPointer;
     private final Future<Void> future;
+    private volatile boolean encodingComplete;
     private long count;
 
     public LzmaWriter(LzmaMethod lzmaMethod, BlockWriter blockWriter, ExecutorService executorService) throws IOException {
@@ -101,6 +102,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
             outputStream.flush();
             return null;
         } finally {
+            encodingComplete = true;
             pipedInputStream.close();
         }
     }
@@ -110,7 +112,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     }
 
     private void checkEncoder() throws IOException {
-        if (future.isDone()) {
+        if (encodingComplete) {
             try {
                 future.get();
             } catch (Exception e) {
