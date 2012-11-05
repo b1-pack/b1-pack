@@ -46,7 +46,8 @@ public class FsReaderProvider extends ReaderProvider {
 
     @Override
     public ReaderVolume getVolume(long number) {
-        return new FsReaderVolume(new File(parentFolder, volumeFinder.getVolumeName(number)));
+        String volumeName = volumeFinder.getVolumeName(number);
+        return volumeName == null ? null : new FsReaderVolume(new File(parentFolder, volumeName));
     }
 
     @Override

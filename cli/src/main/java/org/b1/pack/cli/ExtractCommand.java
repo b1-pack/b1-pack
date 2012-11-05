@@ -22,6 +22,7 @@ import org.b1.pack.api.volume.VolumeFinder;
 import org.b1.pack.api.volume.VolumeService;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ExtractCommand implements PackCommand {
@@ -30,6 +31,9 @@ public class ExtractCommand implements PackCommand {
     public void execute(ArgSet argSet) throws IOException {
         Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
+        if (!file.isFile()) {
+            throw new FileNotFoundException("File not found: " + file);
+        }
         final File outputFolder = FileTools.getOutputFolder(argSet);
         System.out.println("Extracting from \"" + file +
                 "\" to \"" + (outputFolder != null ? outputFolder.getPath() : ".") + "\".");
