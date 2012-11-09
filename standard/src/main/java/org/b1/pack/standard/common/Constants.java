@@ -31,4 +31,9 @@ public class Constants {
     public static final int PLAIN_BLOCK = 1;
     public static final int FIRST_LZMA_BLOCK = 2;
     public static final int NEXT_LZMA_BLOCK = 3;
+
+    public static final int LAST_MODIFIED_TIME = 0;
+    public static final int UNIX_PERMISSIONS = 1;
+    public static final int WINDOWS_ATTRIBUTES = 2;
+
 }

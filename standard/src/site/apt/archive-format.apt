@@ -64,7 +64,7 @@ Volume construction
  The head of the first volume in an archive must start with an item "b1:as" and the other volumes must start with
  "b1:vs". Each volume must also have the following head items:
 
-  * "v:<version>" - a fractional number representing the archive schema version, which is currently "0.2";
+  * "v:<version>" - a fractional number representing the archive schema version, which is currently "0.4";
 
   * "a:<identifier>" - an archive identifier (a unique string) to ensure that the volumes constitute the same archive.
     Must be a base64-encoded 256-bit random number for encrypted archives.
