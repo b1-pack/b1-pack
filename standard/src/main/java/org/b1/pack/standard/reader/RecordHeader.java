@@ -20,6 +20,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
+import org.b1.pack.standard.common.Constants;
 import org.b1.pack.standard.common.Numbers;
 
 import java.io.IOException;
@@ -44,11 +45,18 @@ class RecordHeader {
         Long parentId = Numbers.readLong(stream);
         String name = readText(stream);
         Long lastModifiedTime = null;
-        Long code = Numbers.readLong(stream);
-        if (code != null) {
-            Preconditions.checkArgument(code == 0);
-            lastModifiedTime = Numbers.readLong(stream);
-            Preconditions.checkArgument(Numbers.readLong(stream) == null);
+        Long code;
+        while ((code = Numbers.readLong(stream)) != null) {
+            if (code == Constants.LAST_MODIFIED_TIME) {
+                Preconditions.checkArgument(lastModifiedTime == null);
+                lastModifiedTime = Numbers.readLong(stream);
+            } else if (code == Constants.UNIX_PERMISSIONS || code == Constants.WINDOWS_ATTRIBUTES) {
+                // ignore for now
+                Numbers.readLong(stream);
+                Numbers.readLong(stream);
+            } else {
+                throw new IllegalStateException(VolumeCursor.VOLUME_BROKEN_MESSAGE);
+            }
         }
         return new RecordHeader(id, parentId, name, lastModifiedTime);
     }

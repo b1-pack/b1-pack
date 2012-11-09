@@ -51,7 +51,9 @@
   "Attributes": {
     "type": "multimap",
     "items": {
-      "lastModifiedTime": "int"
+      "lastModifiedTime": "int",
+      "unixPermissions": "Flags",
+      "windowsAttributes": "Flags"
     }
   },
   "Block": {
@@ -88,5 +90,12 @@
   "Adler32Checksum": {
     "type": "fixed",
     "size": "4"
-  }
+  },
+  "Flags": {
+    "type": "record",
+    "fields": {
+      "mask": "int",
+      "value": "int"
+    }
+  },
 }

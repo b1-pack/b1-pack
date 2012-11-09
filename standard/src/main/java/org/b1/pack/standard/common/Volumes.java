@@ -43,9 +43,11 @@ public class Volumes {
     public static final String B1_AE = "b1:ae";
     public static final String B1_VE = "b1:ve";
 
-    private static final double NO_ENCRYPTION_SCHEMA_VERSION = 0.2;
-    public static final double SCHEMA_VERSION = 0.3;
     public static final byte SEPARATOR_BYTE = (byte) 0xFC;
+    public static final double SCHEMA_VERSION = 0.4;
+
+    private static final double NO_ENCRYPTION_SCHEMA_VERSION = 0.2;
+    private static final double ENCRYPTION_SCHEMA_VERSION = 0.3;
     private static final byte[] SEPARATOR = new byte[]{SEPARATOR_BYTE};
 
     private static volatile SecureRandom secureRandom;
@@ -79,7 +81,7 @@ public class Volumes {
     public static byte[] createVolumeHead(String archiveId, long volumeNumber, Long objectCount,
                                           String method, VolumeCipher volumeCipher) {
         StringBuilder builder = new StringBuilder(volumeNumber == 1 ? B1_AS : B1_VS)
-                .append(" v:").append(volumeCipher == null ? NO_ENCRYPTION_SCHEMA_VERSION : SCHEMA_VERSION)
+                .append(" v:").append(volumeCipher == null ? NO_ENCRYPTION_SCHEMA_VERSION : ENCRYPTION_SCHEMA_VERSION)
                 .append(" a:").append(archiveId)
                 .append(" n:").append(volumeNumber);
         if (volumeCipher == null) {

@@ -5,4 +5,4 @@ Introduction
 
  The following schema is based on several predefined {{{./data-types.html}data types}}.
 
-%{include|show-gutter=false|verbatim=true|highlight-type=js|file=../standard/src/site/apt/format-0.2.json}
+%{include|show-gutter=false|verbatim=true|highlight-type=js|file=../standard/src/site/apt/format-0.4.json}

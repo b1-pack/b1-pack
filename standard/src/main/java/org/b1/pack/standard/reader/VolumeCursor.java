@@ -34,6 +34,8 @@ import java.util.concurrent.ExecutorService;
 
 class VolumeCursor implements Closeable {
 
+    public static final String VOLUME_BROKEN_MESSAGE = "Volume broken or not a B1 archive";
+    private static final String VOLUME_BROKEN_PATTERN = VOLUME_BROKEN_MESSAGE + ": %s";
     private static final int MAX_TAIL_SIZE = 1024;
 
     private final ReaderProvider provider;
@@ -196,6 +198,6 @@ class VolumeCursor implements Closeable {
     }
 
     private void checkVolume(boolean expression) {
-        Preconditions.checkState(expression, "Volume broken or not a B1 archive: %s", volume.getName());
+        Preconditions.checkState(expression, VOLUME_BROKEN_PATTERN, volume.getName());
     }
 }
