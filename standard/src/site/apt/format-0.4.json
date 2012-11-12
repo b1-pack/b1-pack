@@ -53,7 +53,9 @@
     "items": {
       "lastModifiedTime": "int",
       "unixPermissions": "Flags",
-      "windowsAttributes": "Flags"
+      "windowsAttributes": "Flags",
+      "fileOwner": "text",
+      "fileGroup": "text"
     }
   },
   "Block": {
