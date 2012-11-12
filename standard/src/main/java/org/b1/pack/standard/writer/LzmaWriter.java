@@ -23,11 +23,13 @@ import org.b1.pack.standard.common.SynchronousPipe;
 
 import java.io.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
+    private final CountDownLatch countDownLatch = new CountDownLatch(1);
     private final SynchronousPipe pipe = new SynchronousPipe();
     private final InputStream pipedInputStream = pipe.inputStream;
     private final OutputStream pipedOutputStream = pipe.outputStream;
@@ -35,7 +37,6 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     private final OutputStream outputStream;
     private final RecordPointer startPointer;
     private final Future<Void> future;
-    private volatile boolean encodingComplete;
     private long count;
 
     public LzmaWriter(LzmaMethod lzmaMethod, BlockWriter blockWriter, ExecutorService executorService) throws IOException {
@@ -84,6 +85,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     public void close() throws IOException {
         pipedOutputStream.close();
         try {
+            countDownLatch.await();
             future.get();
         } catch (Exception e) {
             throw (IOException) new IOException().initCause(e);
@@ -102,17 +104,22 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
             outputStream.flush();
             return null;
         } finally {
-            encodingComplete = true;
+            countDownLatch.countDown();
             pipedInputStream.close();
         }
     }
 
     public void cleanup() {
         future.cancel(true);
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void checkEncoder() throws IOException {
-        if (encodingComplete) {
+        if (countDownLatch.getCount() == 0) {
             try {
                 future.get();
             } catch (Exception e) {

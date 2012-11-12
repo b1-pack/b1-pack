@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -33,13 +34,13 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
 
     private static final Logger log = Logger.getLogger(LzmaDecodingInputStream.class.getName());
 
+    private final CountDownLatch countDownLatch = new CountDownLatch(1);
     private final SynchronousPipe pipe = new SynchronousPipe();
     private final InputStream pipedInputStream = pipe.inputStream;
     private final OutputStream pipedOutputStream = pipe.outputStream;
     private final InputStream inputStream;
     private final Decoder decoder;
     private final Future<Void> future;
-    private volatile boolean decodingComplete;
     private boolean streamClosed;
 
     public LzmaDecodingInputStream(InputStream inputStream, Decoder decoder, ExecutorService executorService) throws IOException {
@@ -64,7 +65,7 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
             Preconditions.checkState(decoder.Code(inputStream, pipedOutputStream, -1));
             return null;
         } finally {
-            decodingComplete = true;
+            countDownLatch.countDown();
             pipedOutputStream.close();
         }
     }
@@ -73,12 +74,13 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     public void close() throws IOException {
         if (streamClosed) return;
         streamClosed = true;
-        boolean complete = decodingComplete;
+        boolean complete = countDownLatch.getCount() == 0;
         if (!complete) {
             future.cancel(true);
         }
         pipedInputStream.close();
         try {
+            countDownLatch.await();
             future.get();
         } catch (Exception e) {
             if (complete) {
