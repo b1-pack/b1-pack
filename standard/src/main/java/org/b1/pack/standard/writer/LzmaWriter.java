@@ -29,7 +29,8 @@ import java.util.concurrent.Future;
 
 class LzmaWriter extends ChunkWriter implements Callable<Void> {
 
-    private final CountDownLatch countDownLatch = new CountDownLatch(1);
+    private final CountDownLatch startLatch = new CountDownLatch(1);
+    private final CountDownLatch completionLatch = new CountDownLatch(1);
     private final SynchronousPipe pipe = new SynchronousPipe();
     private final InputStream pipedInputStream = pipe.inputStream;
     private final OutputStream pipedOutputStream = pipe.outputStream;
@@ -85,7 +86,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     public void close() throws IOException {
         pipedOutputStream.close();
         try {
-            countDownLatch.await();
+            completionLatch.await();
             future.get();
         } catch (Exception e) {
             throw (IOException) new IOException().initCause(e);
@@ -95,6 +96,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     @Override
     public Void call() throws IOException {
         try {
+            startLatch.countDown();
             Encoder encoder = new Encoder();
             encoder.SetEndMarkerMode(true);
             encoder.SetDictionarySize(lzmaMethod.getDictionarySize());
@@ -104,13 +106,18 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
             outputStream.flush();
             return null;
         } finally {
-            countDownLatch.countDown();
+            completionLatch.countDown();
             pipedInputStream.close();
         }
     }
 
     public void cleanup() {
+        await(startLatch);
         future.cancel(true);
+        await(completionLatch);
+    }
+
+    private static void await(CountDownLatch countDownLatch) {
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -119,7 +126,7 @@ class LzmaWriter extends ChunkWriter implements Callable<Void> {
     }
 
     private void checkEncoder() throws IOException {
-        if (countDownLatch.getCount() == 0) {
+        if (completionLatch.getCount() == 0) {
             try {
                 future.get();
             } catch (Exception e) {
