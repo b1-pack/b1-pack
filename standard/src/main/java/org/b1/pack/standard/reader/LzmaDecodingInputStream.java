@@ -34,7 +34,8 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
 
     private static final Logger log = Logger.getLogger(LzmaDecodingInputStream.class.getName());
 
-    private final CountDownLatch countDownLatch = new CountDownLatch(1);
+    private final CountDownLatch startLatch = new CountDownLatch(1);
+    private final CountDownLatch completionLatch = new CountDownLatch(1);
     private final SynchronousPipe pipe = new SynchronousPipe();
     private final InputStream pipedInputStream = pipe.inputStream;
     private final OutputStream pipedOutputStream = pipe.outputStream;
@@ -62,10 +63,11 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     @Override
     public Void call() throws Exception {
         try {
+            startLatch.countDown();
             Preconditions.checkState(decoder.Code(inputStream, pipedOutputStream, -1));
             return null;
         } finally {
-            countDownLatch.countDown();
+            completionLatch.countDown();
             pipedOutputStream.close();
         }
     }
@@ -74,13 +76,14 @@ class LzmaDecodingInputStream extends InputStream implements Callable<Void> {
     public void close() throws IOException {
         if (streamClosed) return;
         streamClosed = true;
-        boolean complete = countDownLatch.getCount() == 0;
-        if (!complete) {
-            future.cancel(true);
-        }
-        pipedInputStream.close();
+        boolean complete = completionLatch.getCount() == 0;
         try {
-            countDownLatch.await();
+            startLatch.await();
+            if (!complete) {
+                future.cancel(true);
+            }
+            pipedInputStream.close();
+            completionLatch.await();
             future.get();
         } catch (Exception e) {
             if (complete) {
