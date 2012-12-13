@@ -54,9 +54,6 @@ class RecordHeader {
                 // ignore for now
                 Numbers.readLong(stream);
                 Numbers.readLong(stream);
-            } else if (code == Constants.FILE_OWNER || code == Constants.FILE_GROUP) {
-                // ignore for now
-                readText(stream);
             } else {
                 throw new IllegalStateException(VolumeCursor.VOLUME_BROKEN_MESSAGE);
             }
