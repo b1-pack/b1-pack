@@ -33,7 +33,7 @@ Implementation
  * An archive key is generated using PBKDF2 from PKCS #5 with HMAC-SHA256 as follows:
 
 ---
-   archiveKey = PBKDF2(HMAC-SHA256, userPassword, archiveSalt, iterationCount, 256);
+   archiveKey = PBKDF2(HMAC-SHA256, UTF8(userPassword), archiveSalt, iterationCount, 256);
 ---
 
  * A volume salt is obtained by UTF-8 encoding a decimal representation of the volume number from the head item "n:";
