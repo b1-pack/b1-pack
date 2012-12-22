@@ -53,6 +53,7 @@ public class ListBuilder implements FolderBuilder {
 
     @Override
     public FolderBuilder addFolder(PackEntry entry) throws IOException {
+        printHeader();
         String path = namePrefix + entry.getName();
         printInfo(path, 'D', null, entry.getLastModifiedTime());
         return new ListBuilder(path + File.separator, false);
