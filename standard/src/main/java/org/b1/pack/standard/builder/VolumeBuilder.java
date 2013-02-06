@@ -29,7 +29,7 @@ import java.util.Map;
 public class VolumeBuilder {
 
     private final List<CompositeWritable> volumeContents = Lists.newArrayList();
-    private final String archiveId = Volumes.createArchiveId();
+    private final String archiveId = Volumes.createArchiveId(); // TODO content should be deterministic
     private final long maxVolumeSize;
     private final Map<Writable, PbRecordPointer> pointerMap;
     private final RecordPointer catalogPointer;
