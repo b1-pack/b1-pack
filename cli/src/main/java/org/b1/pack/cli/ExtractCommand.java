@@ -16,7 +16,7 @@
 
 package org.b1.pack.cli;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import org.b1.pack.api.reader.PackReader;
 import org.b1.pack.api.volume.VolumeFinder;
 import org.b1.pack.api.volume.VolumeService;
@@ -24,12 +24,12 @@ import org.b1.pack.api.volume.VolumeService;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
 
 public class ExtractCommand implements PackCommand {
 
     @Override
     public void execute(ArgSet argSet) throws IOException {
-        Preconditions.checkArgument(argSet.getFileNames().isEmpty(), "Filters not supported");
         File file = new File(argSet.getPackName());
         if (!file.isFile()) {
             throw new FileNotFoundException("File not found: " + file);
@@ -41,8 +41,12 @@ public class ExtractCommand implements PackCommand {
         File parentFolder = file.getParentFile();
         VolumeFinder volumeFinder = VolumeService.getInstance(argSet.getTypeFormat())
                 .createVolumeFinder(new FsVolumeFinderProvider(parentFolder, file.getName()));
-        PackReader.getInstance(argSet.getTypeFormat())
-                .read(new FsReaderProvider(new FsFolderBuilder(outputFolder, null), parentFolder, volumeFinder, argSet.getPassword()));
+        HashSet<String> fileNameSet = argSet.getFileNames().isEmpty() ? null : Sets.newHashSet(argSet.getFileNames());
+        FsFolderBuilder folderBuilder = new FsFolderBuilder(outputFolder, null, "", fileNameSet);
+        PackReader.getInstance(argSet.getTypeFormat()).read(new FsReaderProvider(folderBuilder, parentFolder, volumeFinder, argSet.getPassword()));
+        if (fileNameSet != null && !fileNameSet.isEmpty()) {
+            throw new IllegalStateException("Cannot extract: " + fileNameSet);
+        }
         System.out.println();
         System.out.println("Done");
     }
