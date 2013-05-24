@@ -52,6 +52,7 @@ class ChunkCursor implements Closeable {
 
     public void seek(BlockPointer pointer) throws IOException {
         inputStream.close();
+        encodedInputStream = null;
         blockCursor.seek(pointer);
         initChunk();
     }
