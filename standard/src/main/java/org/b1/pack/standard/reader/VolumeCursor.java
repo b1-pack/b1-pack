@@ -127,7 +127,9 @@ class VolumeCursor implements Closeable {
         volume = Preconditions.checkNotNull(provider.getVolume(number), "Volume %s not found", number);
         inputStream = new CountingInputStream(volume.getInputStream());
         headerSet = readHead(number);
-        checkVolume(headerSet.getSchemaVersion() != null && headerSet.getSchemaVersion() <= Volumes.SCHEMA_VERSION);
+        checkVolume(headerSet.getSchemaVersion() != null);
+        Preconditions.checkState(headerSet.getSchemaVersion() <= Volumes.SCHEMA_VERSION,
+                "B1 archive version not supported (%s): %s", headerSet.getSchemaVersion(), volume.getName());
         checkVolume(headerSet.getArchiveId() != null && headerSet.getArchiveId().equals(archiveId));
         checkVolume(headerSet.getVolumeNumber() != null && headerSet.getVolumeNumber() == volumeNumber);
     }
