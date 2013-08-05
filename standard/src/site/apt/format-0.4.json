@@ -1,7 +1,7 @@
 {
   "Record": {
     "type": "union",
-    "types": ["RecordPointer", "CatalogFile", "CompleteFile", "CatalogFolder", "CompleteFolder"]
+    "types": ["RecordPointer", "CatalogFile", "CompleteFile", "CatalogFolder", "CompleteFolder", "EmptyRecord"]
   },
   "RecordPointer": {
     "type": "record",
@@ -39,6 +39,11 @@
       "header": "RecordHeader"
     }
   },
+  "EmptyRecord": {
+    "type": "record",
+    "fields": {
+    }
+  },
   "RecordHeader": {
     "type": "record",
     "fields": {
@@ -58,7 +63,7 @@
   },
   "Block": {
     "type": "union",
-    "types": ["AesBlock", "PlainBlock", "FirstLzmaBlock", "NextLzmaBlock"]
+    "types": ["AesBlock", "PlainBlock", "FirstLzmaBlock", "NextLzmaBlock", "reserved", "EmptyBlock"]
   },
   "AesBlock": {
     "type": "record",
@@ -85,6 +90,11 @@
     "fields": {
       "nextPartOfCompressedChunk": "binary",
       "checksumOfPart": "Adler32Checksum"
+    }
+  },
+  "EmptyBlock": {
+    "type": "record",
+    "fields": {
     }
   },
   "Adler32Checksum": {
