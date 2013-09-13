@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import org.b1.pack.api.builder.*;
 import org.b1.pack.standard.common.*;
 
-import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +96,7 @@ public class StandardBuilderPack extends BuilderPack {
         return id;
     }
 
-    private void addFolderRecords(PbRecordHeader header, @Nullable BuilderFolder folder) {
+    private void addFolderRecords(PbRecordHeader header, BuilderFolder folder) {
         PbRecordPointer pointer = createPointer();
         addRecords(pointer,
                 new PbRecord(new PbCatalogFolder(pointer, header)),

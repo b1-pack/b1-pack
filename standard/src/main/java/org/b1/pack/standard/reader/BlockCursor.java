@@ -106,10 +106,11 @@ class BlockCursor implements Closeable {
         while (true) {
             blockPointer = volumeCursor.getBlockPointer();
             blockType = Numbers.readLong(volumeCursor.getInputStream());
-            if (blockType != null) {
+            if (blockType == null) {
+                volumeCursor.next();
+            } else if (blockType != Constants.EMPTY_BLOCK) {
                 return;
             }
-            volumeCursor.next();
         }
     }
 

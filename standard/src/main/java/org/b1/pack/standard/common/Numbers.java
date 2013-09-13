@@ -18,7 +18,6 @@ package org.b1.pack.standard.common;
 
 import com.google.common.base.Preconditions;
 
-import javax.annotation.Nullable;
 import java.io.*;
 
 public class Numbers {
@@ -61,7 +60,7 @@ public class Numbers {
         return serializeLong(value).length;
     }
 
-    public static void writeLong(@Nullable Long value, OutputStream stream) throws IOException {
+    public static void writeLong(Long value, OutputStream stream) throws IOException {
         if (value == null) {
             stream.write(1);
         } else {

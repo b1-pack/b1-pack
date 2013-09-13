@@ -22,7 +22,6 @@ import org.b1.pack.api.builder.BuilderVolume;
 import org.b1.pack.api.builder.Writable;
 import org.b1.pack.standard.common.*;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +72,7 @@ public class VolumeBuilder {
         return result;
     }
 
-    private void initVolume(@Nullable Long objectCount) {
+    private void initVolume(Long objectCount) {
         volumeNumber++;
         volumeContent = new CompositeWritable();
         volumeContent.add(new ByteArrayWritable(Volumes.createVolumeHead(archiveId, volumeNumber, objectCount, null, null)));

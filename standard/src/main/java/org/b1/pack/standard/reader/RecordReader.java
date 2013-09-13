@@ -66,6 +66,8 @@ class RecordReader {
                     currentCount++;
                     readCatalogFolder(stream);
                     break;
+                case Constants.EMPTY_RECORD:
+                    break;
                 default:
                     throw new IllegalArgumentException("Invalid entry");
             }

@@ -26,11 +26,14 @@ public class Constants {
     public static final int COMPLETE_FILE = 2;
     public static final int CATALOG_FOLDER = 3;
     public static final int COMPLETE_FOLDER = 4;
+    public static final int EMPTY_RECORD = 5;
 
     public static final int AES_BLOCK = 0;
     public static final int PLAIN_BLOCK = 1;
     public static final int FIRST_LZMA_BLOCK = 2;
     public static final int NEXT_LZMA_BLOCK = 3;
+    public static final int RESERVED_BLOCK = 4;
+    public static final int EMPTY_BLOCK = 5;
 
     public static final int LAST_MODIFIED_TIME = 0;
     public static final int UNIX_PERMISSIONS = 1;
